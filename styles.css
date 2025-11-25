@@ -125,7 +125,15 @@ body {
     position: relative;
 }
 
-/* Crochet pattern overlay - pure CSS mesh texture */
+/* Mobile fix: Use scroll attachment for better performance on touch devices */
+@media (max-width: 768px), (hover: none) {
+    body {
+        background-attachment: scroll;
+    }
+}
+
+/* Crochet pattern overlay - pure CSS mesh texture
+   Pattern uses: 20% solid core, 40% fade point, 30px tile size */
 body::before {
     content: "";
     position: fixed;
@@ -133,7 +141,7 @@ body::before {
     pointer-events: none;
     z-index: 0;
     
-    /* Pure CSS crochet mesh pattern */
+    /* Pure CSS crochet mesh pattern - stitch size: 30px, core: 20%, fade: 40% */
     background:
         radial-gradient(circle, rgba(255, 255, 255, 0.3) 20%, transparent 40%) 0 0 / 30px 30px;
     opacity: 0.08;
