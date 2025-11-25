@@ -1,17 +1,33 @@
 /**
  * Menzah_fits - Main JavaScript
  * Handcrafted Coastal Crochet Fashion
- * Pure Vanilla JavaScript - Zero Dependencies
+ * With API Integration for Stock Management
  */
 
 (function() {
     'use strict';
 
     // =================================
-    // Data
+    // API Configuration
+    // =================================
+    
+    const API_BASE = '/api';
+    
+    // Check if API is available
+    async function checkAPI() {
+        try {
+            const response = await fetch(`${API_BASE}/collections`);
+            return response.ok;
+        } catch {
+            return false;
+        }
+    }
+
+    // =================================
+    // Data (Fallback if API unavailable)
     // =================================
 
-    const collections = [
+    let collections = [
         {
             id: 1,
             name: 'Ocean Breeze Maxi',
@@ -67,6 +83,27 @@
             badge: 'featured',
         },
     ];
+    
+    // Fetch collections from API
+    async function fetchCollections(category = 'all') {
+        try {
+            const url = category === 'all' 
+                ? `${API_BASE}/collections` 
+                : `${API_BASE}/collections?category=${category}`;
+            const response = await fetch(url);
+            if (response.ok) {
+                return await response.json();
+            }
+        } catch {
+            // API unavailable, use local data
+        }
+        
+        // Fallback to local data
+        if (category === 'all') {
+            return collections;
+        }
+        return collections.filter(item => item.category === category);
+    }
 
     const testimonials = [
         {
@@ -248,21 +285,39 @@
         `;
     }
 
-    function renderCollections(category = 'all') {
-        const filtered = category === 'all' 
-            ? collections 
-            : collections.filter(item => item.category === category);
+    async function renderCollections(category = 'all') {
+        // Show loading state
+        collectionsGrid.innerHTML = '<div class="loading-state"><div class="crochet-spinner"></div></div>';
         
-        collectionsGrid.innerHTML = filtered.map((item, index) => 
-            createCollectionCard(item, index)
-        ).join('');
+        try {
+            const filtered = await fetchCollections(category);
+            
+            collectionsGrid.innerHTML = filtered.map((item, index) => 
+                createCollectionCard(item, index)
+            ).join('');
 
-        // Animate cards in
-        setTimeout(() => {
-            document.querySelectorAll('.collection-card').forEach(card => {
-                card.classList.add('visible');
-            });
-        }, 100);
+            // Animate cards in
+            setTimeout(() => {
+                document.querySelectorAll('.collection-card').forEach(card => {
+                    card.classList.add('visible');
+                });
+            }, 100);
+        } catch {
+            // Fallback to static data
+            const filtered = category === 'all' 
+                ? collections 
+                : collections.filter(item => item.category === category);
+            
+            collectionsGrid.innerHTML = filtered.map((item, index) => 
+                createCollectionCard(item, index)
+            ).join('');
+
+            setTimeout(() => {
+                document.querySelectorAll('.collection-card').forEach(card => {
+                    card.classList.add('visible');
+                });
+            }, 100);
+        }
     }
 
     // Category filter buttons
@@ -408,16 +463,76 @@
     yearSpan.textContent = new Date().getFullYear();
 
     // =================================
+    // Scroll Progress Indicator
+    // =================================
+    
+    function initScrollProgress() {
+        // Create scroll progress element
+        const progressBar = document.createElement('div');
+        progressBar.className = 'scroll-progress';
+        document.body.prepend(progressBar);
+        
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrollPercent = (scrollTop / docHeight) * 100;
+            progressBar.style.width = `${scrollPercent}%`;
+        });
+    }
+
+    // =================================
+    // Enhanced Crochet Animations
+    // =================================
+    
+    function initCrochetAnimations() {
+        // Add float animation to decorative elements
+        document.querySelectorAll('.about-accent-1, .about-accent-2').forEach((el, i) => {
+            el.classList.add('animate-float');
+            el.style.animationDelay = `${i * 0.5}s`;
+        });
+        
+        // Add yarn spin to hero elements
+        const heroYarn = document.querySelector('.hero-yarn');
+        if (heroYarn) {
+            heroYarn.classList.add('animate-yarn-spin');
+        }
+        
+        // Add stitch animation to pattern backgrounds
+        document.querySelectorAll('.hero-pattern, .testimonials-pattern').forEach(el => {
+            el.classList.add('crochet-bg');
+        });
+    }
+
+    // =================================
     // Initialize
     // =================================
 
-    function init() {
-        renderCollections();
+    async function init() {
+        // Initialize scroll progress
+        initScrollProgress();
+        
+        // Initialize crochet animations
+        initCrochetAnimations();
+        
+        // Load and render collections
+        await renderCollections();
         initCategoryFilter();
+        
+        // Initialize testimonials
         renderTestimonials();
         startTestimonialAutoplay();
         initTestimonialHover();
+        
+        // Initialize scroll animations
         initScrollAnimations();
+        
+        // Check API availability
+        const apiAvailable = await checkAPI();
+        if (apiAvailable) {
+            console.log('🧶 Menzah_fits API connected');
+        } else {
+            console.log('📦 Running in static mode');
+        }
     }
 
     // Wait for DOM to be ready

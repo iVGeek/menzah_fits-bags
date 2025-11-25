@@ -1,0 +1,1459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel | Menzah_fits Stock Management</title>
+    <link rel="icon" href="/public/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        /* Material Design 3 Inspired Theme */
+        :root {
+            /* Primary palette - Ocean inspired */
+            --md-primary: #006494;
+            --md-on-primary: #ffffff;
+            --md-primary-container: #c8e6ff;
+            --md-on-primary-container: #001e31;
+            
+            /* Secondary palette - Coral inspired */
+            --md-secondary: #c4503d;
+            --md-on-secondary: #ffffff;
+            --md-secondary-container: #ffdad4;
+            --md-on-secondary-container: #3a0905;
+            
+            /* Tertiary palette - Sand inspired */
+            --md-tertiary: #7b5800;
+            --md-on-tertiary: #ffffff;
+            --md-tertiary-container: #ffdea6;
+            --md-on-tertiary-container: #271900;
+            
+            /* Surface colors */
+            --md-surface: #fafcff;
+            --md-surface-dim: #dae4ed;
+            --md-surface-bright: #fafcff;
+            --md-surface-container-lowest: #ffffff;
+            --md-surface-container-low: #f4f6f9;
+            --md-surface-container: #eef1f4;
+            --md-surface-container-high: #e8ebee;
+            --md-surface-container-highest: #e2e5e8;
+            --md-on-surface: #191c1e;
+            --md-on-surface-variant: #42474d;
+            
+            /* Error */
+            --md-error: #ba1a1a;
+            --md-on-error: #ffffff;
+            --md-error-container: #ffdad6;
+            --md-on-error-container: #410002;
+            
+            /* Outline */
+            --md-outline: #72787e;
+            --md-outline-variant: #c2c8cd;
+            
+            /* Shadows */
+            --md-shadow: rgba(0, 0, 0, 0.15);
+            
+            /* Elevation */
+            --md-elevation-1: 0 1px 2px 0 rgba(0, 0, 0, 0.3), 0 1px 3px 1px rgba(0, 0, 0, 0.15);
+            --md-elevation-2: 0 1px 2px 0 rgba(0, 0, 0, 0.3), 0 2px 6px 2px rgba(0, 0, 0, 0.15);
+            --md-elevation-3: 0 4px 8px 3px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.3);
+            
+            /* Border radius */
+            --md-radius-sm: 8px;
+            --md-radius-md: 12px;
+            --md-radius-lg: 16px;
+            --md-radius-xl: 28px;
+            
+            /* Transitions */
+            --md-transition-fast: 0.15s ease;
+            --md-transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--md-surface);
+            color: var(--md-on-surface);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+        
+        /* Login Screen */
+        .login-screen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 24px;
+            background: linear-gradient(135deg, var(--md-primary-container) 0%, var(--md-surface) 100%);
+        }
+        
+        .login-card {
+            background: var(--md-surface-container-lowest);
+            border-radius: var(--md-radius-xl);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: var(--md-elevation-3);
+        }
+        
+        .login-logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        .login-logo h1 {
+            font-size: 2rem;
+            font-weight: 500;
+            color: var(--md-primary);
+        }
+        
+        .login-logo span {
+            color: var(--md-secondary);
+            font-weight: 300;
+        }
+        
+        .login-logo p {
+            color: var(--md-on-surface-variant);
+            margin-top: 8px;
+            font-size: 0.875rem;
+        }
+        
+        /* Material Input Fields */
+        .md-field {
+            position: relative;
+            margin-bottom: 24px;
+        }
+        
+        .md-field input,
+        .md-field select,
+        .md-field textarea {
+            width: 100%;
+            padding: 16px;
+            border: 1px solid var(--md-outline-variant);
+            border-radius: var(--md-radius-sm);
+            font-size: 1rem;
+            font-family: inherit;
+            background: var(--md-surface-container-lowest);
+            color: var(--md-on-surface);
+            transition: all var(--md-transition-normal);
+        }
+        
+        .md-field input:focus,
+        .md-field select:focus,
+        .md-field textarea:focus {
+            outline: none;
+            border-color: var(--md-primary);
+            border-width: 2px;
+        }
+        
+        .md-field label {
+            position: absolute;
+            top: 50%;
+            left: 16px;
+            transform: translateY(-50%);
+            color: var(--md-on-surface-variant);
+            font-size: 1rem;
+            pointer-events: none;
+            transition: all var(--md-transition-normal);
+            background: var(--md-surface-container-lowest);
+            padding: 0 4px;
+        }
+        
+        .md-field input:focus + label,
+        .md-field input:not(:placeholder-shown) + label {
+            top: 0;
+            font-size: 0.75rem;
+            color: var(--md-primary);
+        }
+        
+        /* Material Buttons */
+        .md-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--md-radius-xl);
+            font-size: 0.875rem;
+            font-weight: 500;
+            font-family: inherit;
+            letter-spacing: 0.1px;
+            cursor: pointer;
+            transition: all var(--md-transition-normal);
+            text-decoration: none;
+        }
+        
+        .md-btn-primary {
+            background: var(--md-primary);
+            color: var(--md-on-primary);
+            box-shadow: var(--md-elevation-1);
+        }
+        
+        .md-btn-primary:hover {
+            box-shadow: var(--md-elevation-2);
+        }
+        
+        .md-btn-secondary {
+            background: var(--md-secondary-container);
+            color: var(--md-on-secondary-container);
+        }
+        
+        .md-btn-text {
+            background: transparent;
+            color: var(--md-primary);
+        }
+        
+        .md-btn-text:hover {
+            background: rgba(0, 100, 148, 0.08);
+        }
+        
+        .md-btn-icon {
+            width: 40px;
+            height: 40px;
+            padding: 8px;
+            border-radius: 50%;
+        }
+        
+        .md-btn-fab {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            box-shadow: var(--md-elevation-3);
+            z-index: 100;
+        }
+        
+        /* App Layout */
+        .app-layout {
+            display: none;
+            min-height: 100vh;
+        }
+        
+        .app-layout.active {
+            display: flex;
+        }
+        
+        /* Navigation Rail */
+        .nav-rail {
+            width: 80px;
+            background: var(--md-surface-container);
+            border-right: 1px solid var(--md-outline-variant);
+            padding: 16px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: fixed;
+            height: 100vh;
+            z-index: 50;
+        }
+        
+        .nav-rail-logo {
+            padding: 16px;
+            margin-bottom: 24px;
+            font-weight: 500;
+            color: var(--md-primary);
+            font-size: 1.25rem;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 12px 16px;
+            margin: 4px 12px;
+            border-radius: var(--md-radius-lg);
+            color: var(--md-on-surface-variant);
+            text-decoration: none;
+            cursor: pointer;
+            transition: all var(--md-transition-normal);
+            border: none;
+            background: transparent;
+            width: calc(100% - 24px);
+        }
+        
+        .nav-item:hover {
+            background: rgba(0, 100, 148, 0.08);
+        }
+        
+        .nav-item.active {
+            background: var(--md-primary-container);
+            color: var(--md-on-primary-container);
+        }
+        
+        .nav-item span {
+            font-size: 0.625rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .nav-item .material-icons {
+            font-size: 24px;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 80px;
+            padding: 24px;
+        }
+        
+        /* Top App Bar */
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            background: var(--md-surface);
+            border-radius: var(--md-radius-lg);
+            margin-bottom: 24px;
+            box-shadow: var(--md-elevation-1);
+        }
+        
+        .top-bar h1 {
+            font-size: 1.5rem;
+            font-weight: 500;
+        }
+        
+        .top-bar-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .stat-card {
+            background: var(--md-surface-container-lowest);
+            border-radius: var(--md-radius-lg);
+            padding: 24px;
+            box-shadow: var(--md-elevation-1);
+        }
+        
+        .stat-card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--md-radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+        
+        .stat-card-icon.primary {
+            background: var(--md-primary-container);
+            color: var(--md-on-primary-container);
+        }
+        
+        .stat-card-icon.secondary {
+            background: var(--md-secondary-container);
+            color: var(--md-on-secondary-container);
+        }
+        
+        .stat-card-icon.tertiary {
+            background: var(--md-tertiary-container);
+            color: var(--md-on-tertiary-container);
+        }
+        
+        .stat-card-icon.error {
+            background: var(--md-error-container);
+            color: var(--md-on-error-container);
+        }
+        
+        .stat-card h3 {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--md-on-surface-variant);
+            margin-bottom: 4px;
+        }
+        
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 500;
+            color: var(--md-on-surface);
+        }
+        
+        /* Product Table */
+        .data-table {
+            background: var(--md-surface-container-lowest);
+            border-radius: var(--md-radius-lg);
+            overflow: hidden;
+            box-shadow: var(--md-elevation-1);
+        }
+        
+        .data-table-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--md-outline-variant);
+        }
+        
+        .data-table-header h2 {
+            font-size: 1.125rem;
+            font-weight: 500;
+        }
+        
+        .data-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .data-table th,
+        .data-table td {
+            padding: 16px 24px;
+            text-align: left;
+        }
+        
+        .data-table th {
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--md-on-surface-variant);
+            background: var(--md-surface-container);
+        }
+        
+        .data-table tr {
+            border-bottom: 1px solid var(--md-outline-variant);
+        }
+        
+        .data-table tr:hover {
+            background: var(--md-surface-container);
+        }
+        
+        .data-table tr:last-child {
+            border-bottom: none;
+        }
+        
+        /* Color Dots */
+        .color-dots {
+            display: flex;
+            gap: 6px;
+        }
+        
+        .color-dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid var(--md-outline-variant);
+            cursor: pointer;
+            transition: transform var(--md-transition-fast);
+        }
+        
+        .color-dot:hover {
+            transform: scale(1.2);
+        }
+        
+        /* Badge */
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: var(--md-radius-xl);
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .badge-bestseller {
+            background: var(--md-primary-container);
+            color: var(--md-on-primary-container);
+        }
+        
+        .badge-new {
+            background: var(--md-secondary-container);
+            color: var(--md-on-secondary-container);
+        }
+        
+        .badge-limited {
+            background: var(--md-tertiary-container);
+            color: var(--md-on-tertiary-container);
+        }
+        
+        .badge-featured {
+            background: var(--md-error-container);
+            color: var(--md-on-error-container);
+        }
+        
+        .badge-low {
+            background: var(--md-error-container);
+            color: var(--md-on-error-container);
+        }
+        
+        .badge-ok {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            padding: 24px;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal {
+            background: var(--md-surface-container-lowest);
+            border-radius: var(--md-radius-xl);
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--md-elevation-3);
+        }
+        
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 24px;
+            border-bottom: 1px solid var(--md-outline-variant);
+        }
+        
+        .modal-header h2 {
+            font-size: 1.5rem;
+            font-weight: 500;
+        }
+        
+        .modal-body {
+            padding: 24px;
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 16px 24px;
+            border-top: 1px solid var(--md-outline-variant);
+        }
+        
+        /* Form Grid */
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+        
+        @media (max-width: 600px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Stock Editor */
+        .stock-editor {
+            margin-top: 24px;
+        }
+        
+        .stock-editor h3 {
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 16px;
+            color: var(--md-on-surface-variant);
+        }
+        
+        .color-stock-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .color-stock-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 12px;
+            background: var(--md-surface-container);
+            border-radius: var(--md-radius-md);
+        }
+        
+        .color-stock-item .color-preview {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--md-radius-sm);
+            border: 2px solid var(--md-outline-variant);
+        }
+        
+        .color-stock-item .color-info {
+            flex: 1;
+        }
+        
+        .color-stock-item .color-name {
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+        
+        .color-stock-item .color-hex {
+            font-size: 0.75rem;
+            color: var(--md-on-surface-variant);
+            font-family: 'Roboto Mono', monospace;
+        }
+        
+        .color-stock-item input[type="number"] {
+            width: 80px;
+            padding: 8px 12px;
+            border: 1px solid var(--md-outline-variant);
+            border-radius: var(--md-radius-sm);
+            font-size: 0.875rem;
+            text-align: center;
+        }
+        
+        /* Snackbar */
+        .snackbar {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--md-on-surface);
+            color: var(--md-surface);
+            padding: 14px 24px;
+            border-radius: var(--md-radius-sm);
+            box-shadow: var(--md-elevation-3);
+            z-index: 300;
+            transition: transform var(--md-transition-normal);
+        }
+        
+        .snackbar.active {
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        /* Crochet Loading Animation */
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            align-items: center;
+            justify-content: center;
+            z-index: 250;
+        }
+        
+        .loading.active {
+            display: flex;
+        }
+        
+        .crochet-loader {
+            width: 80px;
+            height: 80px;
+            position: relative;
+        }
+        
+        .crochet-loader::before,
+        .crochet-loader::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            border: 4px solid transparent;
+            animation: crochet-spin 1.5s ease-in-out infinite;
+        }
+        
+        .crochet-loader::before {
+            width: 100%;
+            height: 100%;
+            border-top-color: var(--md-primary);
+            border-right-color: var(--md-primary);
+        }
+        
+        .crochet-loader::after {
+            width: 60%;
+            height: 60%;
+            top: 20%;
+            left: 20%;
+            border-bottom-color: var(--md-secondary);
+            border-left-color: var(--md-secondary);
+            animation-delay: 0.2s;
+            animation-direction: reverse;
+        }
+        
+        @keyframes crochet-spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-rail {
+                width: 100%;
+                height: auto;
+                position: fixed;
+                bottom: 0;
+                top: auto;
+                flex-direction: row;
+                justify-content: space-around;
+                padding: 8px 0;
+                border-right: none;
+                border-top: 1px solid var(--md-outline-variant);
+            }
+            
+            .nav-rail-logo {
+                display: none;
+            }
+            
+            .nav-item {
+                margin: 0;
+                padding: 8px 16px;
+            }
+            
+            .nav-item span {
+                display: none;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                margin-bottom: 80px;
+                padding: 16px;
+            }
+            
+            .data-table {
+                overflow-x: auto;
+            }
+        }
+        
+        /* Hidden */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="login-screen" class="login-screen">
+        <div class="login-card">
+            <div class="login-logo">
+                <h1>Menzah<span>_fits</span></h1>
+                <p>Admin Stock Management</p>
+            </div>
+            
+            <form id="login-form">
+                <div class="md-field">
+                    <input type="password" id="admin-password" placeholder=" " required>
+                    <label for="admin-password">Admin Password</label>
+                </div>
+                
+                <button type="submit" class="md-btn md-btn-primary" style="width: 100%;">
+                    <span class="material-icons">login</span>
+                    Sign In
+                </button>
+            </form>
+            
+            <p style="text-align: center; margin-top: 24px; color: var(--md-on-surface-variant); font-size: 0.875rem;">
+                <a href="/" style="color: var(--md-primary); text-decoration: none;">← Back to Store</a>
+            </p>
+        </div>
+    </div>
+    
+    <!-- App Layout -->
+    <div id="app-layout" class="app-layout">
+        <!-- Navigation Rail -->
+        <nav class="nav-rail">
+            <div class="nav-rail-logo">M</div>
+            
+            <button class="nav-item active" data-view="dashboard">
+                <span class="material-icons">dashboard</span>
+                <span>Home</span>
+            </button>
+            
+            <button class="nav-item" data-view="products">
+                <span class="material-icons">inventory_2</span>
+                <span>Products</span>
+            </button>
+            
+            <button class="nav-item" data-view="stock">
+                <span class="material-icons">format_list_numbered</span>
+                <span>Stock</span>
+            </button>
+            
+            <button class="nav-item" onclick="logout()" style="margin-top: auto;">
+                <span class="material-icons">logout</span>
+                <span>Logout</span>
+            </button>
+        </nav>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard View -->
+            <section id="dashboard-view" class="view active">
+                <div class="top-bar">
+                    <h1>Dashboard</h1>
+                    <div class="top-bar-actions">
+                        <button class="md-btn md-btn-text" onclick="refreshData()">
+                            <span class="material-icons">refresh</span>
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="stats-grid" id="stats-grid">
+                    <!-- Stats will be loaded here -->
+                </div>
+                
+                <div class="data-table">
+                    <div class="data-table-header">
+                        <h2>Low Stock Alerts</h2>
+                    </div>
+                    <div id="low-stock-table">
+                        <!-- Low stock items will be loaded here -->
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Products View -->
+            <section id="products-view" class="view hidden">
+                <div class="top-bar">
+                    <h1>Products</h1>
+                    <div class="top-bar-actions">
+                        <button class="md-btn md-btn-primary" onclick="openAddProductModal()">
+                            <span class="material-icons">add</span>
+                            Add Product
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Category</th>
+                                <th>Price</th>
+                                <th>Colors</th>
+                                <th>Stock</th>
+                                <th>Badge</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="products-table">
+                            <!-- Products will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <!-- Stock View -->
+            <section id="stock-view" class="view hidden">
+                <div class="top-bar">
+                    <h1>Stock Management</h1>
+                </div>
+                
+                <div id="stock-cards">
+                    <!-- Stock cards will be loaded here -->
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <!-- Add/Edit Product Modal -->
+    <div id="product-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modal-title">Add Product</h2>
+                <button class="md-btn md-btn-icon md-btn-text" onclick="closeProductModal()">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            <form id="product-form">
+                <div class="modal-body">
+                    <input type="hidden" id="product-id">
+                    
+                    <div class="form-row">
+                        <div class="md-field">
+                            <input type="text" id="product-name" placeholder=" " required>
+                            <label for="product-name">Product Name</label>
+                        </div>
+                        
+                        <div class="md-field">
+                            <select id="product-category" required>
+                                <option value="">Select Category</option>
+                                <option value="dresses">Dresses</option>
+                                <option value="tops">Tops</option>
+                                <option value="skirts">Skirts</option>
+                                <option value="sets">Sets</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="md-field">
+                            <input type="number" id="product-price" placeholder=" " required min="0">
+                            <label for="product-price">Price (KES)</label>
+                        </div>
+                        
+                        <div class="md-field">
+                            <select id="product-badge">
+                                <option value="">No Badge</option>
+                                <option value="bestseller">Bestseller</option>
+                                <option value="new">New</option>
+                                <option value="limited">Limited</option>
+                                <option value="featured">Featured</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="md-field">
+                        <textarea id="product-description" rows="3" placeholder=" " required></textarea>
+                        <label for="product-description" style="top: 16px; transform: none;">Description</label>
+                    </div>
+                    
+                    <div class="stock-editor">
+                        <h3>Colors & Stock</h3>
+                        <div id="colors-list" class="color-stock-list">
+                            <!-- Color items will be added here -->
+                        </div>
+                        <button type="button" class="md-btn md-btn-text" onclick="addColorField()" style="margin-top: 12px;">
+                            <span class="material-icons">add_circle</span>
+                            Add Color
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="md-btn md-btn-text" onclick="closeProductModal()">Cancel</button>
+                    <button type="submit" class="md-btn md-btn-primary">Save Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Edit Stock Modal -->
+    <div id="stock-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="stock-modal-title">Edit Stock</h2>
+                <button class="md-btn md-btn-icon md-btn-text" onclick="closeStockModal()">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            <form id="stock-form">
+                <div class="modal-body">
+                    <input type="hidden" id="stock-product-id">
+                    <div id="stock-colors-list" class="color-stock-list">
+                        <!-- Stock items will be loaded here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="md-btn md-btn-text" onclick="closeStockModal()">Cancel</button>
+                    <button type="submit" class="md-btn md-btn-primary">Update Stock</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Loading Overlay -->
+    <div id="loading" class="loading">
+        <div class="crochet-loader"></div>
+    </div>
+    
+    <!-- Snackbar -->
+    <div id="snackbar" class="snackbar"></div>
+    
+    <script>
+        // State
+        let token = localStorage.getItem('menzah_admin_token');
+        let collections = [];
+        
+        // DOM Elements
+        const loginScreen = document.getElementById('login-screen');
+        const appLayout = document.getElementById('app-layout');
+        const loginForm = document.getElementById('login-form');
+        const loading = document.getElementById('loading');
+        const snackbar = document.getElementById('snackbar');
+        
+        // Initialize
+        function init() {
+            if (token) {
+                showApp();
+                loadDashboard();
+            }
+            
+            // Navigation
+            document.querySelectorAll('.nav-item[data-view]').forEach(item => {
+                item.addEventListener('click', () => switchView(item.dataset.view));
+            });
+            
+            // Forms
+            loginForm.addEventListener('submit', handleLogin);
+            document.getElementById('product-form').addEventListener('submit', handleProductSubmit);
+            document.getElementById('stock-form').addEventListener('submit', handleStockSubmit);
+        }
+        
+        // Auth
+        async function handleLogin(e) {
+            e.preventDefault();
+            showLoading();
+            
+            try {
+                const password = document.getElementById('admin-password').value;
+                const response = await fetch('/api/admin/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    token = data.token;
+                    localStorage.setItem('menzah_admin_token', token);
+                    showApp();
+                    loadDashboard();
+                    showSnackbar('Welcome to Admin Panel!');
+                } else {
+                    showSnackbar('Invalid password');
+                }
+            } catch {
+                showSnackbar('Login failed');
+            }
+            
+            hideLoading();
+        }
+        
+        function logout() {
+            token = null;
+            localStorage.removeItem('menzah_admin_token');
+            loginScreen.style.display = 'flex';
+            appLayout.classList.remove('active');
+            document.getElementById('admin-password').value = '';
+        }
+        
+        function showApp() {
+            loginScreen.style.display = 'none';
+            appLayout.classList.add('active');
+        }
+        
+        // Views
+        function switchView(viewName) {
+            document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            
+            document.getElementById(`${viewName}-view`).classList.remove('hidden');
+            document.querySelector(`[data-view="${viewName}"]`).classList.add('active');
+            
+            if (viewName === 'dashboard') loadDashboard();
+            if (viewName === 'products') loadProducts();
+            if (viewName === 'stock') loadStockView();
+        }
+        
+        // API Calls
+        async function apiCall(endpoint, options = {}) {
+            const defaultHeaders = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            };
+            
+            const response = await fetch(endpoint, {
+                ...options,
+                headers: { ...defaultHeaders, ...options.headers }
+            });
+            
+            if (response.status === 401) {
+                logout();
+                throw new Error('Unauthorized');
+            }
+            
+            return response.json();
+        }
+        
+        // Dashboard
+        async function loadDashboard() {
+            showLoading();
+            
+            try {
+                const [inventory, allCollections] = await Promise.all([
+                    apiCall('/api/admin/inventory'),
+                    apiCall('/api/admin/collections')
+                ]);
+                
+                collections = allCollections;
+                
+                // Stats
+                document.getElementById('stats-grid').innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-card-icon primary">
+                            <span class="material-icons">inventory_2</span>
+                        </div>
+                        <h3>Total Products</h3>
+                        <div class="value">${inventory.totalProducts}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-icon secondary">
+                            <span class="material-icons">shopping_bag</span>
+                        </div>
+                        <h3>Total Stock</h3>
+                        <div class="value">${inventory.totalStock}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-icon tertiary">
+                            <span class="material-icons">warning</span>
+                        </div>
+                        <h3>Low Stock Items</h3>
+                        <div class="value">${inventory.lowStock.length}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-icon error">
+                            <span class="material-icons">error</span>
+                        </div>
+                        <h3>Out of Stock</h3>
+                        <div class="value">${inventory.outOfStock.length}</div>
+                    </div>
+                `;
+                
+                // Low stock table
+                const lowStockItems = [...inventory.lowStock, ...inventory.outOfStock];
+                if (lowStockItems.length > 0) {
+                    document.getElementById('low-stock-table').innerHTML = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Stock</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${lowStockItems.map(item => `
+                                    <tr>
+                                        <td>${item.name}</td>
+                                        <td><span class="badge ${item.totalStock === 0 ? 'badge-limited' : 'badge-new'}">${item.totalStock}</span></td>
+                                        <td>
+                                            <button class="md-btn md-btn-text" onclick="openStockModal('${item.id}')">
+                                                <span class="material-icons">edit</span>
+                                                Update Stock
+                                            </button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                } else {
+                    document.getElementById('low-stock-table').innerHTML = `
+                        <p style="padding: 24px; text-align: center; color: var(--md-on-surface-variant);">
+                            All products are well stocked! 🎉
+                        </p>
+                    `;
+                }
+            } catch {
+                showSnackbar('Failed to load dashboard');
+            }
+            
+            hideLoading();
+        }
+        
+        // Products
+        async function loadProducts() {
+            showLoading();
+            
+            try {
+                collections = await apiCall('/api/admin/collections');
+                
+                document.getElementById('products-table').innerHTML = collections.map(item => `
+                    <tr>
+                        <td><strong>${item.name}</strong></td>
+                        <td style="text-transform: capitalize;">${item.category}</td>
+                        <td>${item.priceFormatted}</td>
+                        <td>
+                            <div class="color-dots">
+                                ${item.colors.map(c => `
+                                    <div class="color-dot" style="background: ${c.hex};" title="${c.name}: ${c.stock} in stock"></div>
+                                `).join('')}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge ${item.totalStock < 5 ? 'badge-low' : 'badge-ok'}">${item.totalStock}</span>
+                        </td>
+                        <td>${item.badge ? `<span class="badge badge-${item.badge}">${item.badge}</span>` : '-'}</td>
+                        <td>
+                            <button class="md-btn md-btn-icon md-btn-text" onclick="editProduct('${item.id}')" title="Edit">
+                                <span class="material-icons">edit</span>
+                            </button>
+                            <button class="md-btn md-btn-icon md-btn-text" onclick="openStockModal('${item.id}')" title="Update Stock">
+                                <span class="material-icons">inventory</span>
+                            </button>
+                            <button class="md-btn md-btn-icon md-btn-text" onclick="deleteProduct('${item.id}')" title="Delete">
+                                <span class="material-icons">delete</span>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch {
+                showSnackbar('Failed to load products');
+            }
+            
+            hideLoading();
+        }
+        
+        // Stock View
+        async function loadStockView() {
+            showLoading();
+            
+            try {
+                collections = await apiCall('/api/admin/collections');
+                
+                document.getElementById('stock-cards').innerHTML = `
+                    <div style="display: grid; gap: 16px;">
+                        ${collections.map(item => `
+                            <div class="data-table" style="padding: 24px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                                    <div>
+                                        <h3 style="font-size: 1.125rem; font-weight: 500;">${item.name}</h3>
+                                        <p style="color: var(--md-on-surface-variant); font-size: 0.875rem;">Total Stock: ${item.totalStock}</p>
+                                    </div>
+                                    <button class="md-btn md-btn-secondary" onclick="openStockModal('${item.id}')">
+                                        <span class="material-icons">edit</span>
+                                        Edit Stock
+                                    </button>
+                                </div>
+                                <div class="color-stock-list">
+                                    ${item.colors.map(c => `
+                                        <div class="color-stock-item">
+                                            <div class="color-preview" style="background: ${c.hex};"></div>
+                                            <div class="color-info">
+                                                <div class="color-name">${c.name}</div>
+                                                <div class="color-hex">${c.hex}</div>
+                                            </div>
+                                            <span class="badge ${c.stock < 3 ? 'badge-low' : 'badge-ok'}">${c.stock} in stock</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } catch {
+                showSnackbar('Failed to load stock view');
+            }
+            
+            hideLoading();
+        }
+        
+        // Product Modal
+        function openAddProductModal() {
+            document.getElementById('modal-title').textContent = 'Add Product';
+            document.getElementById('product-form').reset();
+            document.getElementById('product-id').value = '';
+            document.getElementById('colors-list').innerHTML = '';
+            addColorField();
+            document.getElementById('product-modal').classList.add('active');
+        }
+        
+        function editProduct(id) {
+            const product = collections.find(c => c.id === id);
+            if (!product) return;
+            
+            document.getElementById('modal-title').textContent = 'Edit Product';
+            document.getElementById('product-id').value = product.id;
+            document.getElementById('product-name').value = product.name;
+            document.getElementById('product-category').value = product.category;
+            document.getElementById('product-price').value = product.price;
+            document.getElementById('product-badge').value = product.badge || '';
+            document.getElementById('product-description').value = product.description;
+            
+            document.getElementById('colors-list').innerHTML = '';
+            product.colors.forEach(c => addColorField(c.hex, c.name, c.stock));
+            
+            document.getElementById('product-modal').classList.add('active');
+        }
+        
+        function closeProductModal() {
+            document.getElementById('product-modal').classList.remove('active');
+        }
+        
+        let colorCount = 0;
+        function addColorField(hex = '', name = '', stock = 0) {
+            const id = colorCount++;
+            const html = `
+                <div class="color-stock-item" data-color-id="${id}">
+                    <input type="color" class="color-preview" value="${hex || '#2A7B9B'}" name="color-hex-${id}">
+                    <div class="color-info" style="flex: 1;">
+                        <input type="text" placeholder="Color Name" value="${name}" name="color-name-${id}" required style="width: 100%; border: none; font-weight: 500; background: transparent;">
+                    </div>
+                    <input type="number" value="${stock}" name="color-stock-${id}" min="0" placeholder="Stock">
+                    <button type="button" class="md-btn md-btn-icon md-btn-text" onclick="removeColorField(${id})">
+                        <span class="material-icons">close</span>
+                    </button>
+                </div>
+            `;
+            document.getElementById('colors-list').insertAdjacentHTML('beforeend', html);
+        }
+        
+        function removeColorField(id) {
+            document.querySelector(`[data-color-id="${id}"]`).remove();
+        }
+        
+        async function handleProductSubmit(e) {
+            e.preventDefault();
+            showLoading();
+            
+            const id = document.getElementById('product-id').value;
+            const colors = [];
+            
+            document.querySelectorAll('#colors-list .color-stock-item').forEach(item => {
+                const colorId = item.dataset.colorId;
+                colors.push({
+                    hex: item.querySelector(`[name="color-hex-${colorId}"]`).value,
+                    name: item.querySelector(`[name="color-name-${colorId}"]`).value,
+                    stock: parseInt(item.querySelector(`[name="color-stock-${colorId}"]`).value) || 0
+                });
+            });
+            
+            const data = {
+                name: document.getElementById('product-name').value,
+                category: document.getElementById('product-category').value,
+                price: document.getElementById('product-price').value,
+                badge: document.getElementById('product-badge').value || null,
+                description: document.getElementById('product-description').value,
+                colors
+            };
+            
+            try {
+                if (id) {
+                    await apiCall(`/api/admin/collections/${id}`, {
+                        method: 'PUT',
+                        body: JSON.stringify(data)
+                    });
+                    showSnackbar('Product updated successfully');
+                } else {
+                    await apiCall('/api/admin/collections', {
+                        method: 'POST',
+                        body: JSON.stringify(data)
+                    });
+                    showSnackbar('Product created successfully');
+                }
+                
+                closeProductModal();
+                loadProducts();
+            } catch {
+                showSnackbar('Failed to save product');
+            }
+            
+            hideLoading();
+        }
+        
+        async function deleteProduct(id) {
+            if (!confirm('Are you sure you want to delete this product?')) return;
+            
+            showLoading();
+            
+            try {
+                await apiCall(`/api/admin/collections/${id}`, { method: 'DELETE' });
+                showSnackbar('Product deleted');
+                loadProducts();
+            } catch {
+                showSnackbar('Failed to delete product');
+            }
+            
+            hideLoading();
+        }
+        
+        // Stock Modal
+        function openStockModal(id) {
+            const product = collections.find(c => c.id === id);
+            if (!product) return;
+            
+            document.getElementById('stock-modal-title').textContent = `Update Stock - ${product.name}`;
+            document.getElementById('stock-product-id').value = id;
+            
+            document.getElementById('stock-colors-list').innerHTML = product.colors.map((c, i) => `
+                <div class="color-stock-item">
+                    <div class="color-preview" style="background: ${c.hex};"></div>
+                    <div class="color-info">
+                        <div class="color-name">${c.name}</div>
+                        <div class="color-hex">${c.hex}</div>
+                    </div>
+                    <input type="number" value="${c.stock}" name="stock-${i}" data-hex="${c.hex}" min="0">
+                </div>
+            `).join('');
+            
+            document.getElementById('stock-modal').classList.add('active');
+        }
+        
+        function closeStockModal() {
+            document.getElementById('stock-modal').classList.remove('active');
+        }
+        
+        async function handleStockSubmit(e) {
+            e.preventDefault();
+            showLoading();
+            
+            const id = document.getElementById('stock-product-id').value;
+            const inputs = document.querySelectorAll('#stock-colors-list input[type="number"]');
+            
+            try {
+                for (const input of inputs) {
+                    await apiCall(`/api/admin/collections/${id}/stock`, {
+                        method: 'PATCH',
+                        body: JSON.stringify({
+                            colorHex: input.dataset.hex,
+                            stock: parseInt(input.value) || 0
+                        })
+                    });
+                }
+                
+                showSnackbar('Stock updated successfully');
+                closeStockModal();
+                
+                // Refresh current view
+                const activeView = document.querySelector('.nav-item.active').dataset.view;
+                if (activeView === 'dashboard') loadDashboard();
+                else if (activeView === 'products') loadProducts();
+                else if (activeView === 'stock') loadStockView();
+            } catch {
+                showSnackbar('Failed to update stock');
+            }
+            
+            hideLoading();
+        }
+        
+        // Utilities
+        function refreshData() {
+            const activeView = document.querySelector('.nav-item.active').dataset.view;
+            switchView(activeView);
+        }
+        
+        function showLoading() {
+            loading.classList.add('active');
+        }
+        
+        function hideLoading() {
+            loading.classList.remove('active');
+        }
+        
+        function showSnackbar(message) {
+            snackbar.textContent = message;
+            snackbar.classList.add('active');
+            setTimeout(() => snackbar.classList.remove('active'), 3000);
+        }
+        
+        // Initialize on load
+        init();
+    </script>
+</body>
+</html>
