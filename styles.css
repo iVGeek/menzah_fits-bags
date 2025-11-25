@@ -23,6 +23,15 @@
     --color-charcoal: #2C2C2C;
     --color-white: #FFFFFF;
     
+    /* Ocean-Beach-Sun Coastal Theme Colors */
+    --color-deep-ocean: #0284c7;
+    --color-shallow-blue: #38bdf8;
+    --color-sun-gold: #fef9c3;
+    --color-beach-sand: #f5deb3;
+    --color-coconut-green: #22c55e;
+    --color-coconut-dark: #166534;
+    --color-palm-green: #4ade80;
+    
     /* Material Design 3 - Primary (Ocean inspired) */
     --md-primary: #006494;
     --md-on-primary: #ffffff;
@@ -92,10 +101,42 @@ body {
     font-family: var(--font-sans);
     line-height: 1.6;
     color: var(--color-charcoal);
-    background-color: var(--color-cream);
+    
+    /* Ocean-Beach-Sun smooth coastal gradient */
+    background: linear-gradient(
+        to bottom,
+        var(--color-deep-ocean) 0%,
+        var(--color-shallow-blue) 25%,
+        var(--color-sun-gold) 60%,
+        var(--color-beach-sand) 100%
+    );
+    
+    background-attachment: fixed;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    min-height: 100vh;
+    
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    
+    /* Position for crochet pattern overlay */
+    position: relative;
+}
+
+/* Crochet pattern overlay - pure CSS mesh texture */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    
+    /* Pure CSS crochet mesh pattern */
+    background:
+        radial-gradient(circle, rgba(255, 255, 255, 0.3) 20%, transparent 40%) 0 0 / 30px 30px;
+    opacity: 0.08;
 }
 
 /* Container */
@@ -1139,6 +1180,68 @@ button:focus-visible {
     width: 1.5rem;
     height: 1.5rem;
     animation: bounce 2s infinite;
+}
+
+/* Coconut Leaf Decorations for tropical vibes */
+.hero-coconut-leaf {
+    position: absolute;
+    pointer-events: none;
+    z-index: 5;
+    color: var(--color-coconut-green);
+    animation: float 8s ease-in-out infinite;
+}
+
+.hero-coconut-leaf svg {
+    width: 100%;
+    height: 100%;
+}
+
+.hero-coconut-leaf-top-right {
+    top: 0;
+    right: -20px;
+    width: 150px;
+    height: 150px;
+    opacity: 0.2;
+    transform: rotate(15deg);
+}
+
+.hero-coconut-leaf-bottom-left {
+    bottom: 100px;
+    left: -30px;
+    width: 130px;
+    height: 130px;
+    opacity: 0.15;
+    transform: rotate(-10deg);
+    animation-delay: 2s;
+}
+
+@media (min-width: 768px) {
+    .hero-coconut-leaf-top-right {
+        width: 220px;
+        height: 220px;
+        opacity: 0.25;
+        right: 0;
+    }
+    
+    .hero-coconut-leaf-bottom-left {
+        width: 200px;
+        height: 200px;
+        opacity: 0.2;
+        bottom: 120px;
+        left: -10px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .hero-coconut-leaf-top-right {
+        width: 300px;
+        height: 300px;
+    }
+    
+    .hero-coconut-leaf-bottom-left {
+        width: 280px;
+        height: 280px;
+    }
 }
 
 /* =================================
