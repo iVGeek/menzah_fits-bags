@@ -1,10 +1,12 @@
 /* =================================
    Menzah_fits - Pure CSS Stylesheet
    Handcrafted Coastal Crochet Fashion
+   Material Design 3 Inspired Theme
    ================================= */
 
-/* CSS Variables - Coastal Color Palette */
+/* CSS Variables - Material Design 3 + Coastal Palette */
 :root {
+    /* Coastal colors */
     --color-sand: #E8DED1;
     --color-sand-light: #F5F0E8;
     --color-sand-dark: #C9BBA8;
@@ -21,8 +23,54 @@
     --color-charcoal: #2C2C2C;
     --color-white: #FFFFFF;
     
-    --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    /* Material Design 3 - Primary (Ocean inspired) */
+    --md-primary: #006494;
+    --md-on-primary: #ffffff;
+    --md-primary-container: #c8e6ff;
+    --md-on-primary-container: #001e31;
+    
+    /* Material Design 3 - Secondary (Coral inspired) */
+    --md-secondary: #c4503d;
+    --md-on-secondary: #ffffff;
+    --md-secondary-container: #ffdad4;
+    --md-on-secondary-container: #3a0905;
+    
+    /* Material Design 3 - Tertiary (Sand inspired) */
+    --md-tertiary: #7b5800;
+    --md-on-tertiary: #ffffff;
+    --md-tertiary-container: #ffdea6;
+    --md-on-tertiary-container: #271900;
+    
+    /* Material Design 3 - Surface */
+    --md-surface: #fafcff;
+    --md-on-surface: #191c1e;
+    --md-surface-variant: #dfe3e7;
+    --md-on-surface-variant: #42474d;
+    
+    /* Material Design 3 - Outline */
+    --md-outline: #72787e;
+    --md-outline-variant: #c2c8cd;
+    
+    /* Material Design 3 - Elevation shadows */
+    --md-elevation-1: 0 1px 2px 0 rgba(0, 0, 0, 0.3), 0 1px 3px 1px rgba(0, 0, 0, 0.15);
+    --md-elevation-2: 0 1px 2px 0 rgba(0, 0, 0, 0.3), 0 2px 6px 2px rgba(0, 0, 0, 0.15);
+    --md-elevation-3: 0 4px 8px 3px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.3);
+    
+    /* Material Design 3 - Shape */
+    --md-radius-xs: 4px;
+    --md-radius-sm: 8px;
+    --md-radius-md: 12px;
+    --md-radius-lg: 16px;
+    --md-radius-xl: 28px;
+    --md-radius-full: 9999px;
+    
+    --font-sans: 'Roboto', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
     --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+    
+    /* Material Design transitions */
+    --md-transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    --md-transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --md-transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     
     --transition-fast: 0.2s ease;
     --transition-normal: 0.3s ease;
@@ -70,9 +118,10 @@ body {
 }
 
 /* =================================
-   Animations
+   Animations - Crochet Inspired
    ================================= */
 
+/* Crochet wave animation - like yarn being woven */
 @keyframes crochet-wave {
     0%, 100% {
         transform: translateY(0) rotate(0deg);
@@ -85,6 +134,125 @@ body {
     }
     75% {
         transform: translateY(5px) rotate(-1deg);
+    }
+}
+
+/* Yarn loop animation - circular stitch motion */
+@keyframes yarn-loop {
+    0% {
+        transform: scale(1) rotate(0deg);
+        opacity: 0.6;
+    }
+    25% {
+        transform: scale(1.1) rotate(90deg);
+        opacity: 0.8;
+    }
+    50% {
+        transform: scale(1) rotate(180deg);
+        opacity: 1;
+    }
+    75% {
+        transform: scale(1.1) rotate(270deg);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(1) rotate(360deg);
+        opacity: 0.6;
+    }
+}
+
+/* Stitch pull animation - thread being pulled through */
+@keyframes stitch-pull {
+    0%, 100% {
+        transform: scaleY(1) translateY(0);
+    }
+    50% {
+        transform: scaleY(1.2) translateY(-10px);
+    }
+}
+
+/* Chain stitch animation - cascading loops */
+@keyframes chain-stitch {
+    0% {
+        transform: translateX(-100%) scale(0.8);
+        opacity: 0;
+    }
+    50% {
+        transform: translateX(0) scale(1.1);
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(0) scale(1);
+        opacity: 1;
+    }
+}
+
+/* Yarn ball spin - gentle rotation */
+@keyframes yarn-spin {
+    0% {
+        transform: rotate(0deg) scale(1);
+    }
+    25% {
+        transform: rotate(90deg) scale(1.05);
+    }
+    50% {
+        transform: rotate(180deg) scale(1);
+    }
+    75% {
+        transform: rotate(270deg) scale(1.05);
+    }
+    100% {
+        transform: rotate(360deg) scale(1);
+    }
+}
+
+/* Crochet hook motion */
+@keyframes hook-motion {
+    0%, 100% {
+        transform: translateX(0) rotate(-15deg);
+    }
+    25% {
+        transform: translateX(5px) rotate(0deg);
+    }
+    50% {
+        transform: translateX(10px) rotate(15deg);
+    }
+    75% {
+        transform: translateX(5px) rotate(0deg);
+    }
+}
+
+/* Weave pattern - interlocking animation */
+@keyframes weave-pattern {
+    0% {
+        clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
+    }
+    100% {
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    }
+}
+
+/* Material Design ripple effect */
+@keyframes md-ripple {
+    0% {
+        transform: scale(0);
+        opacity: 0.5;
+    }
+    100% {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+/* Material Design elevation transition */
+@keyframes md-lift {
+    0% {
+        box-shadow: var(--md-elevation-1);
+        transform: translateY(0);
+    }
+    100% {
+        box-shadow: var(--md-elevation-3);
+        transform: translateY(-4px);
     }
 }
 
@@ -117,12 +285,15 @@ body {
     }
 }
 
+/* Enhanced bounce with crochet feel */
 @keyframes bounce {
     0%, 100% {
         transform: translateY(0);
+        animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
     }
     50% {
         transform: translateY(-10px);
+        animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
     }
 }
 
@@ -144,17 +315,133 @@ body {
     }
 }
 
+/* Crochet circle animation - concentric rings */
+@keyframes crochet-circle-expand {
+    0% {
+        stroke-dasharray: 0, 220;
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        stroke-dasharray: 220, 0;
+        opacity: 0.3;
+    }
+}
+
+/* Thread wave - using transform for CSS compatibility */
+@keyframes thread-wave {
+    0%, 100% {
+        transform: translateY(0) scaleY(1);
+    }
+    25% {
+        transform: translateY(-5px) scaleY(1.1);
+    }
+    50% {
+        transform: translateY(0) scaleY(0.9);
+    }
+    75% {
+        transform: translateY(5px) scaleY(1.1);
+    }
+}
+
+/* Float animation for decorative elements */
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+    }
+    33% {
+        transform: translateY(-8px) rotate(2deg);
+    }
+    66% {
+        transform: translateY(-4px) rotate(-2deg);
+    }
+}
+
 /* Animation Classes */
 .animate-fade-in-up {
-    animation: fade-in-up 0.8s ease-out forwards;
+    animation: fade-in-up 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 .animate-fade-in {
-    animation: fade-in 0.6s ease-out forwards;
+    animation: fade-in 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 .animate-crochet-wave {
     animation: crochet-wave 4s ease-in-out infinite;
+}
+
+/* New crochet-inspired animation classes */
+.animate-yarn-loop {
+    animation: yarn-loop 8s linear infinite;
+}
+
+.animate-stitch-pull {
+    animation: stitch-pull 2s ease-in-out infinite;
+}
+
+.animate-chain-stitch {
+    animation: chain-stitch 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.animate-yarn-spin {
+    animation: yarn-spin 20s linear infinite;
+}
+
+.animate-hook-motion {
+    animation: hook-motion 2s ease-in-out infinite;
+}
+
+.animate-weave {
+    animation: weave-pattern 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.animate-float {
+    animation: float 6s ease-in-out infinite;
+}
+
+.animate-crochet-circle {
+    animation: crochet-circle-expand 3s ease-in-out infinite;
+}
+
+/* Material Design state animations */
+.md-ripple {
+    position: relative;
+    overflow: hidden;
+}
+
+.md-ripple::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.5);
+    opacity: 0;
+    border-radius: 50%;
+    transform: scale(0);
+    transform-origin: center;
+}
+
+.md-ripple:active::after {
+    animation: md-ripple 0.6s ease-out;
+}
+
+/* Material Design hover lift */
+.md-lift {
+    transition: all var(--md-transition-normal);
+}
+
+.md-lift:hover {
+    box-shadow: var(--md-elevation-2);
+    transform: translateY(-2px);
+}
+
+.md-lift:active {
+    box-shadow: var(--md-elevation-1);
+    transform: translateY(0);
 }
 
 .delay-200 {
@@ -275,7 +562,7 @@ button:focus-visible {
 }
 
 /* =================================
-   Buttons
+   Buttons - Material Design 3 Inspired
    ================================= */
 
 .btn-primary {
@@ -283,22 +570,44 @@ button:focus-visible {
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    background: linear-gradient(135deg, var(--color-ocean) 0%, var(--color-ocean-dark) 100%);
-    color: var(--color-white);
+    background: var(--md-primary);
+    color: var(--md-on-primary);
     padding: 0.875rem 2rem;
-    border-radius: 9999px;
+    border-radius: var(--md-radius-full);
     font-weight: 500;
     font-size: 1rem;
     text-decoration: none;
     border: none;
     cursor: pointer;
-    transition: all var(--transition-normal);
-    box-shadow: 0 4px 15px rgba(42, 123, 155, 0.3);
+    transition: all var(--md-transition-normal);
+    box-shadow: var(--md-elevation-1);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: currentColor;
+    opacity: 0;
+    transition: opacity var(--md-transition-fast);
 }
 
 .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(42, 123, 155, 0.4);
+    box-shadow: var(--md-elevation-2);
+}
+
+.btn-primary:hover::before {
+    opacity: 0.08;
+}
+
+.btn-primary:active {
+    box-shadow: var(--md-elevation-1);
+}
+
+.btn-primary:active::before {
+    opacity: 0.12;
 }
 
 .btn-secondary {
@@ -306,15 +615,34 @@ button:focus-visible {
     align-items: center;
     justify-content: center;
     background: transparent;
-    color: var(--color-ocean);
-    padding: 0.875rem 2rem;
-    border-radius: 9999px;
+    color: var(--md-primary);
+    padding: 0.75rem 1.875rem;
+    border-radius: var(--md-radius-full);
     font-weight: 500;
     font-size: 1rem;
     text-decoration: none;
-    border: 2px solid var(--color-ocean);
+    border: 1px solid var(--md-outline);
     cursor: pointer;
-    transition: all var(--transition-normal);
+    transition: all var(--md-transition-normal);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-secondary::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--md-primary);
+    opacity: 0;
+    transition: opacity var(--md-transition-fast);
+}
+
+.btn-secondary:hover::before {
+    opacity: 0.08;
+}
+
+.btn-secondary:active::before {
+    opacity: 0.12;
 }
 
 .btn-secondary:hover {
@@ -1108,6 +1436,16 @@ button:focus-visible {
     display: grid;
     gap: 2rem;
     position: relative;
+    min-height: 200px;
+}
+
+/* Loading state for collections */
+.loading-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    grid-column: 1 / -1;
+    padding: 4rem;
 }
 
 @media (min-width: 640px) {
@@ -2039,4 +2377,206 @@ button:focus-visible {
     width: 1rem;
     height: 1rem;
     color: var(--color-coral);
+}
+
+/* =================================
+   Crochet-Themed Decorative Elements
+   ================================= */
+
+/* Animated crochet stitch background pattern */
+.crochet-bg {
+    position: relative;
+}
+
+.crochet-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: 
+        radial-gradient(circle at 10px 10px, var(--color-sand) 2px, transparent 2px),
+        radial-gradient(circle at 20px 20px, var(--color-sand) 2px, transparent 2px);
+    background-size: 30px 30px;
+    opacity: 0.1;
+    animation: stitch-pattern 30s linear infinite;
+    pointer-events: none;
+}
+
+/* Yarn thread decoration */
+.yarn-thread {
+    position: absolute;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, 
+        var(--color-coral) 0%, 
+        var(--color-ocean) 50%, 
+        var(--color-sand) 100%
+    );
+    border-radius: 2px;
+    opacity: 0.3;
+}
+
+/* Crochet loop decorations */
+.crochet-loops {
+    display: flex;
+    gap: 8px;
+}
+
+.crochet-loop {
+    width: 24px;
+    height: 24px;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    animation: yarn-loop 4s ease-in-out infinite;
+}
+
+.crochet-loop:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.crochet-loop:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+.crochet-loop:nth-child(4) {
+    animation-delay: 0.6s;
+}
+
+.crochet-loop:nth-child(5) {
+    animation-delay: 0.8s;
+}
+
+/* Material Design Cards with crochet texture */
+.md-card {
+    background: var(--md-surface);
+    border-radius: var(--md-radius-lg);
+    box-shadow: var(--md-elevation-1);
+    transition: all var(--md-transition-normal);
+    overflow: hidden;
+}
+
+.md-card:hover {
+    box-shadow: var(--md-elevation-2);
+}
+
+/* Material Design FAB (Floating Action Button) */
+.md-fab {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 56px;
+    height: 56px;
+    border-radius: var(--md-radius-lg);
+    background: var(--md-primary-container);
+    color: var(--md-on-primary-container);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--md-elevation-3);
+    transition: all var(--md-transition-normal);
+    z-index: 100;
+}
+
+.md-fab:hover {
+    background: var(--md-primary);
+    color: var(--md-on-primary);
+}
+
+/* Crochet spinner loader */
+.crochet-spinner {
+    width: 48px;
+    height: 48px;
+    position: relative;
+}
+
+.crochet-spinner::before,
+.crochet-spinner::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    border: 3px solid transparent;
+}
+
+.crochet-spinner::before {
+    inset: 0;
+    border-top-color: var(--color-ocean);
+    border-right-color: var(--color-ocean);
+    animation: spin 1s linear infinite;
+}
+
+.crochet-spinner::after {
+    inset: 8px;
+    border-bottom-color: var(--color-coral);
+    border-left-color: var(--color-coral);
+    animation: spin 0.8s linear infinite reverse;
+}
+
+/* Enhanced hero yarn animation */
+.hero-yarn .yarn-svg {
+    animation: yarn-spin 30s linear infinite;
+}
+
+.hero-yarn .hero-circle-1 {
+    animation: crochet-circle-expand 3s ease-in-out infinite;
+    stroke-dasharray: 220;
+}
+
+.hero-yarn .hero-circle-2 {
+    animation: crochet-circle-expand 3s ease-in-out infinite 0.5s;
+    stroke-dasharray: 160;
+}
+
+.hero-yarn .hero-circle-3 {
+    animation: crochet-circle-expand 3s ease-in-out infinite 1s;
+    stroke-dasharray: 100;
+}
+
+/* Scroll progress indicator with crochet theme */
+.scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--color-ocean), var(--color-coral));
+    z-index: 100;
+    transition: width 0.1s linear;
+}
+
+/* Collection card crochet hover effect */
+.collection-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: 
+        radial-gradient(circle at 20% 20%, var(--md-primary-container) 1px, transparent 1px),
+        radial-gradient(circle at 80% 80%, var(--md-secondary-container) 1px, transparent 1px);
+    background-size: 16px 16px;
+    opacity: 0;
+    transition: opacity var(--md-transition-normal);
+    pointer-events: none;
+    border-radius: inherit;
+}
+
+.collection-card:hover::after {
+    opacity: 0.3;
+}
+
+/* Testimonial card yarn decoration */
+.testimonial-card::before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 4px;
+    background: linear-gradient(90deg, 
+        transparent, 
+        var(--color-coral-light) 20%, 
+        var(--color-coral-light) 80%, 
+        transparent
+    );
+    border-radius: 2px;
 }
