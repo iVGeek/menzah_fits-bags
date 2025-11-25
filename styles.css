@@ -330,13 +330,19 @@ body {
     }
 }
 
-/* Thread wave */
+/* Thread wave - using transform for CSS compatibility */
 @keyframes thread-wave {
     0%, 100% {
-        d: path("M0 50 Q25 30, 50 50 T100 50");
+        transform: translateY(0) scaleY(1);
+    }
+    25% {
+        transform: translateY(-5px) scaleY(1.1);
     }
     50% {
-        d: path("M0 50 Q25 70, 50 50 T100 50");
+        transform: translateY(0) scaleY(0.9);
+    }
+    75% {
+        transform: translateY(5px) scaleY(1.1);
     }
 }
 

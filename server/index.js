@@ -12,6 +12,46 @@ const { v4: uuidv4 } = require('uuid');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Simple rate limiter for file serving routes
+const rateLimitStore = new Map();
+const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
+const MAX_REQUESTS = 100; // 100 requests per minute
+
+function rateLimit(req, res, next) {
+    const ip = req.ip || req.connection.remoteAddress;
+    const now = Date.now();
+    
+    if (!rateLimitStore.has(ip)) {
+        rateLimitStore.set(ip, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
+        return next();
+    }
+    
+    const record = rateLimitStore.get(ip);
+    
+    if (now > record.resetTime) {
+        record.count = 1;
+        record.resetTime = now + RATE_LIMIT_WINDOW;
+        return next();
+    }
+    
+    if (record.count >= MAX_REQUESTS) {
+        return res.status(429).json({ error: 'Too many requests. Please try again later.' });
+    }
+    
+    record.count++;
+    next();
+}
+
+// Clean up rate limit store periodically
+setInterval(() => {
+    const now = Date.now();
+    for (const [ip, record] of rateLimitStore.entries()) {
+        if (now > record.resetTime) {
+            rateLimitStore.delete(ip);
+        }
+    }
+}, RATE_LIMIT_WINDOW);
+
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -366,7 +406,8 @@ app.get('/api/admin/inventory', authenticateAdmin, (req, res) => {
 });
 
 // Catch-all route - serve index.html for SPA routing (Express 5 syntax)
-app.get('/{*splat}', (req, res) => {
+// Rate limited to prevent DoS attacks on file system operations
+app.get('/{*splat}', rateLimit, (req, res) => {
     if (req.path.startsWith('/api')) {
         res.status(404).json({ error: 'API endpoint not found' });
     } else if (req.path.startsWith('/admin')) {
