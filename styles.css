@@ -84,6 +84,33 @@
     --transition-fast: 0.2s ease;
     --transition-normal: 0.3s ease;
     --transition-slow: 0.5s ease;
+    
+    /* Fluid Typography - Auto-scales across all display sizes */
+    /* clamp(min, preferred, max) - preferred uses viewport width for fluid scaling */
+    --fluid-text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+    --fluid-text-sm: clamp(0.8rem, 0.75rem + 0.3vw, 1rem);
+    --fluid-text-base: clamp(0.9rem, 0.85rem + 0.35vw, 1.125rem);
+    --fluid-text-lg: clamp(1rem, 0.9rem + 0.5vw, 1.25rem);
+    --fluid-text-xl: clamp(1.125rem, 1rem + 0.6vw, 1.5rem);
+    --fluid-text-2xl: clamp(1.25rem, 1rem + 1vw, 1.875rem);
+    --fluid-text-3xl: clamp(1.5rem, 1.2rem + 1.5vw, 2.25rem);
+    --fluid-text-4xl: clamp(1.875rem, 1.5rem + 2vw, 3rem);
+    --fluid-text-5xl: clamp(2.25rem, 1.8rem + 2.5vw, 3.75rem);
+    --fluid-text-6xl: clamp(2.75rem, 2rem + 3.5vw, 6rem);
+    
+    /* Fluid Spacing - Auto-scales padding and margins */
+    --fluid-space-xs: clamp(0.25rem, 0.2rem + 0.25vw, 0.5rem);
+    --fluid-space-sm: clamp(0.5rem, 0.4rem + 0.5vw, 1rem);
+    --fluid-space-md: clamp(1rem, 0.8rem + 1vw, 1.5rem);
+    --fluid-space-lg: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+    --fluid-space-xl: clamp(2rem, 1.5rem + 2.5vw, 4rem);
+    --fluid-space-2xl: clamp(3rem, 2rem + 4vw, 6rem);
+    --fluid-space-3xl: clamp(4rem, 3rem + 5vw, 8rem);
+    
+    /* Fluid Container Width - Auto-adjusts max-width based on viewport */
+    --fluid-container: clamp(320px, 90vw, 1280px);
+    --fluid-container-sm: clamp(280px, 85vw, 640px);
+    --fluid-container-lg: clamp(320px, 92vw, 1440px);
 }
 
 /* Reset & Base Styles */
@@ -147,22 +174,23 @@ body::before {
     opacity: 0.08;
 }
 
-/* Container */
+/* Container - Fluid responsive sizing */
 .container {
-    max-width: 1280px;
+    max-width: var(--fluid-container);
+    width: 100%;
     margin: 0 auto;
-    padding: 0 1rem;
+    padding: 0 var(--fluid-space-md);
 }
 
 @media (min-width: 640px) {
     .container {
-        padding: 0 1.5rem;
+        padding: 0 var(--fluid-space-lg);
     }
 }
 
 @media (min-width: 1024px) {
     .container {
-        padding: 0 2rem;
+        padding: 0 var(--fluid-space-xl);
     }
 }
 
@@ -748,20 +776,21 @@ button:focus-visible {
 }
 
 .nav-container {
-    max-width: 1280px;
+    max-width: var(--fluid-container);
+    width: 100%;
     margin: 0 auto;
-    padding: 0 1rem;
+    padding: 0 var(--fluid-space-md);
 }
 
 @media (min-width: 640px) {
     .nav-container {
-        padding: 0 1.5rem;
+        padding: 0 var(--fluid-space-lg);
     }
 }
 
 @media (min-width: 1024px) {
     .nav-container {
-        padding: 0 2rem;
+        padding: 0 var(--fluid-space-xl);
     }
 }
 
@@ -780,7 +809,7 @@ button:focus-visible {
 }
 
 .logo-main {
-    font-size: 1.5rem;
+    font-size: var(--fluid-text-2xl);
     font-family: var(--font-serif);
     font-weight: 700;
     letter-spacing: -0.025em;
@@ -789,7 +818,7 @@ button:focus-visible {
 }
 
 .logo-accent {
-    font-size: 1.5rem;
+    font-size: var(--fluid-text-2xl);
     font-family: var(--font-serif);
     font-weight: 300;
     letter-spacing: -0.025em;
@@ -819,18 +848,11 @@ button:focus-visible {
     color: rgba(42, 123, 155, 0.3);
 }
 
-@media (min-width: 640px) {
-    .logo-main,
-    .logo-accent {
-        font-size: 1.875rem;
-    }
-}
-
 /* Desktop Navigation */
 .nav-links {
     display: none;
     align-items: center;
-    gap: 2rem;
+    gap: var(--fluid-space-lg);
 }
 
 @media (min-width: 768px) {
@@ -840,7 +862,7 @@ button:focus-visible {
 }
 
 .nav-link {
-    font-size: 0.875rem;
+    font-size: var(--fluid-text-sm);
     font-weight: 500;
     letter-spacing: 0.025em;
     color: var(--color-white);
@@ -1041,32 +1063,33 @@ button:focus-visible {
 .hero-content {
     position: relative;
     z-index: 10;
-    max-width: 1280px;
+    max-width: var(--fluid-container);
+    width: 100%;
     margin: 0 auto;
-    padding: 0 1rem;
+    padding: 0 var(--fluid-space-md);
     text-align: center;
 }
 
 @media (min-width: 640px) {
     .hero-content {
-        padding: 0 1.5rem;
+        padding: 0 var(--fluid-space-lg);
     }
 }
 
 @media (min-width: 1024px) {
     .hero-content {
-        padding: 0 2rem;
+        padding: 0 var(--fluid-space-xl);
     }
 }
 
 /* Hero Yarn Animation */
 .hero-yarn {
-    margin-bottom: 2rem;
+    margin-bottom: var(--fluid-space-lg);
 }
 
 .yarn-svg {
-    width: 6rem;
-    height: 6rem;
+    width: clamp(4rem, 3rem + 4vw, 6rem);
+    height: clamp(4rem, 3rem + 4vw, 6rem);
     margin: 0 auto;
     color: var(--color-coral-light);
 }
@@ -1088,69 +1111,33 @@ button:focus-visible {
     animation: draw-circle 2s ease-out 0.6s forwards;
 }
 
-/* Hero Typography */
+/* Hero Typography - Fluid responsive sizing */
 .hero-title {
-    font-size: 3rem;
+    font-size: var(--fluid-text-6xl);
     font-family: var(--font-serif);
     font-weight: 700;
     color: var(--color-white);
-    margin-bottom: 1rem;
+    margin-bottom: var(--fluid-space-md);
 }
 
 .hero-title-accent {
     color: var(--color-coral);
 }
 
-@media (min-width: 640px) {
-    .hero-title {
-        font-size: 3.75rem;
-    }
-}
-
-@media (min-width: 768px) {
-    .hero-title {
-        font-size: 4.5rem;
-    }
-}
-
-@media (min-width: 1024px) {
-    .hero-title {
-        font-size: 6rem;
-    }
-}
-
 .hero-tagline {
-    font-size: 1.25rem;
+    font-size: var(--fluid-text-3xl);
     color: var(--color-sand-light);
     font-weight: 300;
     letter-spacing: 0.025em;
-    margin-bottom: 1.5rem;
-}
-
-@media (min-width: 640px) {
-    .hero-tagline {
-        font-size: 1.5rem;
-    }
-}
-
-@media (min-width: 768px) {
-    .hero-tagline {
-        font-size: 1.875rem;
-    }
+    margin-bottom: var(--fluid-space-lg);
 }
 
 .hero-subtitle {
-    font-size: 1rem;
+    font-size: var(--fluid-text-base);
     color: rgba(255, 255, 255, 0.8);
     max-width: 42rem;
-    margin: 0 auto 2.5rem;
+    margin: 0 auto var(--fluid-space-xl);
     line-height: 1.75;
-}
-
-@media (min-width: 640px) {
-    .hero-subtitle {
-        font-size: 1.125rem;
-    }
 }
 
 /* Hero CTA */
@@ -1285,22 +1272,16 @@ button:focus-visible {
 }
 
 .section-title {
-    font-size: 2.25rem;
+    font-size: var(--fluid-text-4xl);
     font-family: var(--font-serif);
     font-weight: 700;
     color: var(--color-charcoal);
-    margin-bottom: 1rem;
+    margin-bottom: var(--fluid-space-md);
     line-height: 1.2;
 }
 
-@media (min-width: 640px) {
-    .section-title {
-        font-size: 3rem;
-    }
-}
-
 .section-subtitle {
-    font-size: 1.125rem;
+    font-size: var(--fluid-text-lg);
     color: #6b7280;
     max-width: 42rem;
     margin: 0 auto;
@@ -1308,7 +1289,7 @@ button:focus-visible {
 
 .section-header {
     text-align: center;
-    margin-bottom: 4rem;
+    margin-bottom: var(--fluid-space-2xl);
 }
 
 /* =================================
@@ -1316,16 +1297,10 @@ button:focus-visible {
    ================================= */
 
 .about {
-    padding: 6rem 0;
+    padding: var(--fluid-space-3xl) 0;
     background: var(--color-cream);
     position: relative;
     overflow: hidden;
-}
-
-@media (min-width: 640px) {
-    .about {
-        padding: 8rem 0;
-    }
 }
 
 .about-decoration {
@@ -1340,7 +1315,7 @@ button:focus-visible {
 
 .about-grid {
     display: grid;
-    gap: 4rem;
+    gap: var(--fluid-space-2xl);
     align-items: center;
 }
 
@@ -1488,15 +1463,9 @@ button:focus-visible {
    ================================= */
 
 .collections {
-    padding: 6rem 0;
+    padding: var(--fluid-space-3xl) 0;
     background: linear-gradient(to bottom, var(--color-cream) 0%, var(--color-sand-light) 100%);
     position: relative;
-}
-
-@media (min-width: 640px) {
-    .collections {
-        padding: 8rem 0;
-    }
 }
 
 .crochet-pattern-bg {
@@ -1515,14 +1484,14 @@ button:focus-visible {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 0.75rem;
-    margin-bottom: 3rem;
+    gap: var(--fluid-space-sm);
+    margin-bottom: var(--fluid-space-xl);
 }
 
 .filter-btn {
     padding: 0.625rem 1.5rem;
     border-radius: 9999px;
-    font-size: 0.875rem;
+    font-size: var(--fluid-text-sm);
     font-weight: 500;
     border: none;
     cursor: pointer;
@@ -1545,7 +1514,7 @@ button:focus-visible {
 /* Collections Grid */
 .collections-grid {
     display: grid;
-    gap: 2rem;
+    gap: var(--fluid-space-lg);
     position: relative;
     min-height: 200px;
 }
@@ -1556,7 +1525,7 @@ button:focus-visible {
     align-items: center;
     justify-content: center;
     grid-column: 1 / -1;
-    padding: 4rem;
+    padding: var(--fluid-space-2xl);
 }
 
 @media (min-width: 640px) {
@@ -1750,16 +1719,10 @@ button:focus-visible {
    ================================= */
 
 .testimonials {
-    padding: 6rem 0;
+    padding: var(--fluid-space-3xl) 0;
     background: var(--color-ocean);
     position: relative;
     overflow: hidden;
-}
-
-@media (min-width: 640px) {
-    .testimonials {
-        padding: 8rem 0;
-    }
 }
 
 .testimonials-wave {
@@ -1805,14 +1768,8 @@ button:focus-visible {
 .testimonial-card {
     background: var(--color-white);
     border-radius: 1.5rem;
-    padding: 2rem;
+    padding: var(--fluid-space-lg);
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-}
-
-@media (min-width: 640px) {
-    .testimonial-card {
-        padding: 3rem;
-    }
 }
 
 .quote-icon {
@@ -1930,7 +1887,7 @@ button:focus-visible {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 1.5rem;
-    margin-top: 4rem;
+    margin-top: var(--fluid-space-2xl);
 }
 
 @media (min-width: 640px) {
@@ -1945,20 +1902,14 @@ button:focus-visible {
 }
 
 .stat-value {
-    font-size: 1.875rem;
+    font-size: var(--fluid-text-4xl);
     font-weight: 700;
     color: var(--color-coral-light);
     margin-bottom: 0.5rem;
 }
 
-@media (min-width: 640px) {
-    .stat-value {
-        font-size: 2.25rem;
-    }
-}
-
 .stat-label {
-    font-size: 0.875rem;
+    font-size: var(--fluid-text-sm);
     color: rgba(255, 255, 255, 0.7);
 }
 
@@ -1967,16 +1918,10 @@ button:focus-visible {
    ================================= */
 
 .contact {
-    padding: 6rem 0;
+    padding: var(--fluid-space-3xl) 0;
     background: var(--color-cream);
     position: relative;
     overflow: hidden;
-}
-
-@media (min-width: 640px) {
-    .contact {
-        padding: 8rem 0;
-    }
 }
 
 .contact-decoration-1 {
@@ -2003,7 +1948,7 @@ button:focus-visible {
 
 .contact-grid {
     display: grid;
-    gap: 4rem;
+    gap: var(--fluid-space-2xl);
 }
 
 @media (min-width: 1024px) {
@@ -2305,13 +2250,13 @@ button:focus-visible {
 }
 
 .footer .container {
-    padding-top: 4rem;
-    padding-bottom: 4rem;
+    padding-top: var(--fluid-space-2xl);
+    padding-bottom: var(--fluid-space-2xl);
 }
 
 .footer-grid {
     display: grid;
-    gap: 3rem;
+    gap: var(--fluid-space-xl);
 }
 
 @media (min-width: 768px) {
@@ -2338,18 +2283,18 @@ button:focus-visible {
 }
 
 .footer-logo {
-    margin-bottom: 1.5rem;
+    margin-bottom: var(--fluid-space-lg);
 }
 
 .footer-logo-main {
-    font-size: 1.875rem;
+    font-size: var(--fluid-text-3xl);
     font-family: var(--font-serif);
     font-weight: 700;
     color: var(--color-ocean-light);
 }
 
 .footer-logo-accent {
-    font-size: 1.875rem;
+    font-size: var(--fluid-text-3xl);
     font-family: var(--font-serif);
     font-weight: 300;
     color: var(--color-coral);
@@ -2359,7 +2304,7 @@ button:focus-visible {
     color: #9ca3af;
     line-height: 1.75;
     max-width: 28rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: var(--fluid-space-lg);
 }
 
 .footer-craft {
@@ -2690,4 +2635,122 @@ button:focus-visible {
         transparent
     );
     border-radius: 2px;
+}
+
+/* =================================
+   Additional Responsive Breakpoints
+   Auto-optimization for all display sizes
+   ================================= */
+
+/* Extra small devices (< 360px) - Compact mobile */
+@media (max-width: 359px) {
+    :root {
+        --fluid-text-6xl: clamp(2rem, 1.5rem + 3vw, 2.5rem);
+        --fluid-text-4xl: clamp(1.5rem, 1.2rem + 2vw, 2rem);
+        --fluid-text-3xl: clamp(1.25rem, 1rem + 1.5vw, 1.75rem);
+    }
+    
+    .hero-cta {
+        gap: 0.75rem;
+    }
+    
+    .btn-primary,
+    .btn-secondary {
+        padding: 0.75rem 1.25rem;
+        font-size: 0.875rem;
+    }
+    
+    .category-filter {
+        gap: 0.5rem;
+    }
+    
+    .filter-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.75rem;
+    }
+}
+
+/* Extra large displays (> 1440px) - Large desktop/TV */
+@media (min-width: 1441px) {
+    :root {
+        --fluid-container: 1400px;
+    }
+    
+    .hero-content {
+        max-width: 1400px;
+    }
+    
+    .nav-container {
+        max-width: 1400px;
+    }
+    
+    .collections-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* Ultra-wide displays (> 1920px) */
+@media (min-width: 1921px) {
+    :root {
+        --fluid-container: 1600px;
+        --fluid-text-6xl: clamp(4rem, 3rem + 2vw, 7rem);
+    }
+    
+    .hero-content,
+    .nav-container,
+    .container {
+        max-width: 1600px;
+    }
+}
+
+/* Portrait tablet orientation optimization */
+@media (min-width: 768px) and (max-width: 1023px) and (orientation: portrait) {
+    .about-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .contact-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Landscape mobile optimization */
+@media (max-height: 500px) and (orientation: landscape) {
+    .hero {
+        min-height: auto;
+        padding: 4rem 0;
+    }
+    
+    .scroll-indicator {
+        display: none;
+    }
+    
+    .hero-yarn {
+        display: none;
+    }
+}
+
+/* High DPI / Retina display optimization */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .crochet-pattern-bg,
+    body::before {
+        background-size: 15px 15px;
+    }
+}
+
+/* Reduced motion preference - accessibility */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .hero-coconut-leaf,
+    .hero-yarn .yarn-svg,
+    .crochet-pattern-bg {
+        animation: none;
+    }
 }
