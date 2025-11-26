@@ -175,17 +175,89 @@ let collections = [
     }
 ];
 
-// Simple admin authentication (use proper auth in production)
-const ADMIN_TOKEN = process.env.ADMIN_TOKEN || 'menzah-admin-2024';
+// User roles hierarchy: dev_superior > admin > user
+const USER_ROLES = {
+    DEV_SUPERIOR: 'dev_superior',
+    ADMIN: 'admin',
+    USER: 'user'
+};
+
+// In-memory users store (replace with database in production)
+let users = [
+    {
+        id: 'dev-001',
+        username: 'devsuperior',
+        password: 'dev@menzah2024',
+        role: USER_ROLES.DEV_SUPERIOR,
+        name: 'Dev Superior',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+    },
+    {
+        id: 'admin-001',
+        username: 'admin',
+        password: 'admin',
+        role: USER_ROLES.ADMIN,
+        name: 'Administrator',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+    }
+];
+
+// Generate simple token (in production, use JWT)
+function generateToken(user) {
+    return Buffer.from(JSON.stringify({
+        id: user.id,
+        username: user.username,
+        role: user.role,
+        exp: Date.now() + 24 * 60 * 60 * 1000 // 24 hours
+    })).toString('base64');
+}
+
+// Parse token
+function parseToken(token) {
+    try {
+        const decoded = JSON.parse(Buffer.from(token, 'base64').toString());
+        if (decoded.exp < Date.now()) {
+            return null;
+        }
+        return decoded;
+    } catch {
+        return null;
+    }
+}
 
 // Auth middleware
 const authenticateAdmin = (req, res, next) => {
     const token = req.headers.authorization?.replace('Bearer ', '');
-    if (token === ADMIN_TOKEN) {
+    const tokenData = parseToken(token);
+    
+    if (tokenData) {
+        req.user = tokenData;
         next();
     } else {
         res.status(401).json({ error: 'Unauthorized' });
     }
+};
+
+// Role-based access control middleware
+const requireRole = (...allowedRoles) => {
+    return (req, res, next) => {
+        if (!req.user) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+        
+        // Dev superior has access to everything
+        if (req.user.role === USER_ROLES.DEV_SUPERIOR) {
+            return next();
+        }
+        
+        if (allowedRoles.includes(req.user.role)) {
+            return next();
+        }
+        
+        res.status(403).json({ error: 'Forbidden: Insufficient permissions' });
+    };
 };
 
 // ===========================
@@ -241,14 +313,219 @@ app.get('/api/collections/:id', (req, res) => {
 // ADMIN API ROUTES
 // ===========================
 
-// Admin login
+// Admin login with username and password
 app.post('/api/admin/login', (req, res) => {
-    const { password } = req.body;
-    if (password === ADMIN_TOKEN) {
-        res.json({ success: true, token: ADMIN_TOKEN });
+    const { username, password } = req.body;
+    
+    const user = users.find(u => u.username === username && u.password === password);
+    
+    if (user) {
+        const token = generateToken(user);
+        res.json({ 
+            success: true, 
+            token,
+            user: {
+                id: user.id,
+                username: user.username,
+                name: user.name,
+                role: user.role
+            }
+        });
     } else {
-        res.status(401).json({ error: 'Invalid credentials' });
+        res.status(401).json({ error: 'Invalid username or password' });
     }
+});
+
+// Get current user info
+app.get('/api/admin/me', authenticateAdmin, (req, res) => {
+    const user = users.find(u => u.id === req.user.id);
+    if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+    }
+    res.json({
+        id: user.id,
+        username: user.username,
+        name: user.name,
+        role: user.role
+    });
+});
+
+// Change password
+app.post('/api/admin/change-password', authenticateAdmin, (req, res) => {
+    const { currentPassword, newPassword } = req.body;
+    
+    const userIndex = users.findIndex(u => u.id === req.user.id);
+    if (userIndex === -1) {
+        return res.status(404).json({ error: 'User not found' });
+    }
+    
+    if (users[userIndex].password !== currentPassword) {
+        return res.status(400).json({ error: 'Current password is incorrect' });
+    }
+    
+    if (!newPassword || newPassword.length < 4) {
+        return res.status(400).json({ error: 'New password must be at least 4 characters' });
+    }
+    
+    users[userIndex].password = newPassword;
+    users[userIndex].updatedAt = new Date().toISOString();
+    
+    res.json({ success: true, message: 'Password changed successfully' });
+});
+
+// ===========================
+// USER MANAGEMENT API ROUTES (admin and dev_superior only)
+// ===========================
+
+// Get all users (admin and dev_superior)
+app.get('/api/admin/users', authenticateAdmin, requireRole(USER_ROLES.ADMIN, USER_ROLES.DEV_SUPERIOR), (req, res) => {
+    // Filter out passwords and limit what admins can see
+    const filteredUsers = users.map(u => ({
+        id: u.id,
+        username: u.username,
+        name: u.name,
+        role: u.role,
+        createdAt: u.createdAt,
+        updatedAt: u.updatedAt
+    }));
+    
+    // Regular admins can't see dev_superior users
+    if (req.user.role === USER_ROLES.ADMIN) {
+        return res.json(filteredUsers.filter(u => u.role !== USER_ROLES.DEV_SUPERIOR));
+    }
+    
+    res.json(filteredUsers);
+});
+
+// Create new user (admin can create users, dev_superior can create admins)
+app.post('/api/admin/users', authenticateAdmin, requireRole(USER_ROLES.ADMIN, USER_ROLES.DEV_SUPERIOR), (req, res) => {
+    const { username, password, name, role } = req.body;
+    
+    if (!username || !password || !name) {
+        return res.status(400).json({ error: 'Username, password, and name are required' });
+    }
+    
+    // Check if username already exists
+    if (users.some(u => u.username === username)) {
+        return res.status(400).json({ error: 'Username already exists' });
+    }
+    
+    // Role validation
+    let assignedRole = role || USER_ROLES.USER;
+    
+    // Only dev_superior can create admin or dev_superior users
+    if (req.user.role === USER_ROLES.ADMIN) {
+        if (assignedRole === USER_ROLES.DEV_SUPERIOR || assignedRole === USER_ROLES.ADMIN) {
+            return res.status(403).json({ error: 'You cannot create admin or dev_superior users' });
+        }
+        assignedRole = USER_ROLES.USER;
+    }
+    
+    // Even dev_superior can't create another dev_superior
+    if (assignedRole === USER_ROLES.DEV_SUPERIOR && req.user.role !== USER_ROLES.DEV_SUPERIOR) {
+        return res.status(403).json({ error: 'Only dev_superior can create dev_superior users' });
+    }
+    
+    // Prevent creating more than one dev_superior
+    if (assignedRole === USER_ROLES.DEV_SUPERIOR) {
+        return res.status(403).json({ error: 'Only one dev_superior account is allowed' });
+    }
+    
+    const newUser = {
+        id: uuidv4(),
+        username,
+        password,
+        name,
+        role: assignedRole,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+    };
+    
+    users.push(newUser);
+    
+    res.status(201).json({
+        id: newUser.id,
+        username: newUser.username,
+        name: newUser.name,
+        role: newUser.role,
+        createdAt: newUser.createdAt
+    });
+});
+
+// Update user (limited by role hierarchy)
+app.put('/api/admin/users/:id', authenticateAdmin, requireRole(USER_ROLES.ADMIN, USER_ROLES.DEV_SUPERIOR), (req, res) => {
+    const { id } = req.params;
+    const { name, password, role } = req.body;
+    
+    const userIndex = users.findIndex(u => u.id === id);
+    if (userIndex === -1) {
+        return res.status(404).json({ error: 'User not found' });
+    }
+    
+    const targetUser = users[userIndex];
+    
+    // Cannot modify dev_superior unless you are dev_superior
+    if (targetUser.role === USER_ROLES.DEV_SUPERIOR && req.user.role !== USER_ROLES.DEV_SUPERIOR) {
+        return res.status(403).json({ error: 'Cannot modify dev_superior user' });
+    }
+    
+    // Admin cannot modify other admins
+    if (targetUser.role === USER_ROLES.ADMIN && req.user.role === USER_ROLES.ADMIN && targetUser.id !== req.user.id) {
+        return res.status(403).json({ error: 'Cannot modify other admin users' });
+    }
+    
+    // Update fields
+    if (name) users[userIndex].name = name;
+    if (password) users[userIndex].password = password;
+    
+    // Role changes only by dev_superior
+    if (role && req.user.role === USER_ROLES.DEV_SUPERIOR) {
+        // Still can't create another dev_superior
+        if (role === USER_ROLES.DEV_SUPERIOR) {
+            return res.status(403).json({ error: 'Cannot assign dev_superior role' });
+        }
+        users[userIndex].role = role;
+    }
+    
+    users[userIndex].updatedAt = new Date().toISOString();
+    
+    res.json({
+        id: users[userIndex].id,
+        username: users[userIndex].username,
+        name: users[userIndex].name,
+        role: users[userIndex].role,
+        updatedAt: users[userIndex].updatedAt
+    });
+});
+
+// Delete user (with role hierarchy restrictions)
+app.delete('/api/admin/users/:id', authenticateAdmin, requireRole(USER_ROLES.ADMIN, USER_ROLES.DEV_SUPERIOR), (req, res) => {
+    const { id } = req.params;
+    
+    const userIndex = users.findIndex(u => u.id === id);
+    if (userIndex === -1) {
+        return res.status(404).json({ error: 'User not found' });
+    }
+    
+    const targetUser = users[userIndex];
+    
+    // Cannot delete dev_superior
+    if (targetUser.role === USER_ROLES.DEV_SUPERIOR) {
+        return res.status(403).json({ error: 'Cannot delete dev_superior user' });
+    }
+    
+    // Cannot delete yourself
+    if (targetUser.id === req.user.id) {
+        return res.status(403).json({ error: 'Cannot delete your own account' });
+    }
+    
+    // Admin cannot delete other admins
+    if (targetUser.role === USER_ROLES.ADMIN && req.user.role === USER_ROLES.ADMIN) {
+        return res.status(403).json({ error: 'Cannot delete other admin users' });
+    }
+    
+    users.splice(userIndex, 1);
+    res.json({ success: true, message: 'User deleted successfully' });
 });
 
 // Get all collections with stock info (admin only)
