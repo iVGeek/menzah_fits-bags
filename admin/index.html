@@ -324,6 +324,9 @@
         
         .nav-item .material-icons {
             font-size: 24px;
+            overflow: hidden;
+            width: 24px;
+            height: 24px;
         }
         
         /* Main Content */
@@ -769,6 +772,40 @@
             display: none !important;
         }
         
+        /* View Toggle */
+        .view-toggle {
+            display: flex;
+            gap: 4px;
+            background: var(--md-surface-container);
+            border-radius: var(--md-radius-lg);
+            padding: 4px;
+            margin-right: 12px;
+        }
+        
+        .view-toggle-btn {
+            background: transparent;
+            color: var(--md-on-surface-variant);
+            border-radius: var(--md-radius-md);
+            padding: 8px;
+            min-width: 40px;
+            height: 40px;
+        }
+        
+        .view-toggle-btn:hover {
+            background: var(--md-surface-container-high);
+        }
+        
+        .view-toggle-btn.active {
+            background: var(--md-primary);
+            color: var(--md-on-primary);
+        }
+        
+        /* Stock Cards Grid */
+        #stock-cards {
+            display: grid;
+            gap: 16px;
+        }
+        
         /* Settings Grid */
         .settings-grid {
             display: grid;
@@ -931,17 +968,12 @@
             
             <button class="nav-item active" data-view="dashboard">
                 <span class="material-icons">dashboard</span>
-                <span>Home</span>
+                <span>Dashboard</span>
             </button>
             
             <button class="nav-item" data-view="products">
                 <span class="material-icons">inventory_2</span>
                 <span>Products</span>
-            </button>
-            
-            <button class="nav-item" data-view="stock">
-                <span class="material-icons">format_list_numbered</span>
-                <span>Stock</span>
             </button>
             
             <button class="nav-item" data-view="users" id="users-nav">
@@ -993,6 +1025,14 @@
                 <div class="top-bar">
                     <h1>Products</h1>
                     <div class="top-bar-actions">
+                        <div class="view-toggle">
+                            <button class="md-btn md-btn-icon view-toggle-btn active" id="list-view-btn" onclick="setProductView('list')" title="List View">
+                                <span class="material-icons">view_list</span>
+                            </button>
+                            <button class="md-btn md-btn-icon view-toggle-btn" id="card-view-btn" onclick="setProductView('cards')" title="Card View">
+                                <span class="material-icons">grid_view</span>
+                            </button>
+                        </div>
                         <button class="md-btn md-btn-primary" onclick="openAddProductModal()">
                             <span class="material-icons">add</span>
                             Add Product
@@ -1000,7 +1040,8 @@
                     </div>
                 </div>
                 
-                <div class="data-table">
+                <!-- List View -->
+                <div id="products-list-view" class="data-table">
                     <table>
                         <thead>
                             <tr>
@@ -1018,16 +1059,12 @@
                         </tbody>
                     </table>
                 </div>
-            </section>
-            
-            <!-- Stock View -->
-            <section id="stock-view" class="view hidden">
-                <div class="top-bar">
-                    <h1>Stock Management</h1>
-                </div>
                 
-                <div id="stock-cards">
-                    <!-- Stock cards will be loaded here -->
+                <!-- Card View (Stock Cards) -->
+                <div id="products-card-view" class="hidden">
+                    <div id="stock-cards">
+                        <!-- Stock cards will be loaded here -->
+                    </div>
                 </div>
             </section>
             
@@ -1387,9 +1424,66 @@
             
             if (viewName === 'dashboard') loadDashboard();
             if (viewName === 'products') loadProducts();
-            if (viewName === 'stock') loadStockView();
             if (viewName === 'users') loadUsers();
             if (viewName === 'settings') loadSettings();
+        }
+        
+        // Product View Toggle (list vs cards)
+        let currentProductView = 'list';
+        
+        function setProductView(view) {
+            currentProductView = view;
+            
+            // Update toggle buttons
+            document.getElementById('list-view-btn').classList.toggle('active', view === 'list');
+            document.getElementById('card-view-btn').classList.toggle('active', view === 'cards');
+            
+            // Show/hide views
+            document.getElementById('products-list-view').classList.toggle('hidden', view !== 'list');
+            document.getElementById('products-card-view').classList.toggle('hidden', view !== 'cards');
+            
+            // Load data for cards if switching to card view
+            if (view === 'cards') {
+                loadStockCards();
+            }
+        }
+        
+        // Load Stock Cards (card view for products)
+        async function loadStockCards() {
+            try {
+                document.getElementById('stock-cards').innerHTML = `
+                    <div style="display: grid; gap: 16px;">
+                        ${collections.map(item => `
+                            <div class="data-table" style="padding: 24px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                                    <div>
+                                        <h3 style="font-size: 1.125rem; font-weight: 500;">${item.name}</h3>
+                                        <p style="color: var(--md-on-surface-variant); font-size: 0.875rem;">Total Stock: ${item.totalStock}</p>
+                                    </div>
+                                    <button class="md-btn md-btn-secondary" onclick="openStockModal('${item.id}')">
+                                        <span class="material-icons">edit</span>
+                                        Edit Stock
+                                    </button>
+                                </div>
+                                <div class="color-stock-list">
+                                    ${item.colors.map(c => `
+                                        <div class="color-stock-item">
+                                            <div class="color-preview" style="background: ${c.hex};"></div>
+                                            <div class="color-info">
+                                                <div class="color-name">${c.name}</div>
+                                                <div class="color-hex">${c.hex}</div>
+                                            </div>
+                                            <span class="badge ${c.stock < 3 ? 'badge-low' : 'badge-ok'}">${c.stock} in stock</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } catch {
+                showSnackbar('Failed to load stock cards');
+            }
         }
         
         // API Calls
@@ -1534,52 +1628,13 @@
                         </td>
                     </tr>
                 `).join('');
+                
+                // Also update card view if it's the current view
+                if (currentProductView === 'cards') {
+                    loadStockCards();
+                }
             } catch {
                 showSnackbar('Failed to load products');
-            }
-            
-            hideLoading();
-        }
-        
-        // Stock View
-        async function loadStockView() {
-            showLoading();
-            
-            try {
-                collections = await apiCall('/api/admin/collections');
-                
-                document.getElementById('stock-cards').innerHTML = `
-                    <div style="display: grid; gap: 16px;">
-                        ${collections.map(item => `
-                            <div class="data-table" style="padding: 24px;">
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                                    <div>
-                                        <h3 style="font-size: 1.125rem; font-weight: 500;">${item.name}</h3>
-                                        <p style="color: var(--md-on-surface-variant); font-size: 0.875rem;">Total Stock: ${item.totalStock}</p>
-                                    </div>
-                                    <button class="md-btn md-btn-secondary" onclick="openStockModal('${item.id}')">
-                                        <span class="material-icons">edit</span>
-                                        Edit Stock
-                                    </button>
-                                </div>
-                                <div class="color-stock-list">
-                                    ${item.colors.map(c => `
-                                        <div class="color-stock-item">
-                                            <div class="color-preview" style="background: ${c.hex};"></div>
-                                            <div class="color-info">
-                                                <div class="color-name">${c.name}</div>
-                                                <div class="color-hex">${c.hex}</div>
-                                            </div>
-                                            <span class="badge ${c.stock < 3 ? 'badge-low' : 'badge-ok'}">${c.stock} in stock</span>
-                                        </div>
-                                    `).join('')}
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-            } catch {
-                showSnackbar('Failed to load stock view');
             }
             
             hideLoading();
@@ -1755,7 +1810,6 @@
                 const activeView = document.querySelector('.nav-item.active').dataset.view;
                 if (activeView === 'dashboard') loadDashboard();
                 else if (activeView === 'products') loadProducts();
-                else if (activeView === 'stock') loadStockView();
             } catch {
                 showSnackbar('Failed to update stock');
             }
