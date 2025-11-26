@@ -2085,7 +2085,7 @@ button:focus-visible {
 .card-artwork-svg .artwork-main,
 .card-artwork-svg .artwork-body,
 .card-artwork-svg .artwork-pattern {
-    transition: fill 0.3s ease, stroke 0.3s ease;
+    transition: fill var(--transition-normal), stroke var(--transition-normal);
 }
 
 /* Collections CTA */
