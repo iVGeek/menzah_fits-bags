@@ -7,10 +7,27 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const crypto = require('crypto');
 const { v4: uuidv4 } = require('uuid');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Secret key for token signing (use env variable in production)
+const TOKEN_SECRET = process.env.TOKEN_SECRET || crypto.randomBytes(32).toString('hex');
+
+// Simple password hashing using crypto
+function hashPassword(password) {
+    const salt = crypto.randomBytes(16).toString('hex');
+    const hash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
+    return `${salt}:${hash}`;
+}
+
+function verifyPassword(password, storedHash) {
+    const [salt, hash] = storedHash.split(':');
+    const verifyHash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
+    return hash === verifyHash;
+}
 
 // Simple rate limiter for file serving routes
 const rateLimitStore = new Map();
@@ -42,12 +59,47 @@ function rateLimit(req, res, next) {
     next();
 }
 
+// Stricter rate limiter for authentication endpoints (prevent brute force)
+const authRateLimitStore = new Map();
+const AUTH_RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
+const MAX_AUTH_REQUESTS = 10; // 10 auth requests per minute per IP
+
+function authRateLimit(req, res, next) {
+    const ip = req.ip || req.connection.remoteAddress;
+    const now = Date.now();
+    
+    if (!authRateLimitStore.has(ip)) {
+        authRateLimitStore.set(ip, { count: 1, resetTime: now + AUTH_RATE_LIMIT_WINDOW });
+        return next();
+    }
+    
+    const record = authRateLimitStore.get(ip);
+    
+    if (now > record.resetTime) {
+        record.count = 1;
+        record.resetTime = now + AUTH_RATE_LIMIT_WINDOW;
+        return next();
+    }
+    
+    if (record.count >= MAX_AUTH_REQUESTS) {
+        return res.status(429).json({ error: 'Too many authentication attempts. Please try again later.' });
+    }
+    
+    record.count++;
+    next();
+}
+
 // Clean up rate limit store periodically
 setInterval(() => {
     const now = Date.now();
     for (const [ip, record] of rateLimitStore.entries()) {
         if (now > record.resetTime) {
             rateLimitStore.delete(ip);
+        }
+    }
+    for (const [ip, record] of authRateLimitStore.entries()) {
+        if (now > record.resetTime) {
+            authRateLimitStore.delete(ip);
         }
     }
 }, RATE_LIMIT_WINDOW);
@@ -182,12 +234,17 @@ const USER_ROLES = {
     USER: 'user'
 };
 
+// Default credentials from environment or fallback (for initial setup only)
+const DEFAULT_DEV_PASSWORD = process.env.DEV_PASSWORD || 'dev@menzah2024';
+const DEFAULT_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin';
+
 // In-memory users store (replace with database in production)
+// Passwords are hashed on server startup
 let users = [
     {
         id: 'dev-001',
         username: 'devsuperior',
-        password: 'dev@menzah2024',
+        password: hashPassword(DEFAULT_DEV_PASSWORD),
         role: USER_ROLES.DEV_SUPERIOR,
         name: 'Dev Superior',
         createdAt: new Date().toISOString(),
@@ -196,7 +253,7 @@ let users = [
     {
         id: 'admin-001',
         username: 'admin',
-        password: 'admin',
+        password: hashPassword(DEFAULT_ADMIN_PASSWORD),
         role: USER_ROLES.ADMIN,
         name: 'Administrator',
         createdAt: new Date().toISOString(),
@@ -204,24 +261,35 @@ let users = [
     }
 ];
 
-// Generate simple token (in production, use JWT)
+// Generate secure token with HMAC signature
 function generateToken(user) {
-    return Buffer.from(JSON.stringify({
+    const payload = JSON.stringify({
         id: user.id,
         username: user.username,
         role: user.role,
         exp: Date.now() + 24 * 60 * 60 * 1000 // 24 hours
-    })).toString('base64');
+    });
+    const signature = crypto.createHmac('sha256', TOKEN_SECRET).update(payload).digest('hex');
+    return Buffer.from(`${payload}.${signature}`).toString('base64');
 }
 
-// Parse token
+// Parse and verify token
 function parseToken(token) {
     try {
-        const decoded = JSON.parse(Buffer.from(token, 'base64').toString());
-        if (decoded.exp < Date.now()) {
+        const decoded = Buffer.from(token, 'base64').toString();
+        const [payload, signature] = decoded.split(/\.(?=[^.]+$)/);
+        
+        // Verify signature
+        const expectedSignature = crypto.createHmac('sha256', TOKEN_SECRET).update(payload).digest('hex');
+        if (signature !== expectedSignature) {
             return null;
         }
-        return decoded;
+        
+        const data = JSON.parse(payload);
+        if (data.exp < Date.now()) {
+            return null;
+        }
+        return data;
     } catch {
         return null;
     }
@@ -313,13 +381,13 @@ app.get('/api/collections/:id', (req, res) => {
 // ADMIN API ROUTES
 // ===========================
 
-// Admin login with username and password
-app.post('/api/admin/login', (req, res) => {
+// Admin login with username and password (rate limited to prevent brute force)
+app.post('/api/admin/login', authRateLimit, (req, res) => {
     const { username, password } = req.body;
     
-    const user = users.find(u => u.username === username && u.password === password);
+    const user = users.find(u => u.username === username);
     
-    if (user) {
+    if (user && verifyPassword(password, user.password)) {
         const token = generateToken(user);
         res.json({ 
             success: true, 
@@ -350,8 +418,8 @@ app.get('/api/admin/me', authenticateAdmin, (req, res) => {
     });
 });
 
-// Change password
-app.post('/api/admin/change-password', authenticateAdmin, (req, res) => {
+// Change password (rate limited to prevent brute force)
+app.post('/api/admin/change-password', authRateLimit, authenticateAdmin, (req, res) => {
     const { currentPassword, newPassword } = req.body;
     
     const userIndex = users.findIndex(u => u.id === req.user.id);
@@ -359,7 +427,7 @@ app.post('/api/admin/change-password', authenticateAdmin, (req, res) => {
         return res.status(404).json({ error: 'User not found' });
     }
     
-    if (users[userIndex].password !== currentPassword) {
+    if (!verifyPassword(currentPassword, users[userIndex].password)) {
         return res.status(400).json({ error: 'Current password is incorrect' });
     }
     
@@ -367,7 +435,7 @@ app.post('/api/admin/change-password', authenticateAdmin, (req, res) => {
         return res.status(400).json({ error: 'New password must be at least 4 characters' });
     }
     
-    users[userIndex].password = newPassword;
+    users[userIndex].password = hashPassword(newPassword);
     users[userIndex].updatedAt = new Date().toISOString();
     
     res.json({ success: true, message: 'Password changed successfully' });
@@ -413,7 +481,7 @@ app.post('/api/admin/users', authenticateAdmin, requireRole(USER_ROLES.ADMIN, US
     // Role validation
     let assignedRole = role || USER_ROLES.USER;
     
-    // Only dev_superior can create admin or dev_superior users
+    // Only dev_superior can create admin users
     if (req.user.role === USER_ROLES.ADMIN) {
         if (assignedRole === USER_ROLES.DEV_SUPERIOR || assignedRole === USER_ROLES.ADMIN) {
             return res.status(403).json({ error: 'You cannot create admin or dev_superior users' });
@@ -421,20 +489,15 @@ app.post('/api/admin/users', authenticateAdmin, requireRole(USER_ROLES.ADMIN, US
         assignedRole = USER_ROLES.USER;
     }
     
-    // Even dev_superior can't create another dev_superior
-    if (assignedRole === USER_ROLES.DEV_SUPERIOR && req.user.role !== USER_ROLES.DEV_SUPERIOR) {
-        return res.status(403).json({ error: 'Only dev_superior can create dev_superior users' });
-    }
-    
-    // Prevent creating more than one dev_superior
+    // Prevent creating dev_superior users (only one allowed and it's pre-created)
     if (assignedRole === USER_ROLES.DEV_SUPERIOR) {
-        return res.status(403).json({ error: 'Only one dev_superior account is allowed' });
+        return res.status(403).json({ error: 'Cannot create dev_superior accounts' });
     }
     
     const newUser = {
         id: uuidv4(),
         username,
-        password,
+        password: hashPassword(password),
         name,
         role: assignedRole,
         createdAt: new Date().toISOString(),
@@ -476,11 +539,11 @@ app.put('/api/admin/users/:id', authenticateAdmin, requireRole(USER_ROLES.ADMIN,
     
     // Update fields
     if (name) users[userIndex].name = name;
-    if (password) users[userIndex].password = password;
+    if (password) users[userIndex].password = hashPassword(password);
     
     // Role changes only by dev_superior
     if (role && req.user.role === USER_ROLES.DEV_SUPERIOR) {
-        // Still can't create another dev_superior
+        // Still can't assign dev_superior role
         if (role === USER_ROLES.DEV_SUPERIOR) {
             return res.status(403).json({ error: 'Cannot assign dev_superior role' });
         }
