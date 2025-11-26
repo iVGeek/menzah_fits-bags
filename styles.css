@@ -99,8 +99,9 @@
     --md-radius-xl: 28px;
     --md-radius-full: 9999px;
     
+    /* Typography - Material Design inspired */
     --font-sans: 'Roboto', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-    --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+    --font-serif: 'Playfair Display', ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
     
     /* Material Design transitions */
     --md-transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
@@ -838,8 +839,27 @@ button:focus-visible {
 .logo {
     display: flex;
     align-items: center;
+    gap: 0.75rem;
     text-decoration: none;
     position: relative;
+}
+
+.logo-icon {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+}
+
+.logo-crochet-svg {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+    animation: yarn-loop 8s ease-in-out infinite;
+}
+
+.logo-text {
+    display: flex;
+    align-items: baseline;
 }
 
 .logo-main {
@@ -870,18 +890,8 @@ button:focus-visible {
     color: var(--color-coral);
 }
 
-.logo-underline {
-    position: absolute;
-    bottom: -4px;
-    left: 0;
-    width: 100%;
-    height: 4px;
-    color: rgba(255, 255, 255, 0.3);
-    transition: color var(--transition-normal);
-}
-
-.header.scrolled .logo-underline {
-    color: rgba(42, 123, 155, 0.3);
+.header.scrolled .logo-crochet-svg {
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
 }
 
 /* Desktop Navigation */
@@ -1069,13 +1079,39 @@ button:focus-visible {
 .hero-bg {
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, var(--color-natural-dark) 0%, var(--color-natural) 50%, var(--color-sand) 100%);
+    /* Enhanced gradient with more depth and Material Design feel */
+    background: linear-gradient(
+        145deg, 
+        var(--color-deep-sienna) 0%, 
+        var(--color-twilight-nude) 25%,
+        var(--color-dusk-nude) 50%, 
+        var(--color-dusty-rose) 75%,
+        var(--color-cream-nude) 100%
+    );
+    /* Add subtle texture overlay */
+}
+
+/* Additional background layer for depth */
+.hero-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+        ellipse at 30% 20%,
+        rgba(255, 228, 181, 0.15) 0%,
+        transparent 50%
+    ),
+    radial-gradient(
+        ellipse at 70% 80%,
+        rgba(212, 165, 154, 0.2) 0%,
+        transparent 50%
+    );
 }
 
 .hero-pattern {
     position: absolute;
     inset: 0;
-    opacity: 0.15;
+    opacity: 0.18;
 }
 
 .pattern-svg {
@@ -2334,7 +2370,27 @@ button:focus-visible {
 }
 
 .footer-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
     margin-bottom: var(--fluid-space-lg);
+}
+
+.footer-logo-icon {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+}
+
+.footer-crochet-svg {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.footer-logo-text {
+    display: flex;
+    align-items: baseline;
 }
 
 .footer-logo-main {
@@ -2583,11 +2639,62 @@ button:focus-visible {
     box-shadow: var(--md-elevation-3);
     transition: all var(--md-transition-normal);
     z-index: 100;
+    text-decoration: none;
 }
 
 .md-fab:hover {
     background: var(--md-primary);
     color: var(--md-on-primary);
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* WhatsApp FAB specific styling */
+.whatsapp-fab {
+    background: #25D366;
+    color: white;
+    border-radius: 50%;
+    animation: float 3s ease-in-out infinite;
+}
+
+.whatsapp-fab:hover {
+    background: #128C7E;
+    color: white;
+}
+
+/* FAB tooltip on hover */
+.whatsapp-fab::before {
+    content: 'Chat with us';
+    position: absolute;
+    right: 70px;
+    background: var(--color-charcoal);
+    color: white;
+    padding: 8px 16px;
+    border-radius: var(--md-radius-sm);
+    font-size: 0.875rem;
+    white-space: nowrap;
+    opacity: 0;
+    transform: translateX(10px);
+    transition: all var(--md-transition-normal);
+    pointer-events: none;
+}
+
+.whatsapp-fab:hover::before {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+@media (max-width: 768px) {
+    .md-fab {
+        bottom: 16px;
+        right: 16px;
+        width: 48px;
+        height: 48px;
+    }
+    
+    .whatsapp-fab::before {
+        display: none;
+    }
 }
 
 /* Crochet spinner loader */

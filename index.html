@@ -6,24 +6,53 @@
     <meta name="description" content="Premium handcrafted crochet dresses and outfits from the Kenyan coast. Authentic, artistic, and elegantly crafted fashion.">
     <meta name="keywords" content="crochet, fashion, Kenya, coastal, handmade, dresses, outfits, artisan">
     <title>Menzah_fits | Handcrafted Coastal Crochet Fashion</title>
-    <!-- Material Design Roboto Font -->
+    <!-- Material Design Fonts - Roboto for body, Playfair Display for headings -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Material Design Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" href="public/favicon.ico">
+    <!-- Material Design 3 theme color for browser -->
+    <meta name="theme-color" content="#B08D7C">
 </head>
 <body>
     <!-- Header -->
     <header id="header" class="header">
         <nav class="nav-container">
             <div class="nav-content">
-                <!-- Logo -->
+                <!-- Logo with Crochet Weaving Design -->
                 <a href="#home" class="logo">
-                    <span class="logo-main">Menzah</span><span class="logo-accent">_fits</span>
-                    <svg class="logo-underline" viewBox="0 0 100 4" preserveAspectRatio="none">
-                        <path d="M0 2 Q10 0, 20 2 T40 2 T60 2 T80 2 T100 2" fill="none" stroke="currentColor" stroke-width="1"/>
-                    </svg>
+                    <div class="logo-icon">
+                        <svg viewBox="0 0 48 48" class="logo-crochet-svg" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Crochet weaving yarn loops - interlocking pattern -->
+                            <defs>
+                                <linearGradient id="yarn-gradient-1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#FFE4B5;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#D4A59A;stop-opacity:1" />
+                                </linearGradient>
+                                <linearGradient id="yarn-gradient-2" x1="100%" y1="0%" x2="0%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#E2BFA5;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#B08D7C;stop-opacity:1" />
+                                </linearGradient>
+                            </defs>
+                            <!-- Outer yarn loops - chain stitch pattern -->
+                            <ellipse cx="16" cy="24" rx="10" ry="14" fill="none" stroke="url(#yarn-gradient-1)" stroke-width="3" stroke-linecap="round"/>
+                            <ellipse cx="32" cy="24" rx="10" ry="14" fill="none" stroke="url(#yarn-gradient-2)" stroke-width="3" stroke-linecap="round"/>
+                            <!-- Inner connecting yarn threads -->
+                            <path d="M22 14 Q24 24 22 34" fill="none" stroke="url(#yarn-gradient-1)" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+                            <path d="M26 14 Q24 24 26 34" fill="none" stroke="url(#yarn-gradient-2)" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+                            <!-- Center knot detail -->
+                            <circle cx="24" cy="24" r="4" fill="none" stroke="#FFE4B5" stroke-width="2"/>
+                            <!-- Small accent dots - yarn texture -->
+                            <circle cx="10" cy="24" r="1.5" fill="#FFE4B5" opacity="0.7"/>
+                            <circle cx="38" cy="24" r="1.5" fill="#FFE4B5" opacity="0.7"/>
+                        </svg>
+                    </div>
+                    <div class="logo-text">
+                        <span class="logo-main">Menzah</span><span class="logo-accent">_fits</span>
+                    </div>
                 </a>
 
                 <!-- Desktop Navigation -->
@@ -65,27 +94,35 @@
             <!-- Background gradient -->
             <div class="hero-bg"></div>
             
-            <!-- Animated crochet pattern overlay - elegant yarn stitch design -->
+            <!-- Animated crochet weaving pattern overlay - enhanced yarn design -->
             <div class="hero-pattern">
                 <svg class="pattern-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
                     <defs>
-                        <!-- Elegant yarn stitch pattern with interlocking loops -->
-                        <pattern id="crochet-stitch" x="0" y="0" width="12" height="12" patternUnits="userSpaceOnUse">
-                            <!-- Main yarn loop - creates the classic crochet chain look -->
-                            <ellipse cx="6" cy="6" rx="4" ry="3" fill="none" stroke="white" stroke-width="0.8" opacity="0.6"/>
-                            <!-- Connecting yarn threads -->
-                            <path d="M2 6 Q6 3 10 6" fill="none" stroke="white" stroke-width="0.5" opacity="0.4"/>
-                            <path d="M6 2 Q9 6 6 10" fill="none" stroke="white" stroke-width="0.5" opacity="0.4"/>
-                            <!-- Small stitch accent -->
-                            <circle cx="6" cy="6" r="1" fill="white" opacity="0.3"/>
+                        <!-- Enhanced crochet weaving pattern with interlocking yarn loops -->
+                        <pattern id="crochet-weave" x="0" y="0" width="16" height="16" patternUnits="userSpaceOnUse">
+                            <!-- Primary yarn loop - vertical orientation -->
+                            <ellipse cx="8" cy="8" rx="5" ry="6" fill="none" stroke="white" stroke-width="0.7" opacity="0.5"/>
+                            <!-- Secondary loop - horizontal weave -->
+                            <ellipse cx="8" cy="8" rx="6" ry="5" fill="none" stroke="white" stroke-width="0.5" opacity="0.35"/>
+                            <!-- Yarn crossing threads -->
+                            <path d="M3 8 Q8 4 13 8" fill="none" stroke="white" stroke-width="0.4" opacity="0.3"/>
+                            <path d="M8 3 Q12 8 8 13" fill="none" stroke="white" stroke-width="0.4" opacity="0.3"/>
+                            <!-- Center knot detail -->
+                            <circle cx="8" cy="8" r="1.5" fill="white" opacity="0.25"/>
                         </pattern>
-                        <!-- Second offset pattern layer for depth -->
-                        <pattern id="crochet-stitch-overlay" x="6" y="6" width="12" height="12" patternUnits="userSpaceOnUse">
-                            <ellipse cx="6" cy="6" rx="3" ry="4" fill="none" stroke="white" stroke-width="0.6" opacity="0.4"/>
+                        <!-- Offset weave layer for depth and realism -->
+                        <pattern id="crochet-weave-overlay" x="8" y="8" width="16" height="16" patternUnits="userSpaceOnUse">
+                            <ellipse cx="8" cy="8" rx="4" ry="5" fill="none" stroke="white" stroke-width="0.5" opacity="0.3"/>
+                            <path d="M4 4 L12 12 M12 4 L4 12" stroke="white" stroke-width="0.3" opacity="0.2"/>
+                        </pattern>
+                        <!-- Subtle yarn texture dots -->
+                        <pattern id="yarn-texture" x="0" y="0" width="8" height="8" patternUnits="userSpaceOnUse">
+                            <circle cx="4" cy="4" r="0.5" fill="white" opacity="0.15"/>
                         </pattern>
                     </defs>
-                    <rect width="100" height="100" fill="url(#crochet-stitch)" class="animate-crochet-wave"/>
-                    <rect width="100" height="100" fill="url(#crochet-stitch-overlay)" class="animate-crochet-wave" style="animation-delay: -2s;"/>
+                    <rect width="100" height="100" fill="url(#crochet-weave)" class="animate-crochet-wave"/>
+                    <rect width="100" height="100" fill="url(#crochet-weave-overlay)" class="animate-crochet-wave" style="animation-delay: -2s;"/>
+                    <rect width="100" height="100" fill="url(#yarn-texture)" opacity="0.5"/>
                 </svg>
             </div>
 
@@ -613,6 +650,17 @@
         </section>
     </main>
 
+    <!-- Material Design FAB - WhatsApp Quick Contact -->
+    <a href="https://wa.me/254700000000?text=Hello%20Menzah_fits!%20I%20would%20like%20to%20inquire%20about%20your%20crochet%20designs." 
+       target="_blank" 
+       rel="noopener noreferrer" 
+       class="md-fab whatsapp-fab" 
+       aria-label="Contact us on WhatsApp">
+        <svg fill="currentColor" viewBox="0 0 24 24" width="28" height="28">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+        </svg>
+    </a>
+
     <!-- Footer -->
     <footer class="footer">
         <!-- Decorative border -->
@@ -623,7 +671,30 @@
                 <!-- Brand Column -->
                 <div class="footer-brand">
                     <div class="footer-logo">
-                        <span class="footer-logo-main">Menzah</span><span class="footer-logo-accent">_fits</span>
+                        <div class="footer-logo-icon">
+                            <svg viewBox="0 0 48 48" class="footer-crochet-svg" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="footer-yarn-1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#FFE4B5;stop-opacity:1" />
+                                        <stop offset="100%" style="stop-color:#D4A59A;stop-opacity:1" />
+                                    </linearGradient>
+                                    <linearGradient id="footer-yarn-2" x1="100%" y1="0%" x2="0%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#E2BFA5;stop-opacity:1" />
+                                        <stop offset="100%" style="stop-color:#B08D7C;stop-opacity:1" />
+                                    </linearGradient>
+                                </defs>
+                                <ellipse cx="16" cy="24" rx="10" ry="14" fill="none" stroke="url(#footer-yarn-1)" stroke-width="3" stroke-linecap="round"/>
+                                <ellipse cx="32" cy="24" rx="10" ry="14" fill="none" stroke="url(#footer-yarn-2)" stroke-width="3" stroke-linecap="round"/>
+                                <path d="M22 14 Q24 24 22 34" fill="none" stroke="url(#footer-yarn-1)" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+                                <path d="M26 14 Q24 24 26 34" fill="none" stroke="url(#footer-yarn-2)" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+                                <circle cx="24" cy="24" r="4" fill="none" stroke="#FFE4B5" stroke-width="2"/>
+                                <circle cx="10" cy="24" r="1.5" fill="#FFE4B5" opacity="0.7"/>
+                                <circle cx="38" cy="24" r="1.5" fill="#FFE4B5" opacity="0.7"/>
+                            </svg>
+                        </div>
+                        <div class="footer-logo-text">
+                            <span class="footer-logo-main">Menzah</span><span class="footer-logo-accent">_fits</span>
+                        </div>
                     </div>
                     <p class="footer-desc">
                         Handcrafted crochet fashion from the heart of the Kenyan coast. 
