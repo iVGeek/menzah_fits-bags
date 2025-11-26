@@ -3395,7 +3395,7 @@ button:focus-visible {
 /* Mobile adjustments for eSoko FAB */
 @media (max-width: 767px) {
     .esoko-fab {
-        bottom: 90px;
+        bottom: 80px;
         right: 16px;
         width: 48px;
         height: 48px;
@@ -3409,17 +3409,5 @@ button:focus-visible {
     
     .esoko-fab::before {
         display: none;
-    }
-}
-
-/* Adjust FAB positions when both are present */
-.whatsapp-fab {
-    bottom: 24px;
-}
-
-@media (max-width: 767px) {
-    .whatsapp-fab {
-        bottom: 24px;
-        right: 16px;
     }
 }
