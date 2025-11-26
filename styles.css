@@ -10,12 +10,14 @@
     --color-sand: #E8DED1;
     --color-sand-light: #F5F0E8;
     --color-sand-dark: #C9BBA8;
-    --color-ocean: #2A7B9B;
-    --color-ocean-light: #4FA3C7;
-    --color-ocean-dark: #1E5A73;
-    --color-coral: #E87461;
-    --color-coral-light: #F09B8D;
-    --color-coral-dark: #D45341;
+    /* Primary accent colors (warm nude/cream tones) */
+    --color-ocean: #A68B6B;
+    --color-ocean-light: #C9A98C;
+    --color-ocean-dark: #8B7355;
+    /* Accent colors (warm complementary tones) */
+    --color-coral: #B8917A;
+    --color-coral-light: #D4B8A8;
+    --color-coral-dark: #9C7B6A;
     --color-natural: #8B7355;
     --color-natural-light: #A89078;
     --color-natural-dark: #6B5642;
@@ -23,26 +25,26 @@
     --color-charcoal: #2C2C2C;
     --color-white: #FFFFFF;
     
-    /* Ocean-Beach-Sun Coastal Theme Colors */
-    --color-deep-ocean: #0284c7;
-    --color-shallow-blue: #38bdf8;
-    --color-sun-gold: #fef9c3;
-    --color-beach-sand: #f5deb3;
+    /* Nude/Cream Warm Tone Theme Colors */
+    --color-nude-dark: #C9A98C;
+    --color-nude: #D4B896;
+    --color-nude-light: #E8D5C4;
+    --color-cream-warm: #F5E6D3;
     --color-coconut-green: #22c55e;
     --color-coconut-dark: #166534;
     --color-palm-green: #4ade80;
     
-    /* Material Design 3 - Primary (Ocean inspired) */
-    --md-primary: #006494;
+    /* Material Design 3 - Primary (Warm Nude inspired) */
+    --md-primary: #9C7B5C;
     --md-on-primary: #ffffff;
-    --md-primary-container: #c8e6ff;
-    --md-on-primary-container: #001e31;
+    --md-primary-container: #F5E6D3;
+    --md-on-primary-container: #3D2E1F;
     
-    /* Material Design 3 - Secondary (Coral inspired) */
-    --md-secondary: #c4503d;
+    /* Material Design 3 - Secondary (Warm accent inspired) */
+    --md-secondary: #9C7B6A;
     --md-on-secondary: #ffffff;
-    --md-secondary-container: #ffdad4;
-    --md-on-secondary-container: #3a0905;
+    --md-secondary-container: #F5E6D3;
+    --md-on-secondary-container: #3D2E1F;
     
     /* Material Design 3 - Tertiary (Sand inspired) */
     --md-tertiary: #7b5800;
@@ -129,13 +131,13 @@ body {
     line-height: 1.6;
     color: var(--color-charcoal);
     
-    /* Ocean-Beach-Sun smooth coastal gradient */
+    /* Nude/Cream smooth warm gradient */
     background: linear-gradient(
         to bottom,
-        var(--color-deep-ocean) 0%,
-        var(--color-shallow-blue) 25%,
-        var(--color-sun-gold) 60%,
-        var(--color-beach-sand) 100%
+        var(--color-nude-dark) 0%,
+        var(--color-nude) 25%,
+        var(--color-nude-light) 60%,
+        var(--color-cream-warm) 100%
     );
     
     background-attachment: fixed;
@@ -1033,7 +1035,7 @@ button:focus-visible {
 .hero-bg {
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, var(--color-ocean-dark) 0%, var(--color-ocean) 50%, var(--color-ocean-light) 100%);
+    background: linear-gradient(135deg, var(--color-natural-dark) 0%, var(--color-natural) 50%, var(--color-sand) 100%);
 }
 
 .hero-pattern {
