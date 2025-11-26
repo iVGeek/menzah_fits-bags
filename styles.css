@@ -182,8 +182,8 @@ body {
     }
 }
 
-/* Crochet pattern overlay - pure CSS mesh texture
-   Pattern uses: 20% solid core, 40% fade point, 30px tile size */
+/* Crochet pattern overlay - elegant yarn stitch design
+   Refined pattern inspired by actual crochet stitches */
 body::before {
     content: "";
     position: fixed;
@@ -191,10 +191,15 @@ body::before {
     pointer-events: none;
     z-index: 0;
     
-    /* Pure CSS crochet mesh pattern - stitch size: 30px, core: 20%, fade: 40% */
+    /* Elegant interlocking yarn stitch pattern */
     background:
-        radial-gradient(circle, rgba(255, 255, 255, 0.3) 20%, transparent 40%) 0 0 / 30px 30px;
-    opacity: 0.08;
+        /* Main stitch circles - create the yarn loop look */
+        radial-gradient(circle at 50% 50%, transparent 45%, rgba(255, 255, 255, 0.15) 46%, rgba(255, 255, 255, 0.15) 54%, transparent 55%) 0 0 / 40px 40px,
+        /* Offset second layer for interlocking effect */
+        radial-gradient(circle at 50% 50%, transparent 45%, rgba(255, 255, 255, 0.1) 46%, rgba(255, 255, 255, 0.1) 54%, transparent 55%) 20px 20px / 40px 40px,
+        /* Subtle connecting thread lines */
+        linear-gradient(45deg, transparent 48%, rgba(255, 255, 255, 0.05) 49%, rgba(255, 255, 255, 0.05) 51%, transparent 52%) 0 0 / 20px 20px;
+    opacity: 0.12;
 }
 
 /* Container - Fluid responsive sizing */
@@ -767,13 +772,16 @@ button:focus-visible {
 }
 
 .btn-hero-secondary {
-    border-color: var(--color-white);
+    border-color: rgba(255, 255, 255, 0.9);
     color: var(--color-white);
+    border-width: 2px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .btn-hero-secondary:hover {
     background: var(--color-white);
-    color: var(--color-ocean);
+    color: var(--md-primary);
+    border-color: var(--color-white);
 }
 
 /* =================================
@@ -838,15 +846,17 @@ button:focus-visible {
     letter-spacing: -0.025em;
     color: var(--color-white);
     transition: color var(--transition-normal);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .logo-accent {
     font-size: var(--fluid-text-2xl);
     font-family: var(--font-serif);
-    font-weight: 300;
+    font-weight: 500;
     letter-spacing: -0.025em;
-    color: var(--color-coral-light);
+    color: #FFE4B5;
     transition: color var(--transition-normal);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .header.scrolled .logo-main {
@@ -1062,7 +1072,7 @@ button:focus-visible {
 .hero-pattern {
     position: absolute;
     inset: 0;
-    opacity: 0.1;
+    opacity: 0.15;
 }
 
 .pattern-svg {
@@ -1141,23 +1151,34 @@ button:focus-visible {
     font-weight: 700;
     color: var(--color-white);
     margin-bottom: var(--fluid-space-md);
+    /* Enhanced visibility with text shadow for better contrast */
+    text-shadow: 
+        0 2px 4px rgba(0, 0, 0, 0.3),
+        0 4px 8px rgba(0, 0, 0, 0.2),
+        0 8px 16px rgba(0, 0, 0, 0.1);
+    letter-spacing: 0.02em;
 }
 
 .hero-title-accent {
-    color: var(--color-coral);
+    /* More visible accent color with warm gold tone */
+    color: #FFE4B5;
+    text-shadow: 
+        0 2px 4px rgba(0, 0, 0, 0.4),
+        0 4px 8px rgba(0, 0, 0, 0.25);
 }
 
 .hero-tagline {
     font-size: var(--fluid-text-3xl);
-    color: var(--color-sand-light);
+    color: var(--color-white);
     font-weight: 300;
     letter-spacing: 0.025em;
     margin-bottom: var(--fluid-space-lg);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 .hero-subtitle {
     font-size: var(--fluid-text-base);
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(255, 255, 255, 0.9);
     max-width: 42rem;
     margin: 0 auto var(--fluid-space-xl);
     line-height: 1.75;
@@ -2317,14 +2338,14 @@ button:focus-visible {
     font-size: var(--fluid-text-3xl);
     font-family: var(--font-serif);
     font-weight: 700;
-    color: var(--color-ocean-light);
+    color: var(--color-white);
 }
 
 .footer-logo-accent {
     font-size: var(--fluid-text-3xl);
     font-family: var(--font-serif);
-    font-weight: 300;
-    color: var(--color-coral);
+    font-weight: 500;
+    color: #FFE4B5;
 }
 
 .footer-desc {
