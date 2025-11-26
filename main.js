@@ -16,6 +16,24 @@
     // eSoko Marketplace URL - Change this when you have your specific seller page
     const ESOKO_URL = 'https://marketplace.esoko.com/';
     
+    // =================================
+    // Stock Helper Functions
+    // =================================
+    
+    // Get CSS class for stock status
+    function getStockClass(stock) {
+        if (stock === 0) return 'out-of-stock';
+        if (stock < 3) return 'low-stock';
+        return 'in-stock';
+    }
+    
+    // Format stock display text
+    function formatStockText(name, stock) {
+        const prefix = name ? `${name}: ` : '';
+        const itemWord = stock === 1 ? 'item' : 'items';
+        return `${prefix}${stock} ${itemWord}`;
+    }
+    
     // Check if API is available
     async function checkAPI() {
         try {
@@ -287,8 +305,19 @@
             const name = getColorName(color);
             const stock = getColorStock(color);
             const secondaryHex = getColorHex(item.colors[(i + 1) % item.colors.length]);
-            const stockClass = stock === 0 ? 'out-of-stock' : stock < 3 ? 'low-stock' : '';
-            return `<button class="color-dot${i === 0 ? ' active' : ''} ${stockClass}" style="background-color: ${hex}" data-color="${hex}" data-secondary-color="${secondaryHex}" data-stock="${stock}" data-color-name="${name}" aria-label="${name || 'Color option ' + (i + 1)}: ${stock} in stock" title="${name}: ${stock} in stock"></button>`;
+            const stockClass = getStockClass(stock);
+            const activeClass = i === 0 ? ' active' : '';
+            const ariaLabel = `${name || 'Color option ' + (i + 1)}: ${stock} in stock`;
+            const title = `${name}: ${stock} in stock`;
+            
+            return `<button class="color-dot${activeClass} ${stockClass}" 
+                style="background-color: ${hex}" 
+                data-color="${hex}" 
+                data-secondary-color="${secondaryHex}" 
+                data-stock="${stock}" 
+                data-color-name="${name}" 
+                aria-label="${ariaLabel}" 
+                title="${title}"></button>`;
         }).join('');
 
         const sizesHTML = (item.sizes && item.sizes.length > 0) ? item.sizes.map((size, i) => 
@@ -347,7 +376,7 @@
                     </div>
                     <div class="card-stock-info">
                         <span class="stock-label">Stock:</span>
-                        <span class="stock-value ${firstColorStock === 0 ? 'out-of-stock' : firstColorStock < 3 ? 'low-stock' : 'in-stock'}" data-stock-display>${firstColorName ? firstColorName + ': ' : ''}${firstColorStock} ${firstColorStock === 1 ? 'item' : 'items'}</span>
+                        <span class="stock-value ${getStockClass(firstColorStock)}" data-stock-display>${formatStockText(firstColorName, firstColorStock)}</span>
                     </div>
                 </div>
             </div>
@@ -436,8 +465,8 @@
                     
                     // Update stock display for selected color
                     if (stockDisplay) {
-                        stockDisplay.textContent = `${colorName ? colorName + ': ' : ''}${stock} ${stock === 1 ? 'item' : 'items'}`;
-                        stockDisplay.className = `stock-value ${stock === 0 ? 'out-of-stock' : stock < 3 ? 'low-stock' : 'in-stock'}`;
+                        stockDisplay.textContent = formatStockText(colorName, stock);
+                        stockDisplay.className = `stock-value ${getStockClass(stock)}`;
                     }
                 });
             });
