@@ -58,6 +58,11 @@
     --color-coconut-dark: #7A6B52;
     --color-palm-green: #B8A88A;
     
+    /* Pattern and overlay opacities */
+    --pattern-opacity: 0.18;
+    --overlay-opacity-light: 0.15;
+    --overlay-opacity-medium: 0.2;
+    
     /* Material Design 3 - Primary (Dusk Nude inspired) */
     --md-primary: #B08D7C;
     --md-on-primary: #ffffff;
@@ -1098,12 +1103,12 @@ button:focus-visible {
     inset: 0;
     background: radial-gradient(
         ellipse at 30% 20%,
-        rgba(255, 228, 181, 0.15) 0%,
+        rgba(255, 228, 181, var(--overlay-opacity-light)) 0%,
         transparent 50%
     ),
     radial-gradient(
         ellipse at 70% 80%,
-        rgba(212, 165, 154, 0.2) 0%,
+        rgba(212, 165, 154, var(--overlay-opacity-medium)) 0%,
         transparent 50%
     );
 }
@@ -1111,7 +1116,7 @@ button:focus-visible {
 .hero-pattern {
     position: absolute;
     inset: 0;
-    opacity: 0.18;
+    opacity: var(--pattern-opacity);
 }
 
 .pattern-svg {
