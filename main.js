@@ -55,9 +55,9 @@
             category: 'dresses',
             price: 'KES 8,500',
             colors: [
-                { hex: '#2A7B9B', name: 'Ocean Blue', stock: 5 },
-                { hex: '#E8DED1', name: 'Sand', stock: 3 },
-                { hex: '#E87461', name: 'Coral', stock: 2 }
+                { hex: '#2A7B9B', name: 'Ocean Blue', sizeStock: { 'S': 1, 'M': 2, 'L': 1, 'XL': 1 }, stock: 5 },
+                { hex: '#E8DED1', name: 'Sand', sizeStock: { 'S': 1, 'M': 1, 'L': 1, 'XL': 0 }, stock: 3 },
+                { hex: '#E87461', name: 'Coral', sizeStock: { 'S': 0, 'M': 1, 'L': 1, 'XL': 0 }, stock: 2 }
             ],
             sizes: ['S', 'M', 'L', 'XL'],
             description: 'Flowing maxi dress with intricate wave patterns',
@@ -69,9 +69,9 @@
             category: 'tops',
             price: 'KES 4,200',
             colors: [
-                { hex: '#E87461', name: 'Coral', stock: 8 },
-                { hex: '#F09B8D', name: 'Light Coral', stock: 4 },
-                { hex: '#C9BBA8', name: 'Taupe', stock: 6 }
+                { hex: '#E87461', name: 'Coral', sizeStock: { 'XS': 2, 'S': 2, 'M': 2, 'L': 2 }, stock: 8 },
+                { hex: '#F09B8D', name: 'Light Coral', sizeStock: { 'XS': 1, 'S': 1, 'M': 1, 'L': 1 }, stock: 4 },
+                { hex: '#C9BBA8', name: 'Taupe', sizeStock: { 'XS': 2, 'S': 1, 'M': 2, 'L': 1 }, stock: 6 }
             ],
             sizes: ['XS', 'S', 'M', 'L'],
             description: 'Lightweight crochet top perfect for warm evenings',
@@ -83,9 +83,9 @@
             category: 'dresses',
             price: 'KES 7,800',
             colors: [
-                { hex: '#E8DED1', name: 'Sand', stock: 4 },
-                { hex: '#8B7355', name: 'Natural', stock: 3 },
-                { hex: '#FDF8F3', name: 'Cream', stock: 5 }
+                { hex: '#E8DED1', name: 'Sand', sizeStock: { 'S': 2, 'M': 1, 'L': 1 }, stock: 4 },
+                { hex: '#8B7355', name: 'Natural', sizeStock: { 'S': 1, 'M': 1, 'L': 1 }, stock: 3 },
+                { hex: '#FDF8F3', name: 'Cream', sizeStock: { 'S': 2, 'M': 2, 'L': 1 }, stock: 5 }
             ],
             sizes: ['S', 'M', 'L'],
             description: 'Elegant beach dress with natural fiber texture',
@@ -97,9 +97,9 @@
             category: 'sets',
             price: 'KES 12,500',
             colors: [
-                { hex: '#2A7B9B', name: 'Ocean', stock: 2 },
-                { hex: '#1E5A73', name: 'Deep Ocean', stock: 1 },
-                { hex: '#E8DED1', name: 'Sand', stock: 3 }
+                { hex: '#2A7B9B', name: 'Ocean', sizeStock: { 'S': 1, 'M': 0, 'L': 1, 'XL': 0 }, stock: 2 },
+                { hex: '#1E5A73', name: 'Deep Ocean', sizeStock: { 'S': 0, 'M': 1, 'L': 0, 'XL': 0 }, stock: 1 },
+                { hex: '#E8DED1', name: 'Sand', sizeStock: { 'S': 1, 'M': 1, 'L': 1, 'XL': 0 }, stock: 3 }
             ],
             sizes: ['S', 'M', 'L', 'XL'],
             description: 'Two-piece ensemble for special occasions',
@@ -111,9 +111,9 @@
             category: 'skirts',
             price: 'KES 5,500',
             colors: [
-                { hex: '#4FA3C7', name: 'Light Ocean', stock: 7 },
-                { hex: '#2A7B9B', name: 'Ocean', stock: 5 },
-                { hex: '#FDF8F3', name: 'Cream', stock: 4 }
+                { hex: '#4FA3C7', name: 'Light Ocean', sizeStock: { 'XS': 1, 'S': 2, 'M': 2, 'L': 1, 'XL': 1 }, stock: 7 },
+                { hex: '#2A7B9B', name: 'Ocean', sizeStock: { 'XS': 1, 'S': 1, 'M': 1, 'L': 1, 'XL': 1 }, stock: 5 },
+                { hex: '#FDF8F3', name: 'Cream', sizeStock: { 'XS': 1, 'S': 1, 'M': 1, 'L': 1, 'XL': 0 }, stock: 4 }
             ],
             sizes: ['XS', 'S', 'M', 'L', 'XL'],
             description: 'Flowing midi skirt with wave-inspired patterns',
@@ -125,9 +125,9 @@
             category: 'dresses',
             price: 'KES 9,200',
             colors: [
-                { hex: '#E87461', name: 'Coral', stock: 3 },
-                { hex: '#D45341', name: 'Deep Coral', stock: 2 },
-                { hex: '#E8DED1', name: 'Sand', stock: 4 }
+                { hex: '#E87461', name: 'Coral', sizeStock: { 'S': 1, 'M': 1, 'L': 1 }, stock: 3 },
+                { hex: '#D45341', name: 'Deep Coral', sizeStock: { 'S': 1, 'M': 1, 'L': 0 }, stock: 2 },
+                { hex: '#E8DED1', name: 'Sand', sizeStock: { 'S': 1, 'M': 2, 'L': 1 }, stock: 4 }
             ],
             sizes: ['S', 'M', 'L'],
             description: 'Romantic crochet dress with coral accents',
@@ -295,26 +295,31 @@
             ? `<div class="card-badge ${badgeClasses[item.badge]}">${item.badge.charAt(0).toUpperCase() + item.badge.slice(1)}</div>`
             : '';
 
-        // Handle both object format {hex, name, stock} and legacy string format
+        // Handle both object format {hex, name, sizeStock} and legacy string format
         const getColorHex = (color) => typeof color === 'object' ? color.hex : color;
         const getColorName = (color) => typeof color === 'object' ? color.name : '';
-        const getColorStock = (color) => typeof color === 'object' ? color.stock : 0;
+        const getColorSizeStock = (color) => typeof color === 'object' ? (color.sizeStock || {}) : {};
+        const getColorStock = (color) => typeof color === 'object' ? (color.stock || 0) : 0;
 
+        // Get the first size for initial display
+        const firstSize = item.sizes && item.sizes.length > 0 ? item.sizes[0] : '';
+        
         const colorsHTML = item.colors.map((color, i) => {
             const hex = getColorHex(color);
             const name = getColorName(color);
-            const stock = getColorStock(color);
+            const sizeStock = getColorSizeStock(color);
+            const totalStock = getColorStock(color);
             const secondaryHex = getColorHex(item.colors[(i + 1) % item.colors.length]);
-            const stockClass = getStockClass(stock);
+            const stockClass = getStockClass(totalStock);
             const activeClass = i === 0 ? ' active' : '';
-            const ariaLabel = `${name || 'Color option ' + (i + 1)}: ${stock} in stock`;
-            const title = `${name}: ${stock} in stock`;
+            const ariaLabel = `${name || 'Color option ' + (i + 1)}: ${totalStock} in stock`;
+            const title = `${name}: ${totalStock} in stock`;
             
             return `<button class="color-dot${activeClass} ${stockClass}" 
                 style="background-color: ${hex}" 
                 data-color="${hex}" 
                 data-secondary-color="${secondaryHex}" 
-                data-stock="${stock}" 
+                data-size-stock='${JSON.stringify(sizeStock)}' 
                 data-color-name="${name}" 
                 aria-label="${ariaLabel}" 
                 title="${title}"></button>`;
@@ -328,7 +333,8 @@
         const firstColorHex = getColorHex(item.colors[0]);
         const secondColorHex = item.colors[1] ? getColorHex(item.colors[1]) : firstColorHex;
         const firstColorName = getColorName(item.colors[0]);
-        const firstColorStock = getColorStock(item.colors[0]);
+        const firstColorSizeStock = getColorSizeStock(item.colors[0]);
+        const firstSizeStock = firstSize ? (firstColorSizeStock[firstSize] || 0) : getColorStock(item.colors[0]);
 
         return `
             <div class="collection-card" data-item-id="${item.id}" style="transition-delay: ${index * 100}ms">
@@ -376,7 +382,7 @@
                     </div>
                     <div class="card-stock-info">
                         <span class="stock-label">Stock:</span>
-                        <span class="stock-value ${getStockClass(firstColorStock)}" data-stock-display>${formatStockText(firstColorName, firstColorStock)}</span>
+                        <span class="stock-value ${getStockClass(firstSizeStock)}" data-stock-display>${formatStockText(firstColorName + (firstSize ? ' - ' + firstSize : ''), firstSizeStock)}</span>
                     </div>
                 </div>
             </div>
@@ -433,15 +439,54 @@
             const artworkSvg = card.querySelector('.card-artwork-svg');
             const stockDisplay = card.querySelector('[data-stock-display]');
             
+            // Helper function to update stock display based on selected color and size
+            function updateStockDisplay() {
+                const activeColor = card.querySelector('.color-dot.active');
+                const activeSize = card.querySelector('.size-btn.active');
+                
+                if (!activeColor || !stockDisplay) return;
+                
+                const colorName = activeColor.dataset.colorName || '';
+                let sizeStock = {};
+                try {
+                    sizeStock = JSON.parse(activeColor.dataset.sizeStock || '{}');
+                } catch {
+                    sizeStock = {};
+                }
+                
+                const selectedSize = activeSize ? activeSize.dataset.size : '';
+                let stock = 0;
+                let displayLabel = colorName;
+                
+                if (selectedSize && sizeStock[selectedSize] !== undefined) {
+                    stock = parseInt(sizeStock[selectedSize], 10) || 0;
+                    displayLabel = colorName + ' - ' + selectedSize;
+                } else {
+                    // If no size selected or size not found, show total for color
+                    stock = Object.values(sizeStock).reduce((sum, v) => sum + (parseInt(v, 10) || 0), 0);
+                }
+                
+                stockDisplay.textContent = formatStockText(displayLabel, stock);
+                stockDisplay.className = `stock-value ${getStockClass(stock)}`;
+            }
+            
             colorDots.forEach(dot => {
                 dot.addEventListener('click', (e) => {
                     e.preventDefault();
                     
-                    // Parse stock with radix 10 for safety
-                    const stock = parseInt(dot.dataset.stock, 10) || 0;
+                    // Get sizeStock for this color
+                    let sizeStock = {};
+                    try {
+                        sizeStock = JSON.parse(dot.dataset.sizeStock || '{}');
+                    } catch {
+                        sizeStock = {};
+                    }
+                    
+                    // Calculate total stock for this color
+                    const totalStock = Object.values(sizeStock).reduce((sum, v) => sum + (parseInt(v, 10) || 0), 0);
                     
                     // Prevent selection of out-of-stock colors
-                    if (stock === 0) {
+                    if (totalStock === 0) {
                         // Use CSS class for disabled feedback animation
                         dot.classList.add('click-disabled');
                         // Use transitionend to clean up, with fallback timeout
@@ -455,10 +500,9 @@
                     colorDots.forEach(d => d.classList.remove('active'));
                     dot.classList.add('active');
                     
-                    // Get the selected colors and stock info
+                    // Get the selected colors
                     const mainColor = dot.dataset.color;
                     const secondaryColor = dot.dataset.secondaryColor;
-                    const colorName = dot.dataset.colorName || '';
                     
                     // Update SVG artwork colors with smooth transition
                     if (artworkSvg) {
@@ -476,11 +520,8 @@
                         });
                     }
                     
-                    // Update stock display for selected color
-                    if (stockDisplay) {
-                        stockDisplay.textContent = formatStockText(colorName, stock);
-                        stockDisplay.className = `stock-value ${getStockClass(stock)}`;
-                    }
+                    // Update stock display for selected color and size
+                    updateStockDisplay();
                 });
             });
             
@@ -492,6 +533,9 @@
                     // Update active state for size buttons
                     sizeBtns.forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
+                    
+                    // Update stock display when size changes
+                    updateStockDisplay();
                 });
             });
         });
