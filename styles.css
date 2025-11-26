@@ -25,6 +25,7 @@
     --color-bare-skin: #D4AA8B;
     --color-earth-nude: #C69C82;
     --color-sienna-nude: #B38B6D;
+    --color-deep-sienna: #8B6B52;  /* Darker sienna for depth/shadows */
     
     /* Core theme colors (mapped from nude palette) */
     --color-sand: #E8C9B8;
@@ -40,7 +41,7 @@
     --color-coral-dark: #B38B6D;
     --color-natural: #B38B6D;
     --color-natural-light: #C69C82;
-    --color-natural-dark: #8B6B52;
+    --color-natural-dark: var(--color-deep-sienna);  /* Uses deep sienna for consistency */
     --color-cream: #F5E1D8;
     --color-charcoal: #3D2E25;
     --color-white: #FFFFFF;
