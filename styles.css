@@ -4,63 +4,83 @@
    Material Design 3 Inspired Theme
    ================================= */
 
-/* CSS Variables - Material Design 3 + Coastal Palette */
+/* CSS Variables - Material Design 3 + Nude Color Palette
+   Mix of: Dusk Nude + Creamy Nudes + Nude by Nature shades */
 :root {
-    /* Coastal colors */
-    --color-sand: #E8DED1;
-    --color-sand-light: #F5F0E8;
-    --color-sand-dark: #C9BBA8;
-    /* Primary accent colors (warm nude/cream tones) */
-    --color-ocean: #A68B6B;
-    --color-ocean-light: #C9A98C;
-    --color-ocean-dark: #8B7355;
-    /* Accent colors (warm complementary tones) */
-    --color-coral: #B8917A;
-    --color-coral-light: #D4B8A8;
-    --color-coral-dark: #9C7B6A;
-    --color-natural: #8B7355;
-    --color-natural-light: #A89078;
-    --color-natural-dark: #6B5642;
-    --color-cream: #FDF8F3;
-    --color-charcoal: #2C2C2C;
+    /* Dusk Nude Shades (warmer, rose/mauve undertones) */
+    --color-dusk-nude: #D4A59A;
+    --color-dusk-nude-light: #E2C4BC;
+    --color-dusk-nude-dark: #B08D7C;
+    --color-dusty-rose: #C19A88;
+    --color-twilight-nude: #A67C6D;
+    
+    /* Creamy Nudes (lighter, soft cream-based tones) */
+    --color-cream-nude: #F5E1D8;
+    --color-soft-cream: #F0D9CC;
+    --color-vanilla-cream: #E8C9B8;
+    --color-almond-cream: #DFC4B4;
+    
+    /* Nude by Nature Shades (earthy, natural skin-tone inspired) */
+    --color-natural-nude: #E2BFA5;
+    --color-bare-skin: #D4AA8B;
+    --color-earth-nude: #C69C82;
+    --color-sienna-nude: #B38B6D;
+    
+    /* Core theme colors (mapped from nude palette) */
+    --color-sand: #E8C9B8;
+    --color-sand-light: #F5E1D8;
+    --color-sand-dark: #DFC4B4;
+    /* Primary accent colors (dusk nude tones) */
+    --color-ocean: #B08D7C;
+    --color-ocean-light: #D4A59A;
+    --color-ocean-dark: #A67C6D;
+    /* Accent colors (nude by nature tones) */
+    --color-coral: #C69C82;
+    --color-coral-light: #E2BFA5;
+    --color-coral-dark: #B38B6D;
+    --color-natural: #B38B6D;
+    --color-natural-light: #C69C82;
+    --color-natural-dark: #8B6B52;
+    --color-cream: #F5E1D8;
+    --color-charcoal: #3D2E25;
     --color-white: #FFFFFF;
     
-    /* Nude/Cream Warm Tone Theme Colors */
-    --color-nude-dark: #C9A98C;
-    --color-nude: #D4B896;
-    --color-nude-light: #E8D5C4;
-    --color-cream-warm: #F5E6D3;
-    --color-coconut-green: #22c55e;
-    --color-coconut-dark: #166534;
-    --color-palm-green: #4ade80;
+    /* Nude/Cream Theme Gradient Colors */
+    --color-nude-dark: #D4AA8B;
+    --color-nude: #E2BFA5;
+    --color-nude-light: #F0D9CC;
+    --color-cream-warm: #F5E1D8;
+    --color-coconut-green: #9B8B6E;
+    --color-coconut-dark: #7A6B52;
+    --color-palm-green: #B8A88A;
     
-    /* Material Design 3 - Primary (Warm Nude inspired) */
-    --md-primary: #9C7B5C;
+    /* Material Design 3 - Primary (Dusk Nude inspired) */
+    --md-primary: #B08D7C;
     --md-on-primary: #ffffff;
-    --md-primary-container: #F5E6D3;
-    --md-on-primary-container: #3D2E1F;
+    --md-primary-container: #F5E1D8;
+    --md-on-primary-container: #3D2E25;
     
-    /* Material Design 3 - Secondary (Warm accent inspired) */
-    --md-secondary: #9C7B6A;
+    /* Material Design 3 - Secondary (Nude by Nature inspired) */
+    --md-secondary: #C69C82;
     --md-on-secondary: #ffffff;
-    --md-secondary-container: #F5E6D3;
-    --md-on-secondary-container: #3D2E1F;
+    --md-secondary-container: #F0D9CC;
+    --md-on-secondary-container: #3D2E25;
     
-    /* Material Design 3 - Tertiary (Sand inspired) */
-    --md-tertiary: #7b5800;
+    /* Material Design 3 - Tertiary (Creamy Nude inspired) */
+    --md-tertiary: #A67C6D;
     --md-on-tertiary: #ffffff;
-    --md-tertiary-container: #ffdea6;
-    --md-on-tertiary-container: #271900;
+    --md-tertiary-container: #E8C9B8;
+    --md-on-tertiary-container: #3D2E25;
     
     /* Material Design 3 - Surface */
-    --md-surface: #fafcff;
-    --md-on-surface: #191c1e;
-    --md-surface-variant: #dfe3e7;
-    --md-on-surface-variant: #42474d;
+    --md-surface: #FDF8F5;
+    --md-on-surface: #3D2E25;
+    --md-surface-variant: #F0D9CC;
+    --md-on-surface-variant: #5C4A3D;
     
     /* Material Design 3 - Outline */
-    --md-outline: #72787e;
-    --md-outline-variant: #c2c8cd;
+    --md-outline: #8B7A6D;
+    --md-outline-variant: #D4C4B8;
     
     /* Material Design 3 - Elevation shadows */
     --md-elevation-1: 0 1px 2px 0 rgba(0, 0, 0, 0.3), 0 1px 3px 1px rgba(0, 0, 0, 0.15);
