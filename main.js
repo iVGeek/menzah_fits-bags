@@ -437,6 +437,20 @@
                 dot.addEventListener('click', (e) => {
                     e.preventDefault();
                     
+                    // Parse stock with radix 10 for safety
+                    const stock = parseInt(dot.dataset.stock, 10) || 0;
+                    
+                    // Prevent selection of out-of-stock colors
+                    if (stock === 0) {
+                        // Use CSS class for disabled feedback animation
+                        dot.classList.add('click-disabled');
+                        // Use transitionend to clean up, with fallback timeout
+                        const cleanup = () => dot.classList.remove('click-disabled');
+                        dot.addEventListener('transitionend', cleanup, { once: true });
+                        setTimeout(cleanup, 200); // Fallback cleanup
+                        return;
+                    }
+                    
                     // Update active state for color dots
                     colorDots.forEach(d => d.classList.remove('active'));
                     dot.classList.add('active');
@@ -445,7 +459,6 @@
                     const mainColor = dot.dataset.color;
                     const secondaryColor = dot.dataset.secondaryColor;
                     const colorName = dot.dataset.colorName || '';
-                    const stock = parseInt(dot.dataset.stock) || 0;
                     
                     // Update SVG artwork colors with smooth transition
                     if (artworkSvg) {
