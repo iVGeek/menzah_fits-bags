@@ -36,7 +36,11 @@
             name: 'Ocean Breeze Maxi',
             category: 'dresses',
             price: 'KES 8,500',
-            colors: ['#2A7B9B', '#E8DED1', '#E87461'],
+            colors: [
+                { hex: '#2A7B9B', name: 'Ocean Blue', stock: 5 },
+                { hex: '#E8DED1', name: 'Sand', stock: 3 },
+                { hex: '#E87461', name: 'Coral', stock: 2 }
+            ],
             sizes: ['S', 'M', 'L', 'XL'],
             description: 'Flowing maxi dress with intricate wave patterns',
             badge: 'bestseller',
@@ -46,7 +50,11 @@
             name: 'Coral Sunset Top',
             category: 'tops',
             price: 'KES 4,200',
-            colors: ['#E87461', '#F09B8D', '#C9BBA8'],
+            colors: [
+                { hex: '#E87461', name: 'Coral', stock: 8 },
+                { hex: '#F09B8D', name: 'Light Coral', stock: 4 },
+                { hex: '#C9BBA8', name: 'Taupe', stock: 6 }
+            ],
             sizes: ['XS', 'S', 'M', 'L'],
             description: 'Lightweight crochet top perfect for warm evenings',
             badge: null,
@@ -56,7 +64,11 @@
             name: 'Sandy Shores Dress',
             category: 'dresses',
             price: 'KES 7,800',
-            colors: ['#E8DED1', '#8B7355', '#FDF8F3'],
+            colors: [
+                { hex: '#E8DED1', name: 'Sand', stock: 4 },
+                { hex: '#8B7355', name: 'Natural', stock: 3 },
+                { hex: '#FDF8F3', name: 'Cream', stock: 5 }
+            ],
             sizes: ['S', 'M', 'L'],
             description: 'Elegant beach dress with natural fiber texture',
             badge: 'new',
@@ -66,7 +78,11 @@
             name: 'Coastal Elegance Set',
             category: 'sets',
             price: 'KES 12,500',
-            colors: ['#2A7B9B', '#1E5A73', '#E8DED1'],
+            colors: [
+                { hex: '#2A7B9B', name: 'Ocean', stock: 2 },
+                { hex: '#1E5A73', name: 'Deep Ocean', stock: 1 },
+                { hex: '#E8DED1', name: 'Sand', stock: 3 }
+            ],
             sizes: ['S', 'M', 'L', 'XL'],
             description: 'Two-piece ensemble for special occasions',
             badge: 'limited',
@@ -76,7 +92,11 @@
             name: 'Tidal Wave Skirt',
             category: 'skirts',
             price: 'KES 5,500',
-            colors: ['#4FA3C7', '#2A7B9B', '#FDF8F3'],
+            colors: [
+                { hex: '#4FA3C7', name: 'Light Ocean', stock: 7 },
+                { hex: '#2A7B9B', name: 'Ocean', stock: 5 },
+                { hex: '#FDF8F3', name: 'Cream', stock: 4 }
+            ],
             sizes: ['XS', 'S', 'M', 'L', 'XL'],
             description: 'Flowing midi skirt with wave-inspired patterns',
             badge: null,
@@ -86,7 +106,11 @@
             name: 'Reef Romance Dress',
             category: 'dresses',
             price: 'KES 9,200',
-            colors: ['#E87461', '#D45341', '#E8DED1'],
+            colors: [
+                { hex: '#E87461', name: 'Coral', stock: 3 },
+                { hex: '#D45341', name: 'Deep Coral', stock: 2 },
+                { hex: '#E8DED1', name: 'Sand', stock: 4 }
+            ],
             sizes: ['S', 'M', 'L'],
             description: 'Romantic crochet dress with coral accents',
             badge: 'featured',
@@ -253,24 +277,40 @@
             ? `<div class="card-badge ${badgeClasses[item.badge]}">${item.badge.charAt(0).toUpperCase() + item.badge.slice(1)}</div>`
             : '';
 
-        const colorsHTML = item.colors.map((color, i) => 
-            `<button class="color-dot${i === 0 ? ' active' : ''}" style="background-color: ${color}" data-color="${color}" data-secondary-color="${item.colors[(i + 1) % item.colors.length]}" aria-label="Color option ${i + 1}"></button>`
-        ).join('');
+        // Handle both object format {hex, name, stock} and legacy string format
+        const getColorHex = (color) => typeof color === 'object' ? color.hex : color;
+        const getColorName = (color) => typeof color === 'object' ? color.name : '';
+        const getColorStock = (color) => typeof color === 'object' ? color.stock : 0;
+
+        const colorsHTML = item.colors.map((color, i) => {
+            const hex = getColorHex(color);
+            const name = getColorName(color);
+            const stock = getColorStock(color);
+            const secondaryHex = getColorHex(item.colors[(i + 1) % item.colors.length]);
+            const stockClass = stock === 0 ? 'out-of-stock' : stock < 3 ? 'low-stock' : '';
+            return `<button class="color-dot${i === 0 ? ' active' : ''} ${stockClass}" style="background-color: ${hex}" data-color="${hex}" data-secondary-color="${secondaryHex}" data-stock="${stock}" data-color-name="${name}" aria-label="${name || 'Color option ' + (i + 1)}: ${stock} in stock" title="${name}: ${stock} in stock"></button>`;
+        }).join('');
 
         const sizesHTML = (item.sizes && item.sizes.length > 0) ? item.sizes.map((size, i) => 
             `<button class="size-btn${i === 0 ? ' active' : ''}" data-size="${size}" aria-label="Size ${size}">${size}</button>`
         ).join('') : '';
+
+        // Get first color info for SVG and stock display
+        const firstColorHex = getColorHex(item.colors[0]);
+        const secondColorHex = item.colors[1] ? getColorHex(item.colors[1]) : firstColorHex;
+        const firstColorName = getColorName(item.colors[0]);
+        const firstColorStock = getColorStock(item.colors[0]);
 
         return `
             <div class="collection-card" data-item-id="${item.id}" style="transition-delay: ${index * 100}ms">
                 <div class="card-image">
                     <div class="card-artwork">
                         <svg viewBox="0 0 200 280" class="card-artwork-svg">
-                            <ellipse class="artwork-main" cx="100" cy="50" rx="25" ry="30" fill="${item.colors[0]}" opacity="0.6"/>
-                            <path class="artwork-body" d="M75 75 L55 280 L145 280 L125 75 Z" fill="${item.colors[0]}" opacity="0.4"/>
+                            <ellipse class="artwork-main" cx="100" cy="50" rx="25" ry="30" fill="${firstColorHex}" opacity="0.6"/>
+                            <path class="artwork-body" d="M75 75 L55 280 L145 280 L125 75 Z" fill="${firstColorHex}" opacity="0.4"/>
                             ${[...Array(6)].map((_, row) => 
                                 [...Array(4)].map((_, col) => 
-                                    `<circle class="artwork-pattern" cx="${65 + col * 25}" cy="${95 + row * 28}" r="8" fill="none" stroke="${item.colors[1]}" stroke-width="2" opacity="0.5"/>`
+                                    `<circle class="artwork-pattern" cx="${65 + col * 25}" cy="${95 + row * 28}" r="8" fill="none" stroke="${secondColorHex}" stroke-width="2" opacity="0.5"/>`
                                 ).join('')
                             ).join('')}
                         </svg>
@@ -304,6 +344,10 @@
                             <span class="sizes-label">Sizes:</span>
                             ${sizesHTML}
                         </div>` : ''}
+                    </div>
+                    <div class="card-stock-info">
+                        <span class="stock-label">Stock:</span>
+                        <span class="stock-value ${firstColorStock === 0 ? 'out-of-stock' : firstColorStock < 3 ? 'low-stock' : 'in-stock'}" data-stock-display>${firstColorName ? firstColorName + ': ' : ''}${firstColorStock} ${firstColorStock === 1 ? 'item' : 'items'}</span>
                     </div>
                 </div>
             </div>
@@ -358,6 +402,7 @@
             const colorDots = card.querySelectorAll('.color-dot');
             const sizeBtns = card.querySelectorAll('.size-btn');
             const artworkSvg = card.querySelector('.card-artwork-svg');
+            const stockDisplay = card.querySelector('[data-stock-display]');
             
             colorDots.forEach(dot => {
                 dot.addEventListener('click', (e) => {
@@ -367,9 +412,11 @@
                     colorDots.forEach(d => d.classList.remove('active'));
                     dot.classList.add('active');
                     
-                    // Get the selected colors
+                    // Get the selected colors and stock info
                     const mainColor = dot.dataset.color;
                     const secondaryColor = dot.dataset.secondaryColor;
+                    const colorName = dot.dataset.colorName || '';
+                    const stock = parseInt(dot.dataset.stock) || 0;
                     
                     // Update SVG artwork colors with smooth transition
                     if (artworkSvg) {
@@ -385,6 +432,12 @@
                             el.style.transition = 'stroke 0.3s ease';
                             el.setAttribute('stroke', secondaryColor);
                         });
+                    }
+                    
+                    // Update stock display for selected color
+                    if (stockDisplay) {
+                        stockDisplay.textContent = `${colorName ? colorName + ': ' : ''}${stock} ${stock === 1 ? 'item' : 'items'}`;
+                        stockDisplay.className = `stock-value ${stock === 0 ? 'out-of-stock' : stock < 3 ? 'low-stock' : 'in-stock'}`;
                     }
                 });
             });

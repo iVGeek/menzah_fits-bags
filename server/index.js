@@ -341,13 +341,13 @@ app.get('/api/collections', (req, res) => {
         result = collections.filter(item => item.category === category);
     }
     
-    // Return public data without sensitive stock details
+    // Return public data with color details including stock
     const publicData = result.map(item => ({
         id: item.id,
         name: item.name,
         category: item.category,
         price: item.priceFormatted,
-        colors: item.colors.map(c => c.hex),
+        colors: item.colors.map(c => ({ hex: c.hex, name: c.name, stock: c.stock })),
         sizes: item.sizes || [],
         description: item.description,
         badge: item.badge,
@@ -369,7 +369,7 @@ app.get('/api/collections/:id', (req, res) => {
         name: item.name,
         category: item.category,
         price: item.priceFormatted,
-        colors: item.colors.map(c => ({ hex: c.hex, name: c.name, available: c.stock > 0 })),
+        colors: item.colors.map(c => ({ hex: c.hex, name: c.name, stock: c.stock })),
         sizes: item.sizes || [],
         description: item.description,
         badge: item.badge,
