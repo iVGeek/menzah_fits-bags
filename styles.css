@@ -1179,14 +1179,18 @@ button:focus-visible {
 
 /* Scroll Indicator */
 .scroll-indicator {
-    position: absolute;
-    bottom: 8rem;
-    left: 50%;
-    transform: translateX(-50%);
     display: flex;
     flex-direction: column;
     align-items: center;
     color: rgba(255, 255, 255, 0.6);
+    margin-top: var(--fluid-space-xl);
+}
+
+/* Hide scroll indicator on mobile to prevent overlap with CTA buttons */
+@media (max-width: 767px) {
+    .scroll-indicator {
+        display: none;
+    }
 }
 
 .scroll-text {
