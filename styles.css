@@ -271,7 +271,7 @@ body::before {
         120px 120px,
         100px 100px,
         90px 90px;
-    opacity: 1;
+    /* Opacity already defined in rgba values - no additional layer opacity needed */
 }
 
 /* Container - Fluid responsive sizing */
@@ -1707,8 +1707,8 @@ button:focus-visible {
         radial-gradient(circle at 75% 75%, rgba(226, 191, 165, 0.06) 2px, transparent 2px),
         radial-gradient(circle at 50% 50%, rgba(198, 156, 130, 0.05) 1.5px, transparent 1.5px);
     background-size: 28px 28px, 28px 28px, 20px 20px;
-    opacity: 0.8;
-    animation: stitch-pattern 25s linear infinite;
+    opacity: 0.35;
+    animation: stitch-pattern 20s linear infinite;
 }
 
 /* Category Filter */
@@ -2752,7 +2752,7 @@ button:focus-visible {
         radial-gradient(circle at 10px 10px, rgba(212, 165, 154, 0.15) 2px, transparent 2px),
         radial-gradient(circle at 20px 20px, rgba(226, 191, 165, 0.12) 2px, transparent 2px);
     background-size: 30px 30px;
-    opacity: 0.8;
+    opacity: 0.15;
     animation: stitch-pattern 30s linear infinite;
     pointer-events: none;
 }
