@@ -1513,9 +1513,11 @@ button:focus-visible {
         90px 90px;
 }
 
-/* Ensure section content stays above the pattern */
-.section-pattern > .container,
-.section-pattern-light > .container {
+/* Ensure section content stays above the pattern
+   Note: These classes expect child content to have position: relative for proper z-index stacking.
+   The .container class is the standard content wrapper used throughout the site. */
+.section-pattern > *,
+.section-pattern-light > * {
     position: relative;
     z-index: 2;
 }
