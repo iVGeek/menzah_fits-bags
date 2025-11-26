@@ -2031,6 +2031,63 @@ button:focus-visible {
     transform: scale(1.1);
 }
 
+.color-dot.active {
+    transform: scale(1.15);
+    box-shadow: 0 0 0 2px var(--color-ocean), 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Card Options Container */
+.card-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* Size Selection */
+.card-sizes {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.sizes-label {
+    font-size: 0.75rem;
+    color: #9ca3af;
+}
+
+.size-btn {
+    min-width: 2rem;
+    height: 1.75rem;
+    padding: 0 0.5rem;
+    border-radius: 0.375rem;
+    border: 1px solid #e5e7eb;
+    background: var(--color-white);
+    color: #6b7280;
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.size-btn:hover {
+    border-color: var(--color-ocean);
+    color: var(--color-ocean);
+}
+
+.size-btn.active {
+    background: var(--color-ocean);
+    border-color: var(--color-ocean);
+    color: var(--color-white);
+}
+
+/* Artwork SVG transition for color switching */
+.card-artwork-svg .artwork-main,
+.card-artwork-svg .artwork-body,
+.card-artwork-svg .artwork-pattern {
+    transition: fill 0.3s ease, stroke 0.3s ease;
+}
+
 /* Collections CTA */
 .collections-cta {
     text-align: center;

@@ -76,6 +76,7 @@ let collections = [
             { hex: '#E8DED1', name: 'Sand', stock: 3 },
             { hex: '#E87461', name: 'Coral', stock: 2 }
         ],
+        sizes: ['S', 'M', 'L', 'XL'],
         description: 'Flowing maxi dress with intricate wave patterns',
         badge: 'bestseller',
         totalStock: 10,
@@ -93,6 +94,7 @@ let collections = [
             { hex: '#F09B8D', name: 'Light Coral', stock: 4 },
             { hex: '#C9BBA8', name: 'Taupe', stock: 6 }
         ],
+        sizes: ['XS', 'S', 'M', 'L'],
         description: 'Lightweight crochet top perfect for warm evenings',
         badge: null,
         totalStock: 18,
@@ -110,6 +112,7 @@ let collections = [
             { hex: '#8B7355', name: 'Natural', stock: 3 },
             { hex: '#FDF8F3', name: 'Cream', stock: 5 }
         ],
+        sizes: ['S', 'M', 'L'],
         description: 'Elegant beach dress with natural fiber texture',
         badge: 'new',
         totalStock: 12,
@@ -127,6 +130,7 @@ let collections = [
             { hex: '#1E5A73', name: 'Deep Ocean', stock: 1 },
             { hex: '#E8DED1', name: 'Sand', stock: 3 }
         ],
+        sizes: ['S', 'M', 'L', 'XL'],
         description: 'Two-piece ensemble for special occasions',
         badge: 'limited',
         totalStock: 6,
@@ -144,6 +148,7 @@ let collections = [
             { hex: '#2A7B9B', name: 'Ocean', stock: 5 },
             { hex: '#FDF8F3', name: 'Cream', stock: 4 }
         ],
+        sizes: ['XS', 'S', 'M', 'L', 'XL'],
         description: 'Flowing midi skirt with wave-inspired patterns',
         badge: null,
         totalStock: 16,
@@ -161,6 +166,7 @@ let collections = [
             { hex: '#D45341', name: 'Deep Coral', stock: 2 },
             { hex: '#E8DED1', name: 'Sand', stock: 4 }
         ],
+        sizes: ['S', 'M', 'L'],
         description: 'Romantic crochet dress with coral accents',
         badge: 'featured',
         totalStock: 9,
@@ -202,6 +208,7 @@ app.get('/api/collections', (req, res) => {
         category: item.category,
         price: item.priceFormatted,
         colors: item.colors.map(c => c.hex),
+        sizes: item.sizes || [],
         description: item.description,
         badge: item.badge,
         inStock: item.totalStock > 0
@@ -223,6 +230,7 @@ app.get('/api/collections/:id', (req, res) => {
         category: item.category,
         price: item.priceFormatted,
         colors: item.colors.map(c => ({ hex: c.hex, name: c.name, available: c.stock > 0 })),
+        sizes: item.sizes || [],
         description: item.description,
         badge: item.badge,
         inStock: item.totalStock > 0

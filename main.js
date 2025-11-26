@@ -34,6 +34,7 @@
             category: 'dresses',
             price: 'KES 8,500',
             colors: ['#2A7B9B', '#E8DED1', '#E87461'],
+            sizes: ['S', 'M', 'L', 'XL'],
             description: 'Flowing maxi dress with intricate wave patterns',
             badge: 'bestseller',
         },
@@ -43,6 +44,7 @@
             category: 'tops',
             price: 'KES 4,200',
             colors: ['#E87461', '#F09B8D', '#C9BBA8'],
+            sizes: ['XS', 'S', 'M', 'L'],
             description: 'Lightweight crochet top perfect for warm evenings',
             badge: null,
         },
@@ -52,6 +54,7 @@
             category: 'dresses',
             price: 'KES 7,800',
             colors: ['#E8DED1', '#8B7355', '#FDF8F3'],
+            sizes: ['S', 'M', 'L'],
             description: 'Elegant beach dress with natural fiber texture',
             badge: 'new',
         },
@@ -61,6 +64,7 @@
             category: 'sets',
             price: 'KES 12,500',
             colors: ['#2A7B9B', '#1E5A73', '#E8DED1'],
+            sizes: ['S', 'M', 'L', 'XL'],
             description: 'Two-piece ensemble for special occasions',
             badge: 'limited',
         },
@@ -70,6 +74,7 @@
             category: 'skirts',
             price: 'KES 5,500',
             colors: ['#4FA3C7', '#2A7B9B', '#FDF8F3'],
+            sizes: ['XS', 'S', 'M', 'L', 'XL'],
             description: 'Flowing midi skirt with wave-inspired patterns',
             badge: null,
         },
@@ -79,6 +84,7 @@
             category: 'dresses',
             price: 'KES 9,200',
             colors: ['#E87461', '#D45341', '#E8DED1'],
+            sizes: ['S', 'M', 'L'],
             description: 'Romantic crochet dress with coral accents',
             badge: 'featured',
         },
@@ -245,19 +251,23 @@
             : '';
 
         const colorsHTML = item.colors.map((color, i) => 
-            `<button class="color-dot" style="background-color: ${color}" aria-label="Color option ${i + 1}"></button>`
+            `<button class="color-dot${i === 0 ? ' active' : ''}" style="background-color: ${color}" data-color="${color}" data-secondary-color="${item.colors[(i + 1) % item.colors.length]}" aria-label="Color option ${i + 1}"></button>`
         ).join('');
 
+        const sizesHTML = (item.sizes && item.sizes.length > 0) ? item.sizes.map((size, i) => 
+            `<button class="size-btn${i === 0 ? ' active' : ''}" data-size="${size}" aria-label="Size ${size}">${size}</button>`
+        ).join('') : '';
+
         return `
-            <div class="collection-card" style="transition-delay: ${index * 100}ms">
+            <div class="collection-card" data-item-id="${item.id}" style="transition-delay: ${index * 100}ms">
                 <div class="card-image">
                     <div class="card-artwork">
-                        <svg viewBox="0 0 200 280">
-                            <ellipse cx="100" cy="50" rx="25" ry="30" fill="${item.colors[0]}" opacity="0.6"/>
-                            <path d="M75 75 L55 280 L145 280 L125 75 Z" fill="${item.colors[0]}" opacity="0.4"/>
+                        <svg viewBox="0 0 200 280" class="card-artwork-svg">
+                            <ellipse class="artwork-main" cx="100" cy="50" rx="25" ry="30" fill="${item.colors[0]}" opacity="0.6"/>
+                            <path class="artwork-body" d="M75 75 L55 280 L145 280 L125 75 Z" fill="${item.colors[0]}" opacity="0.4"/>
                             ${[...Array(6)].map((_, row) => 
                                 [...Array(4)].map((_, col) => 
-                                    `<circle cx="${65 + col * 25}" cy="${95 + row * 28}" r="8" fill="none" stroke="${item.colors[1]}" stroke-width="2" opacity="0.5"/>`
+                                    `<circle class="artwork-pattern" cx="${65 + col * 25}" cy="${95 + row * 28}" r="8" fill="none" stroke="${item.colors[1]}" stroke-width="2" opacity="0.5"/>`
                                 ).join('')
                             ).join('')}
                         </svg>
@@ -276,9 +286,15 @@
                         <span class="card-price">${item.price}</span>
                     </div>
                     <p class="card-description">${item.description}</p>
-                    <div class="card-colors">
-                        <span class="colors-label">Colors:</span>
-                        ${colorsHTML}
+                    <div class="card-options">
+                        <div class="card-colors">
+                            <span class="colors-label">Colors:</span>
+                            ${colorsHTML}
+                        </div>
+                        ${sizesHTML ? `<div class="card-sizes">
+                            <span class="sizes-label">Sizes:</span>
+                            ${sizesHTML}
+                        </div>` : ''}
                     </div>
                 </div>
             </div>
@@ -302,6 +318,9 @@
                     card.classList.add('visible');
                 });
             }, 100);
+            
+            // Initialize color and size selection
+            initCardInteractions();
         } catch {
             // Fallback to static data
             const filtered = category === 'all' 
@@ -317,7 +336,61 @@
                     card.classList.add('visible');
                 });
             }, 100);
+            
+            // Initialize color and size selection
+            initCardInteractions();
         }
+    }
+
+    // Initialize color switching and size selection interactions
+    function initCardInteractions() {
+        // Color switching functionality
+        document.querySelectorAll('.collection-card').forEach(card => {
+            const colorDots = card.querySelectorAll('.color-dot');
+            const sizeBtns = card.querySelectorAll('.size-btn');
+            const artworkSvg = card.querySelector('.card-artwork-svg');
+            
+            colorDots.forEach(dot => {
+                dot.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    // Update active state for color dots
+                    colorDots.forEach(d => d.classList.remove('active'));
+                    dot.classList.add('active');
+                    
+                    // Get the selected colors
+                    const mainColor = dot.dataset.color;
+                    const secondaryColor = dot.dataset.secondaryColor;
+                    
+                    // Update SVG artwork colors with smooth transition
+                    if (artworkSvg) {
+                        const mainElements = artworkSvg.querySelectorAll('.artwork-main, .artwork-body');
+                        const patternElements = artworkSvg.querySelectorAll('.artwork-pattern');
+                        
+                        mainElements.forEach(el => {
+                            el.style.transition = 'fill 0.3s ease';
+                            el.setAttribute('fill', mainColor);
+                        });
+                        
+                        patternElements.forEach(el => {
+                            el.style.transition = 'stroke 0.3s ease';
+                            el.setAttribute('stroke', secondaryColor);
+                        });
+                    }
+                });
+            });
+            
+            // Size selection functionality
+            sizeBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    // Update active state for size buttons
+                    sizeBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                });
+            });
+        });
     }
 
     // Category filter buttons
