@@ -46,6 +46,9 @@
     --color-charcoal: #3D2E25;
     --color-white: #FFFFFF;
     
+    /* Accent gold for high visibility text */
+    --color-accent-gold: #FFE4B5;
+    
     /* Nude/Cream Theme Gradient Colors */
     --color-nude-dark: #D4AA8B;
     --color-nude: #E2BFA5;
@@ -854,7 +857,7 @@ button:focus-visible {
     font-family: var(--font-serif);
     font-weight: 500;
     letter-spacing: -0.025em;
-    color: #FFE4B5;
+    color: var(--color-accent-gold);
     transition: color var(--transition-normal);
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
@@ -1161,7 +1164,7 @@ button:focus-visible {
 
 .hero-title-accent {
     /* More visible accent color with warm gold tone */
-    color: #FFE4B5;
+    color: var(--color-accent-gold);
     text-shadow: 
         0 2px 4px rgba(0, 0, 0, 0.4),
         0 4px 8px rgba(0, 0, 0, 0.25);
@@ -2345,7 +2348,7 @@ button:focus-visible {
     font-size: var(--fluid-text-3xl);
     font-family: var(--font-serif);
     font-weight: 500;
-    color: #FFE4B5;
+    color: var(--color-accent-gold);
 }
 
 .footer-desc {
