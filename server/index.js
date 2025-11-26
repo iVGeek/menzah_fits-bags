@@ -7,10 +7,27 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const crypto = require('crypto');
 const { v4: uuidv4 } = require('uuid');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Secret key for token signing (use env variable in production)
+const TOKEN_SECRET = process.env.TOKEN_SECRET || crypto.randomBytes(32).toString('hex');
+
+// Simple password hashing using crypto
+function hashPassword(password) {
+    const salt = crypto.randomBytes(16).toString('hex');
+    const hash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
+    return `${salt}:${hash}`;
+}
+
+function verifyPassword(password, storedHash) {
+    const [salt, hash] = storedHash.split(':');
+    const verifyHash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
+    return hash === verifyHash;
+}
 
 // Simple rate limiter for file serving routes
 const rateLimitStore = new Map();
@@ -42,12 +59,47 @@ function rateLimit(req, res, next) {
     next();
 }
 
+// Stricter rate limiter for authentication endpoints (prevent brute force)
+const authRateLimitStore = new Map();
+const AUTH_RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
+const MAX_AUTH_REQUESTS = 10; // 10 auth requests per minute per IP
+
+function authRateLimit(req, res, next) {
+    const ip = req.ip || req.connection.remoteAddress;
+    const now = Date.now();
+    
+    if (!authRateLimitStore.has(ip)) {
+        authRateLimitStore.set(ip, { count: 1, resetTime: now + AUTH_RATE_LIMIT_WINDOW });
+        return next();
+    }
+    
+    const record = authRateLimitStore.get(ip);
+    
+    if (now > record.resetTime) {
+        record.count = 1;
+        record.resetTime = now + AUTH_RATE_LIMIT_WINDOW;
+        return next();
+    }
+    
+    if (record.count >= MAX_AUTH_REQUESTS) {
+        return res.status(429).json({ error: 'Too many authentication attempts. Please try again later.' });
+    }
+    
+    record.count++;
+    next();
+}
+
 // Clean up rate limit store periodically
 setInterval(() => {
     const now = Date.now();
     for (const [ip, record] of rateLimitStore.entries()) {
         if (now > record.resetTime) {
             rateLimitStore.delete(ip);
+        }
+    }
+    for (const [ip, record] of authRateLimitStore.entries()) {
+        if (now > record.resetTime) {
+            authRateLimitStore.delete(ip);
         }
     }
 }, RATE_LIMIT_WINDOW);
@@ -175,17 +227,105 @@ let collections = [
     }
 ];
 
-// Simple admin authentication (use proper auth in production)
-const ADMIN_TOKEN = process.env.ADMIN_TOKEN || 'menzah-admin-2024';
+// User roles hierarchy: dev_superior > admin > user
+const USER_ROLES = {
+    DEV_SUPERIOR: 'dev_superior',
+    ADMIN: 'admin',
+    USER: 'user'
+};
+
+// Default credentials from environment or fallback (for initial setup only)
+const DEFAULT_DEV_PASSWORD = process.env.DEV_PASSWORD || 'dev@menzah2024';
+const DEFAULT_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin';
+
+// In-memory users store (replace with database in production)
+// Passwords are hashed on server startup
+let users = [
+    {
+        id: 'dev-001',
+        username: 'devsuperior',
+        password: hashPassword(DEFAULT_DEV_PASSWORD),
+        role: USER_ROLES.DEV_SUPERIOR,
+        name: 'Dev Superior',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+    },
+    {
+        id: 'admin-001',
+        username: 'admin',
+        password: hashPassword(DEFAULT_ADMIN_PASSWORD),
+        role: USER_ROLES.ADMIN,
+        name: 'Administrator',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+    }
+];
+
+// Generate secure token with HMAC signature
+function generateToken(user) {
+    const payload = JSON.stringify({
+        id: user.id,
+        username: user.username,
+        role: user.role,
+        exp: Date.now() + 24 * 60 * 60 * 1000 // 24 hours
+    });
+    const signature = crypto.createHmac('sha256', TOKEN_SECRET).update(payload).digest('hex');
+    return Buffer.from(`${payload}.${signature}`).toString('base64');
+}
+
+// Parse and verify token
+function parseToken(token) {
+    try {
+        const decoded = Buffer.from(token, 'base64').toString();
+        const [payload, signature] = decoded.split(/\.(?=[^.]+$)/);
+        
+        // Verify signature
+        const expectedSignature = crypto.createHmac('sha256', TOKEN_SECRET).update(payload).digest('hex');
+        if (signature !== expectedSignature) {
+            return null;
+        }
+        
+        const data = JSON.parse(payload);
+        if (data.exp < Date.now()) {
+            return null;
+        }
+        return data;
+    } catch {
+        return null;
+    }
+}
 
 // Auth middleware
 const authenticateAdmin = (req, res, next) => {
     const token = req.headers.authorization?.replace('Bearer ', '');
-    if (token === ADMIN_TOKEN) {
+    const tokenData = parseToken(token);
+    
+    if (tokenData) {
+        req.user = tokenData;
         next();
     } else {
         res.status(401).json({ error: 'Unauthorized' });
     }
+};
+
+// Role-based access control middleware
+const requireRole = (...allowedRoles) => {
+    return (req, res, next) => {
+        if (!req.user) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+        
+        // Dev superior has access to everything
+        if (req.user.role === USER_ROLES.DEV_SUPERIOR) {
+            return next();
+        }
+        
+        if (allowedRoles.includes(req.user.role)) {
+            return next();
+        }
+        
+        res.status(403).json({ error: 'Forbidden: Insufficient permissions' });
+    };
 };
 
 // ===========================
@@ -241,14 +381,214 @@ app.get('/api/collections/:id', (req, res) => {
 // ADMIN API ROUTES
 // ===========================
 
-// Admin login
-app.post('/api/admin/login', (req, res) => {
-    const { password } = req.body;
-    if (password === ADMIN_TOKEN) {
-        res.json({ success: true, token: ADMIN_TOKEN });
+// Admin login with username and password (rate limited to prevent brute force)
+app.post('/api/admin/login', authRateLimit, (req, res) => {
+    const { username, password } = req.body;
+    
+    const user = users.find(u => u.username === username);
+    
+    if (user && verifyPassword(password, user.password)) {
+        const token = generateToken(user);
+        res.json({ 
+            success: true, 
+            token,
+            user: {
+                id: user.id,
+                username: user.username,
+                name: user.name,
+                role: user.role
+            }
+        });
     } else {
-        res.status(401).json({ error: 'Invalid credentials' });
+        res.status(401).json({ error: 'Invalid username or password' });
     }
+});
+
+// Get current user info
+app.get('/api/admin/me', authenticateAdmin, (req, res) => {
+    const user = users.find(u => u.id === req.user.id);
+    if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+    }
+    res.json({
+        id: user.id,
+        username: user.username,
+        name: user.name,
+        role: user.role
+    });
+});
+
+// Change password (rate limited to prevent brute force)
+app.post('/api/admin/change-password', authRateLimit, authenticateAdmin, (req, res) => {
+    const { currentPassword, newPassword } = req.body;
+    
+    const userIndex = users.findIndex(u => u.id === req.user.id);
+    if (userIndex === -1) {
+        return res.status(404).json({ error: 'User not found' });
+    }
+    
+    if (!verifyPassword(currentPassword, users[userIndex].password)) {
+        return res.status(400).json({ error: 'Current password is incorrect' });
+    }
+    
+    if (!newPassword || newPassword.length < 4) {
+        return res.status(400).json({ error: 'New password must be at least 4 characters' });
+    }
+    
+    users[userIndex].password = hashPassword(newPassword);
+    users[userIndex].updatedAt = new Date().toISOString();
+    
+    res.json({ success: true, message: 'Password changed successfully' });
+});
+
+// ===========================
+// USER MANAGEMENT API ROUTES (admin and dev_superior only)
+// ===========================
+
+// Get all users (admin and dev_superior)
+app.get('/api/admin/users', authenticateAdmin, requireRole(USER_ROLES.ADMIN, USER_ROLES.DEV_SUPERIOR), (req, res) => {
+    // Filter out passwords and limit what admins can see
+    const filteredUsers = users.map(u => ({
+        id: u.id,
+        username: u.username,
+        name: u.name,
+        role: u.role,
+        createdAt: u.createdAt,
+        updatedAt: u.updatedAt
+    }));
+    
+    // Regular admins can't see dev_superior users
+    if (req.user.role === USER_ROLES.ADMIN) {
+        return res.json(filteredUsers.filter(u => u.role !== USER_ROLES.DEV_SUPERIOR));
+    }
+    
+    res.json(filteredUsers);
+});
+
+// Create new user (admin can create users, dev_superior can create admins)
+app.post('/api/admin/users', authenticateAdmin, requireRole(USER_ROLES.ADMIN, USER_ROLES.DEV_SUPERIOR), (req, res) => {
+    const { username, password, name, role } = req.body;
+    
+    if (!username || !password || !name) {
+        return res.status(400).json({ error: 'Username, password, and name are required' });
+    }
+    
+    // Check if username already exists
+    if (users.some(u => u.username === username)) {
+        return res.status(400).json({ error: 'Username already exists' });
+    }
+    
+    // Role validation
+    let assignedRole = role || USER_ROLES.USER;
+    
+    // Only dev_superior can create admin users
+    if (req.user.role === USER_ROLES.ADMIN) {
+        if (assignedRole === USER_ROLES.DEV_SUPERIOR || assignedRole === USER_ROLES.ADMIN) {
+            return res.status(403).json({ error: 'You cannot create admin or dev_superior users' });
+        }
+        assignedRole = USER_ROLES.USER;
+    }
+    
+    // Prevent creating dev_superior users (only one allowed and it's pre-created)
+    if (assignedRole === USER_ROLES.DEV_SUPERIOR) {
+        return res.status(403).json({ error: 'Cannot create dev_superior accounts' });
+    }
+    
+    const newUser = {
+        id: uuidv4(),
+        username,
+        password: hashPassword(password),
+        name,
+        role: assignedRole,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+    };
+    
+    users.push(newUser);
+    
+    res.status(201).json({
+        id: newUser.id,
+        username: newUser.username,
+        name: newUser.name,
+        role: newUser.role,
+        createdAt: newUser.createdAt
+    });
+});
+
+// Update user (limited by role hierarchy)
+app.put('/api/admin/users/:id', authenticateAdmin, requireRole(USER_ROLES.ADMIN, USER_ROLES.DEV_SUPERIOR), (req, res) => {
+    const { id } = req.params;
+    const { name, password, role } = req.body;
+    
+    const userIndex = users.findIndex(u => u.id === id);
+    if (userIndex === -1) {
+        return res.status(404).json({ error: 'User not found' });
+    }
+    
+    const targetUser = users[userIndex];
+    
+    // Cannot modify dev_superior unless you are dev_superior
+    if (targetUser.role === USER_ROLES.DEV_SUPERIOR && req.user.role !== USER_ROLES.DEV_SUPERIOR) {
+        return res.status(403).json({ error: 'Cannot modify dev_superior user' });
+    }
+    
+    // Admin cannot modify other admins
+    if (targetUser.role === USER_ROLES.ADMIN && req.user.role === USER_ROLES.ADMIN && targetUser.id !== req.user.id) {
+        return res.status(403).json({ error: 'Cannot modify other admin users' });
+    }
+    
+    // Update fields
+    if (name) users[userIndex].name = name;
+    if (password) users[userIndex].password = hashPassword(password);
+    
+    // Role changes only by dev_superior
+    if (role && req.user.role === USER_ROLES.DEV_SUPERIOR) {
+        // Still can't assign dev_superior role
+        if (role === USER_ROLES.DEV_SUPERIOR) {
+            return res.status(403).json({ error: 'Cannot assign dev_superior role' });
+        }
+        users[userIndex].role = role;
+    }
+    
+    users[userIndex].updatedAt = new Date().toISOString();
+    
+    res.json({
+        id: users[userIndex].id,
+        username: users[userIndex].username,
+        name: users[userIndex].name,
+        role: users[userIndex].role,
+        updatedAt: users[userIndex].updatedAt
+    });
+});
+
+// Delete user (with role hierarchy restrictions)
+app.delete('/api/admin/users/:id', authenticateAdmin, requireRole(USER_ROLES.ADMIN, USER_ROLES.DEV_SUPERIOR), (req, res) => {
+    const { id } = req.params;
+    
+    const userIndex = users.findIndex(u => u.id === id);
+    if (userIndex === -1) {
+        return res.status(404).json({ error: 'User not found' });
+    }
+    
+    const targetUser = users[userIndex];
+    
+    // Cannot delete dev_superior
+    if (targetUser.role === USER_ROLES.DEV_SUPERIOR) {
+        return res.status(403).json({ error: 'Cannot delete dev_superior user' });
+    }
+    
+    // Cannot delete yourself
+    if (targetUser.id === req.user.id) {
+        return res.status(403).json({ error: 'Cannot delete your own account' });
+    }
+    
+    // Admin cannot delete other admins
+    if (targetUser.role === USER_ROLES.ADMIN && req.user.role === USER_ROLES.ADMIN) {
+        return res.status(403).json({ error: 'Cannot delete other admin users' });
+    }
+    
+    users.splice(userIndex, 1);
+    res.json({ success: true, message: 'User deleted successfully' });
 });
 
 // Get all collections with stock info (admin only)

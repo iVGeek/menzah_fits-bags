@@ -5,40 +5,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel | Menzah_fits Stock Management</title>
     <link rel="icon" href="/public/favicon.ico">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
-        /* Material Design 3 Inspired Theme */
+        /* Material Design 3 + Nude Color Palette (matching front-end theme) */
         :root {
-            /* Primary palette - Ocean inspired */
-            --md-primary: #006494;
+            /* Nude Color Palette - Matching front-end */
+            --color-dusk-nude: #D4A59A;
+            --color-dusk-nude-light: #E2C4BC;
+            --color-dusk-nude-dark: #B08D7C;
+            --color-dusty-rose: #C19A88;
+            --color-twilight-nude: #A67C6D;
+            --color-cream-nude: #F5E1D8;
+            --color-soft-cream: #F0D9CC;
+            --color-vanilla-cream: #E8C9B8;
+            --color-natural-nude: #E2BFA5;
+            --color-bare-skin: #D4AA8B;
+            --color-earth-nude: #C69C82;
+            --color-sienna-nude: #B38B6D;
+            --color-deep-sienna: #8B6B52;
+            --color-charcoal: #3D2E25;
+            --color-accent-gold: #FFE4B5;
+            
+            /* Primary palette - Dusk Nude inspired */
+            --md-primary: #B08D7C;
             --md-on-primary: #ffffff;
-            --md-primary-container: #c8e6ff;
-            --md-on-primary-container: #001e31;
+            --md-primary-container: #F5E1D8;
+            --md-on-primary-container: #3D2E25;
             
-            /* Secondary palette - Coral inspired */
-            --md-secondary: #c4503d;
+            /* Secondary palette - Earth Nude inspired */
+            --md-secondary: #C69C82;
             --md-on-secondary: #ffffff;
-            --md-secondary-container: #ffdad4;
-            --md-on-secondary-container: #3a0905;
+            --md-secondary-container: #F0D9CC;
+            --md-on-secondary-container: #3D2E25;
             
-            /* Tertiary palette - Sand inspired */
-            --md-tertiary: #7b5800;
+            /* Tertiary palette - Twilight Nude inspired */
+            --md-tertiary: #A67C6D;
             --md-on-tertiary: #ffffff;
-            --md-tertiary-container: #ffdea6;
-            --md-on-tertiary-container: #271900;
+            --md-tertiary-container: #E8C9B8;
+            --md-on-tertiary-container: #3D2E25;
             
-            /* Surface colors */
-            --md-surface: #fafcff;
-            --md-surface-dim: #dae4ed;
-            --md-surface-bright: #fafcff;
+            /* Surface colors - Cream tones */
+            --md-surface: #FDF8F5;
+            --md-surface-dim: #E8C9B8;
+            --md-surface-bright: #FDF8F5;
             --md-surface-container-lowest: #ffffff;
-            --md-surface-container-low: #f4f6f9;
-            --md-surface-container: #eef1f4;
-            --md-surface-container-high: #e8ebee;
-            --md-surface-container-highest: #e2e5e8;
-            --md-on-surface: #191c1e;
-            --md-on-surface-variant: #42474d;
+            --md-surface-container-low: #FAF6F3;
+            --md-surface-container: #F5E1D8;
+            --md-surface-container-high: #F0D9CC;
+            --md-surface-container-highest: #E8C9B8;
+            --md-on-surface: #3D2E25;
+            --md-on-surface-variant: #5C4A3D;
             
             /* Error */
             --md-error: #ba1a1a;
@@ -46,9 +63,13 @@
             --md-error-container: #ffdad6;
             --md-on-error-container: #410002;
             
+            /* Success */
+            --md-success: #2E7D32;
+            --md-success-container: #d4edda;
+            
             /* Outline */
-            --md-outline: #72787e;
-            --md-outline-variant: #c2c8cd;
+            --md-outline: #8B7A6D;
+            --md-outline-variant: #D4C4B8;
             
             /* Shadows */
             --md-shadow: rgba(0, 0, 0, 0.15);
@@ -90,7 +111,11 @@
             justify-content: center;
             min-height: 100vh;
             padding: 24px;
-            background: linear-gradient(135deg, var(--md-primary-container) 0%, var(--md-surface) 100%);
+            background: 
+                radial-gradient(ellipse 80% 60% at 15% 10%, rgba(212, 165, 154, 0.35) 0%, transparent 60%),
+                radial-gradient(ellipse 70% 55% at 85% 8%, rgba(226, 191, 165, 0.3) 0%, transparent 55%),
+                radial-gradient(ellipse 90% 50% at 5% 45%, rgba(240, 217, 204, 0.4) 0%, transparent 50%),
+                linear-gradient(135deg, var(--color-cream-nude) 0%, var(--color-soft-cream) 50%, var(--color-vanilla-cream) 100%);
         }
         
         .login-card {
@@ -743,6 +768,127 @@
         .hidden {
             display: none !important;
         }
+        
+        /* Settings Grid */
+        .settings-grid {
+            display: grid;
+            gap: 24px;
+            grid-template-columns: 1fr;
+        }
+        
+        @media (min-width: 768px) {
+            .settings-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        .settings-card {
+            background: var(--md-surface-container-lowest);
+            border-radius: var(--md-radius-lg);
+            box-shadow: var(--md-elevation-1);
+            overflow: hidden;
+        }
+        
+        .settings-card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 20px 24px;
+            background: var(--md-primary-container);
+            color: var(--md-on-primary-container);
+        }
+        
+        .settings-card-header .material-icons {
+            font-size: 24px;
+        }
+        
+        .settings-card-header h2 {
+            font-size: 1.125rem;
+            font-weight: 500;
+            margin: 0;
+        }
+        
+        .settings-card-body {
+            padding: 24px;
+        }
+        
+        .account-info {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .info-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--md-outline-variant);
+        }
+        
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            font-weight: 500;
+            color: var(--md-on-surface-variant);
+        }
+        
+        .info-value {
+            color: var(--md-on-surface);
+        }
+        
+        /* Role Badges */
+        .badge-dev_superior {
+            background: linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%);
+            color: white;
+        }
+        
+        .badge-admin {
+            background: var(--md-primary);
+            color: var(--md-on-primary);
+        }
+        
+        .badge-user {
+            background: var(--md-secondary-container);
+            color: var(--md-on-secondary-container);
+        }
+        
+        /* User Table Actions */
+        .user-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .role-badge {
+            padding: 4px 12px;
+            border-radius: var(--md-radius-xl);
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+        
+        /* Top Bar User Info */
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px;
+            background: var(--md-surface-container);
+            border-radius: var(--md-radius-xl);
+        }
+        
+        .user-info-name {
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+        
+        .user-info-role {
+            font-size: 0.75rem;
+            color: var(--md-on-surface-variant);
+            text-transform: capitalize;
+        }
     </style>
 </head>
 <body>
@@ -756,8 +902,13 @@
             
             <form id="login-form">
                 <div class="md-field">
+                    <input type="text" id="admin-username" placeholder=" " required autocomplete="username">
+                    <label for="admin-username">Username</label>
+                </div>
+                
+                <div class="md-field">
                     <input type="password" id="admin-password" placeholder=" " required autocomplete="current-password">
-                    <label for="admin-password">Admin Password</label>
+                    <label for="admin-password">Password</label>
                 </div>
                 
                 <button type="submit" class="md-btn md-btn-primary" style="width: 100%;">
@@ -791,6 +942,16 @@
             <button class="nav-item" data-view="stock">
                 <span class="material-icons">format_list_numbered</span>
                 <span>Stock</span>
+            </button>
+            
+            <button class="nav-item" data-view="users" id="users-nav">
+                <span class="material-icons">people</span>
+                <span>Users</span>
+            </button>
+            
+            <button class="nav-item" data-view="settings">
+                <span class="material-icons">settings</span>
+                <span>Settings</span>
             </button>
             
             <button class="nav-item" onclick="logout()" style="margin-top: auto;">
@@ -867,6 +1028,97 @@
                 
                 <div id="stock-cards">
                     <!-- Stock cards will be loaded here -->
+                </div>
+            </section>
+            
+            <!-- Users View -->
+            <section id="users-view" class="view hidden">
+                <div class="top-bar">
+                    <h1>User Management</h1>
+                    <div class="top-bar-actions">
+                        <button class="md-btn md-btn-primary" onclick="openAddUserModal()">
+                            <span class="material-icons">person_add</span>
+                            Add User
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Username</th>
+                                <th>Role</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-table">
+                            <!-- Users will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <!-- Settings View -->
+            <section id="settings-view" class="view hidden">
+                <div class="top-bar">
+                    <h1>Settings</h1>
+                </div>
+                
+                <div class="settings-grid">
+                    <!-- Account Settings -->
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <span class="material-icons">account_circle</span>
+                            <h2>Account Information</h2>
+                        </div>
+                        <div class="settings-card-body">
+                            <div class="account-info">
+                                <div class="info-row">
+                                    <span class="info-label">Name:</span>
+                                    <span id="account-name" class="info-value">-</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Username:</span>
+                                    <span id="account-username" class="info-value">-</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Role:</span>
+                                    <span id="account-role" class="info-value badge">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Change Password -->
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <span class="material-icons">lock</span>
+                            <h2>Change Password</h2>
+                        </div>
+                        <div class="settings-card-body">
+                            <form id="change-password-form">
+                                <div class="md-field">
+                                    <input type="password" id="current-password" placeholder=" " required>
+                                    <label for="current-password">Current Password</label>
+                                </div>
+                                <div class="md-field">
+                                    <input type="password" id="new-password" placeholder=" " required minlength="4">
+                                    <label for="new-password">New Password</label>
+                                </div>
+                                <div class="md-field">
+                                    <input type="password" id="confirm-password" placeholder=" " required minlength="4">
+                                    <label for="confirm-password">Confirm New Password</label>
+                                </div>
+                                <button type="submit" class="md-btn md-btn-primary">
+                                    <span class="material-icons">save</span>
+                                    Update Password
+                                </button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </section>
         </main>
@@ -967,6 +1219,51 @@
         </div>
     </div>
     
+    <!-- Add/Edit User Modal -->
+    <div id="user-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="user-modal-title">Add User</h2>
+                <button class="md-btn md-btn-icon md-btn-text" onclick="closeUserModal()">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            <form id="user-form">
+                <div class="modal-body">
+                    <input type="hidden" id="user-id">
+                    
+                    <div class="md-field">
+                        <input type="text" id="user-name" placeholder=" " required>
+                        <label for="user-name">Full Name</label>
+                    </div>
+                    
+                    <div class="md-field">
+                        <input type="text" id="user-username" placeholder=" " required autocomplete="off">
+                        <label for="user-username">Username</label>
+                    </div>
+                    
+                    <div class="md-field">
+                        <input type="password" id="user-password" placeholder=" " autocomplete="new-password">
+                        <label for="user-password">Password</label>
+                        <small id="password-hint" style="color: var(--md-on-surface-variant); font-size: 0.75rem;">Required for new users. Leave blank to keep existing password.</small>
+                    </div>
+                    
+                    <div class="md-field" id="role-field">
+                        <select id="user-role">
+                            <option value="user">User</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                        <label for="user-role" style="top: 0; font-size: 0.75rem; color: var(--md-primary);">Role</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="md-btn md-btn-text" onclick="closeUserModal()">Cancel</button>
+                    <button type="submit" class="md-btn md-btn-primary">Save User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
     <!-- Loading Overlay -->
     <div id="loading" class="loading">
         <div class="crochet-loader"></div>
@@ -978,7 +1275,9 @@
     <script>
         // State
         let token = localStorage.getItem('menzah_admin_token');
+        let currentUser = JSON.parse(localStorage.getItem('menzah_admin_user') || 'null');
         let collections = [];
+        let users = [];
         
         // DOM Elements
         const loginScreen = document.getElementById('login-screen');
@@ -989,9 +1288,10 @@
         
         // Initialize
         function init() {
-            if (token) {
+            if (token && currentUser) {
                 showApp();
                 loadDashboard();
+                updateUserDisplay();
             }
             
             // Navigation
@@ -1003,6 +1303,8 @@
             loginForm.addEventListener('submit', handleLogin);
             document.getElementById('product-form').addEventListener('submit', handleProductSubmit);
             document.getElementById('stock-form').addEventListener('submit', handleStockSubmit);
+            document.getElementById('user-form').addEventListener('submit', handleUserSubmit);
+            document.getElementById('change-password-form').addEventListener('submit', handleChangePassword);
         }
         
         // Auth
@@ -1011,22 +1313,27 @@
             showLoading();
             
             try {
+                const username = document.getElementById('admin-username').value;
                 const password = document.getElementById('admin-password').value;
                 const response = await fetch('/api/admin/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ password })
+                    body: JSON.stringify({ username, password })
                 });
                 
                 if (response.ok) {
                     const data = await response.json();
                     token = data.token;
+                    currentUser = data.user;
                     localStorage.setItem('menzah_admin_token', token);
+                    localStorage.setItem('menzah_admin_user', JSON.stringify(currentUser));
                     showApp();
                     loadDashboard();
-                    showSnackbar('Welcome to Admin Panel!');
+                    updateUserDisplay();
+                    showSnackbar(`Welcome, ${currentUser.name}!`);
                 } else {
-                    showSnackbar('Invalid password');
+                    const error = await response.json();
+                    showSnackbar(error.error || 'Invalid username or password');
                 }
             } catch {
                 showSnackbar('Login failed');
@@ -1037,15 +1344,37 @@
         
         function logout() {
             token = null;
+            currentUser = null;
             localStorage.removeItem('menzah_admin_token');
+            localStorage.removeItem('menzah_admin_user');
             loginScreen.style.display = 'flex';
             appLayout.classList.remove('active');
+            document.getElementById('admin-username').value = '';
             document.getElementById('admin-password').value = '';
         }
         
         function showApp() {
             loginScreen.style.display = 'none';
             appLayout.classList.add('active');
+            
+            // Show/hide Users nav based on role
+            const usersNav = document.getElementById('users-nav');
+            if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'dev_superior')) {
+                usersNav.style.display = 'flex';
+            } else {
+                usersNav.style.display = 'none';
+            }
+        }
+        
+        function updateUserDisplay() {
+            if (currentUser) {
+                // Update settings page
+                document.getElementById('account-name').textContent = currentUser.name;
+                document.getElementById('account-username').textContent = currentUser.username;
+                const roleEl = document.getElementById('account-role');
+                roleEl.textContent = currentUser.role.replace('_', ' ');
+                roleEl.className = `info-value badge role-badge badge-${currentUser.role}`;
+            }
         }
         
         // Views
@@ -1059,6 +1388,8 @@
             if (viewName === 'dashboard') loadDashboard();
             if (viewName === 'products') loadProducts();
             if (viewName === 'stock') loadStockView();
+            if (viewName === 'users') loadUsers();
+            if (viewName === 'settings') loadSettings();
         }
         
         // API Calls
@@ -1427,6 +1758,225 @@
                 else if (activeView === 'stock') loadStockView();
             } catch {
                 showSnackbar('Failed to update stock');
+            }
+            
+            hideLoading();
+        }
+        
+        // ===========================
+        // USER MANAGEMENT
+        // ===========================
+        
+        async function loadUsers() {
+            showLoading();
+            
+            try {
+                users = await apiCall('/api/admin/users');
+                
+                document.getElementById('users-table').innerHTML = users.map(user => `
+                    <tr>
+                        <td><strong>${user.name}</strong></td>
+                        <td>${user.username}</td>
+                        <td><span class="badge role-badge badge-${user.role}">${user.role.replace('_', ' ')}</span></td>
+                        <td>${new Date(user.createdAt).toLocaleDateString()}</td>
+                        <td>
+                            <div class="user-actions">
+                                ${canEditUser(user) ? `
+                                    <button class="md-btn md-btn-icon md-btn-text" onclick="editUser('${user.id}')" title="Edit">
+                                        <span class="material-icons">edit</span>
+                                    </button>
+                                ` : ''}
+                                ${canDeleteUser(user) ? `
+                                    <button class="md-btn md-btn-icon md-btn-text" onclick="deleteUser('${user.id}')" title="Delete">
+                                        <span class="material-icons">delete</span>
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                showSnackbar('Failed to load users');
+            }
+            
+            hideLoading();
+        }
+        
+        function canEditUser(user) {
+            if (!currentUser) return false;
+            if (currentUser.role === 'dev_superior') return true;
+            if (currentUser.role === 'admin') {
+                return user.role !== 'dev_superior' && user.role !== 'admin';
+            }
+            return user.id === currentUser.id;
+        }
+        
+        function canDeleteUser(user) {
+            if (!currentUser) return false;
+            if (user.id === currentUser.id) return false;
+            if (user.role === 'dev_superior') return false;
+            if (currentUser.role === 'dev_superior') return true;
+            if (currentUser.role === 'admin' && user.role === 'user') return true;
+            return false;
+        }
+        
+        function openAddUserModal() {
+            document.getElementById('user-modal-title').textContent = 'Add User';
+            document.getElementById('user-form').reset();
+            document.getElementById('user-id').value = '';
+            document.getElementById('user-username').readOnly = false;
+            document.getElementById('user-password').required = true;
+            document.getElementById('password-hint').textContent = 'Required for new users';
+            
+            // Show role field based on current user's role
+            const roleField = document.getElementById('role-field');
+            if (currentUser.role === 'dev_superior') {
+                roleField.style.display = 'block';
+            } else {
+                roleField.style.display = 'none';
+                document.getElementById('user-role').value = 'user';
+            }
+            
+            document.getElementById('user-modal').classList.add('active');
+        }
+        
+        function editUser(id) {
+            const user = users.find(u => u.id === id);
+            if (!user) return;
+            
+            document.getElementById('user-modal-title').textContent = 'Edit User';
+            document.getElementById('user-id').value = user.id;
+            document.getElementById('user-name').value = user.name;
+            document.getElementById('user-username').value = user.username;
+            document.getElementById('user-username').readOnly = true;
+            document.getElementById('user-password').value = '';
+            document.getElementById('user-password').required = false;
+            document.getElementById('password-hint').textContent = 'Leave blank to keep existing password';
+            document.getElementById('user-role').value = user.role;
+            
+            // Show role field only for dev_superior
+            const roleField = document.getElementById('role-field');
+            if (currentUser.role === 'dev_superior') {
+                roleField.style.display = 'block';
+            } else {
+                roleField.style.display = 'none';
+            }
+            
+            document.getElementById('user-modal').classList.add('active');
+        }
+        
+        function closeUserModal() {
+            document.getElementById('user-modal').classList.remove('active');
+        }
+        
+        async function handleUserSubmit(e) {
+            e.preventDefault();
+            showLoading();
+            
+            const id = document.getElementById('user-id').value;
+            const data = {
+                name: document.getElementById('user-name').value,
+                username: document.getElementById('user-username').value,
+                role: document.getElementById('user-role').value
+            };
+            
+            const password = document.getElementById('user-password').value;
+            if (password) {
+                data.password = password;
+            }
+            
+            try {
+                if (id) {
+                    await apiCall(`/api/admin/users/${id}`, {
+                        method: 'PUT',
+                        body: JSON.stringify(data)
+                    });
+                    showSnackbar('User updated successfully');
+                } else {
+                    if (!password) {
+                        showSnackbar('Password is required for new users');
+                        hideLoading();
+                        return;
+                    }
+                    await apiCall('/api/admin/users', {
+                        method: 'POST',
+                        body: JSON.stringify(data)
+                    });
+                    showSnackbar('User created successfully');
+                }
+                
+                closeUserModal();
+                loadUsers();
+            } catch (err) {
+                showSnackbar('Failed to save user');
+            }
+            
+            hideLoading();
+        }
+        
+        async function deleteUser(id) {
+            if (!confirm('Are you sure you want to delete this user?')) return;
+            
+            showLoading();
+            
+            try {
+                await apiCall(`/api/admin/users/${id}`, { method: 'DELETE' });
+                showSnackbar('User deleted successfully');
+                loadUsers();
+            } catch {
+                showSnackbar('Failed to delete user');
+            }
+            
+            hideLoading();
+        }
+        
+        // ===========================
+        // SETTINGS
+        // ===========================
+        
+        function loadSettings() {
+            updateUserDisplay();
+        }
+        
+        async function handleChangePassword(e) {
+            e.preventDefault();
+            
+            const currentPassword = document.getElementById('current-password').value;
+            const newPassword = document.getElementById('new-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            
+            if (newPassword !== confirmPassword) {
+                showSnackbar('New passwords do not match');
+                return;
+            }
+            
+            if (newPassword.length < 4) {
+                showSnackbar('Password must be at least 4 characters');
+                return;
+            }
+            
+            showLoading();
+            
+            try {
+                const response = await fetch('/api/admin/change-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ currentPassword, newPassword })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showSnackbar('Password changed successfully');
+                    document.getElementById('change-password-form').reset();
+                } else {
+                    showSnackbar(data.error || 'Failed to change password');
+                }
+            } catch {
+                showSnackbar('Failed to change password');
             }
             
             hideLoading();
