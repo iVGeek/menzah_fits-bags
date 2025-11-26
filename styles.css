@@ -1433,6 +1433,95 @@ button:focus-visible {
    Section Styles
    ================================= */
 
+/* Reusable yarn weave pattern overlay for sections */
+.section-pattern::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    
+    /* Elegant diamond lattice with yarn-inspired curves - matches body pattern */
+    background:
+        /* Diamond grid pattern - primary weave */
+        repeating-linear-gradient(
+            45deg,
+            transparent 0px,
+            transparent 18px,
+            rgba(212, 165, 154, 0.05) 18px,
+            rgba(212, 165, 154, 0.05) 20px
+        ),
+        repeating-linear-gradient(
+            -45deg,
+            transparent 0px,
+            transparent 18px,
+            rgba(226, 191, 165, 0.05) 18px,
+            rgba(226, 191, 165, 0.05) 20px
+        ),
+        /* Soft yarn loop circles scattered */
+        radial-gradient(circle at 25% 25%, rgba(245, 225, 216, 0.08) 2px, transparent 3px),
+        radial-gradient(circle at 75% 75%, rgba(212, 165, 154, 0.06) 2px, transparent 3px),
+        radial-gradient(circle at 50% 10%, rgba(198, 156, 130, 0.05) 1.5px, transparent 2.5px),
+        radial-gradient(circle at 10% 60%, rgba(226, 191, 165, 0.06) 1.5px, transparent 2.5px),
+        radial-gradient(circle at 90% 40%, rgba(240, 217, 204, 0.06) 2px, transparent 3px);
+    background-size: 
+        40px 40px,
+        40px 40px,
+        80px 80px,
+        80px 80px,
+        120px 120px,
+        100px 100px,
+        90px 90px;
+}
+
+/* Lighter variant for sections with darker backgrounds (like testimonials) */
+.section-pattern-light::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    
+    /* Lighter diamond lattice for darker section backgrounds */
+    background:
+        repeating-linear-gradient(
+            45deg,
+            transparent 0px,
+            transparent 18px,
+            rgba(255, 255, 255, 0.04) 18px,
+            rgba(255, 255, 255, 0.04) 20px
+        ),
+        repeating-linear-gradient(
+            -45deg,
+            transparent 0px,
+            transparent 18px,
+            rgba(255, 228, 181, 0.03) 18px,
+            rgba(255, 228, 181, 0.03) 20px
+        ),
+        radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.06) 2px, transparent 3px),
+        radial-gradient(circle at 75% 75%, rgba(255, 228, 181, 0.04) 2px, transparent 3px),
+        radial-gradient(circle at 50% 10%, rgba(255, 255, 255, 0.03) 1.5px, transparent 2.5px),
+        radial-gradient(circle at 10% 60%, rgba(255, 228, 181, 0.04) 1.5px, transparent 2.5px),
+        radial-gradient(circle at 90% 40%, rgba(255, 255, 255, 0.04) 2px, transparent 3px);
+    background-size: 
+        40px 40px,
+        40px 40px,
+        80px 80px,
+        80px 80px,
+        120px 120px,
+        100px 100px,
+        90px 90px;
+}
+
+/* Ensure section content stays above the pattern
+   Note: These classes expect child content to have position: relative for proper z-index stacking.
+   The .container class is the standard content wrapper used throughout the site. */
+.section-pattern > *,
+.section-pattern-light > * {
+    position: relative;
+    z-index: 2;
+}
+
 .section-label {
     display: inline-flex;
     align-items: center;
@@ -1518,6 +1607,7 @@ button:focus-visible {
     height: 16rem;
     opacity: 0.05;
     color: var(--color-ocean);
+    z-index: 0;
 }
 
 .about-grid {
@@ -1709,6 +1799,7 @@ button:focus-visible {
     background-size: 28px 28px, 28px 28px, 20px 20px;
     opacity: 0.35;
     animation: stitch-pattern 20s linear infinite;
+    z-index: 0;
 }
 
 /* Category Filter */
@@ -1979,6 +2070,7 @@ button:focus-visible {
     position: absolute;
     inset: 0;
     opacity: 0.15;
+    z-index: 0;
 }
 
 .testimonials-wave::before {
@@ -2003,6 +2095,7 @@ button:focus-visible {
         radial-gradient(circle at 12.5px 12.5px, transparent 8px, transparent 8px),
         radial-gradient(circle at 12.5px 12.5px, rgba(255, 228, 181, 0.8) 10px, transparent 10px);
     background-size: 25px 25px;
+    z-index: 0;
 }
 
 .testimonials .section-title {
@@ -2205,6 +2298,7 @@ button:focus-visible {
     background: rgba(212, 165, 154, 0.08);
     border-radius: 9999px;
     filter: blur(60px);
+    z-index: 0;
 }
 
 .contact-decoration-2 {
@@ -2216,6 +2310,7 @@ button:focus-visible {
     background: rgba(226, 191, 165, 0.08);
     border-radius: 9999px;
     filter: blur(60px);
+    z-index: 0;
 }
 
 .contact-grid {
