@@ -615,11 +615,12 @@
         
         .color-stock-item {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             gap: 16px;
             padding: 12px;
             background: var(--md-surface-container);
             border-radius: var(--md-radius-md);
+            flex-wrap: wrap;
         }
         
         .color-stock-item .color-preview {
@@ -631,6 +632,7 @@
         
         .color-stock-item .color-info {
             flex: 1;
+            min-width: 120px;
         }
         
         .color-stock-item .color-name {
@@ -650,6 +652,36 @@
             border: 1px solid var(--md-outline-variant);
             border-radius: var(--md-radius-sm);
             font-size: 0.875rem;
+            text-align: center;
+        }
+        
+        .size-stock-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            width: 100%;
+            margin-top: 8px;
+        }
+        
+        .size-stock-input {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .size-stock-input label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--md-on-surface-variant);
+        }
+        
+        .size-stock-input input {
+            width: 50px;
+            padding: 6px 8px;
+            border: 1px solid var(--md-outline-variant);
+            border-radius: var(--md-radius-sm);
+            font-size: 0.75rem;
             text-align: center;
         }
         
@@ -1209,12 +1241,17 @@
                     </div>
                     
                     <div class="md-field">
+                        <input type="text" id="product-sizes" placeholder=" " value="S, M, L, XL">
+                        <label for="product-sizes">Sizes (comma-separated, e.g., XS, S, M, L, XL)</label>
+                    </div>
+                    
+                    <div class="md-field">
                         <textarea id="product-description" rows="3" placeholder=" " required></textarea>
                         <label for="product-description" style="top: 16px; transform: none;">Description</label>
                     </div>
                     
                     <div class="stock-editor">
-                        <h3>Colors & Stock</h3>
+                        <h3>Colors & Stock Per Size</h3>
                         <div id="colors-list" class="color-stock-list">
                             <!-- Color items will be added here -->
                         </div>
@@ -1448,6 +1485,12 @@
             }
         }
         
+        // Helper function to compute total stock for a color
+        function computeColorTotalStock(sizeStock) {
+            if (!sizeStock || typeof sizeStock !== 'object') return 0;
+            return Object.values(sizeStock).reduce((sum, v) => sum + (parseInt(v) || 0), 0);
+        }
+        
         // Load Stock Cards (card view for products)
         async function loadStockCards() {
             try {
@@ -1458,7 +1501,7 @@
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                                     <div>
                                         <h3 style="font-size: 1.125rem; font-weight: 500;">${item.name}</h3>
-                                        <p style="color: var(--md-on-surface-variant); font-size: 0.875rem;">Total Stock: ${item.totalStock}</p>
+                                        <p style="color: var(--md-on-surface-variant); font-size: 0.875rem;">Total Stock: ${item.totalStock} | Sizes: ${(item.sizes || []).join(', ')}</p>
                                     </div>
                                     <button class="md-btn md-btn-secondary" onclick="openStockModal('${item.id}')">
                                         <span class="material-icons">edit</span>
@@ -1466,16 +1509,25 @@
                                     </button>
                                 </div>
                                 <div class="color-stock-list">
-                                    ${item.colors.map(c => `
-                                        <div class="color-stock-item">
-                                            <div class="color-preview" style="background: ${c.hex};"></div>
-                                            <div class="color-info">
-                                                <div class="color-name">${c.name}</div>
-                                                <div class="color-hex">${c.hex}</div>
+                                    ${item.colors.map(c => {
+                                        const colorTotal = computeColorTotalStock(c.sizeStock);
+                                        const sizeStockDisplay = Object.entries(c.sizeStock || {})
+                                            .map(([size, stock]) => `${size}: ${stock}`)
+                                            .join(', ') || 'No stock';
+                                        return `
+                                            <div class="color-stock-item">
+                                                <div class="color-preview" style="background: ${c.hex};"></div>
+                                                <div class="color-info">
+                                                    <div class="color-name">${c.name}</div>
+                                                    <div class="color-hex">${c.hex}</div>
+                                                </div>
+                                                <div style="flex: 1; text-align: right;">
+                                                    <span class="badge ${colorTotal < 3 ? 'badge-low' : 'badge-ok'}">${colorTotal} total</span>
+                                                    <div style="font-size: 0.75rem; color: var(--md-on-surface-variant); margin-top: 4px;">${sizeStockDisplay}</div>
+                                                </div>
                                             </div>
-                                            <span class="badge ${c.stock < 3 ? 'badge-low' : 'badge-ok'}">${c.stock} in stock</span>
-                                        </div>
-                                    `).join('')}
+                                        `;
+                                    }).join('')}
                                 </div>
                             </div>
                         `).join('')}
@@ -1606,9 +1658,10 @@
                         <td>${item.priceFormatted}</td>
                         <td>
                             <div class="color-dots">
-                                ${item.colors.map(c => `
-                                    <div class="color-dot" style="background: ${c.hex};" title="${c.name}: ${c.stock} in stock"></div>
-                                `).join('')}
+                                ${item.colors.map(c => {
+                                    const colorTotal = computeColorTotalStock(c.sizeStock);
+                                    return `<div class="color-dot" style="background: ${c.hex};" title="${c.name}: ${colorTotal} in stock"></div>`;
+                                }).join('')}
                             </div>
                         </td>
                         <td>
@@ -1645,6 +1698,7 @@
             document.getElementById('modal-title').textContent = 'Add Product';
             document.getElementById('product-form').reset();
             document.getElementById('product-id').value = '';
+            document.getElementById('product-sizes').value = 'S, M, L, XL';
             document.getElementById('colors-list').innerHTML = '';
             addColorField();
             document.getElementById('product-modal').classList.add('active');
@@ -1661,9 +1715,10 @@
             document.getElementById('product-price').value = product.price;
             document.getElementById('product-badge').value = product.badge || '';
             document.getElementById('product-description').value = product.description;
+            document.getElementById('product-sizes').value = (product.sizes || []).join(', ');
             
             document.getElementById('colors-list').innerHTML = '';
-            product.colors.forEach(c => addColorField(c.hex, c.name, c.stock));
+            product.colors.forEach(c => addColorField(c.hex, c.name, c.sizeStock || {}));
             
             document.getElementById('product-modal').classList.add('active');
         }
@@ -1672,23 +1727,66 @@
             document.getElementById('product-modal').classList.remove('active');
         }
         
+        // Helper function to get sizes from the form
+        function getProductSizes() {
+            const sizesInput = document.getElementById('product-sizes').value;
+            return sizesInput.split(',').map(s => s.trim()).filter(s => s);
+        }
+        
         let colorCount = 0;
-        function addColorField(hex = '', name = '', stock = 0) {
+        function addColorField(hex = '', name = '', sizeStock = {}) {
             const id = colorCount++;
+            const sizes = getProductSizes();
+            
+            const sizeInputsHTML = sizes.map(size => {
+                const stock = sizeStock[size] || 0;
+                return `
+                    <div class="size-stock-input">
+                        <label>${size}</label>
+                        <input type="number" value="${stock}" name="color-size-${id}-${size}" min="0" data-size="${size}">
+                    </div>
+                `;
+            }).join('');
+            
             const html = `
                 <div class="color-stock-item" data-color-id="${id}">
                     <input type="color" class="color-preview" value="${hex || '#2A7B9B'}" name="color-hex-${id}">
-                    <div class="color-info" style="flex: 1;">
+                    <div class="color-info">
                         <input type="text" placeholder="Color Name" value="${name}" name="color-name-${id}" required style="width: 100%; border: none; font-weight: 500; background: transparent;">
                     </div>
-                    <input type="number" value="${stock}" name="color-stock-${id}" min="0" placeholder="Stock">
                     <button type="button" class="md-btn md-btn-icon md-btn-text" onclick="removeColorField(${id})">
                         <span class="material-icons">close</span>
                     </button>
+                    <div class="size-stock-grid">
+                        ${sizeInputsHTML || '<span style="color: var(--md-on-surface-variant); font-size: 0.75rem;">Add sizes above first</span>'}
+                    </div>
                 </div>
             `;
             document.getElementById('colors-list').insertAdjacentHTML('beforeend', html);
         }
+        
+        // Update color size inputs when sizes field changes
+        document.getElementById('product-sizes').addEventListener('change', function() {
+            const colorItems = document.querySelectorAll('#colors-list .color-stock-item');
+            colorItems.forEach(item => {
+                const colorId = item.dataset.colorId;
+                const hexInput = item.querySelector(`[name="color-hex-${colorId}"]`);
+                const nameInput = item.querySelector(`[name="color-name-${colorId}"]`);
+                const hex = hexInput.value;
+                const name = nameInput.value;
+                
+                // Get existing size stock values
+                const existingSizeStock = {};
+                item.querySelectorAll('.size-stock-input input').forEach(input => {
+                    const size = input.dataset.size;
+                    existingSizeStock[size] = parseInt(input.value) || 0;
+                });
+                
+                // Remove and re-add the color field with updated sizes
+                item.remove();
+                addColorField(hex, name, existingSizeStock);
+            });
+        });
         
         function removeColorField(id) {
             document.querySelector(`[data-color-id="${id}"]`).remove();
@@ -1699,14 +1797,23 @@
             showLoading();
             
             const id = document.getElementById('product-id').value;
+            const sizes = getProductSizes();
             const colors = [];
             
             document.querySelectorAll('#colors-list .color-stock-item').forEach(item => {
                 const colorId = item.dataset.colorId;
+                const sizeStock = {};
+                
+                // Collect size stock values
+                item.querySelectorAll('.size-stock-input input').forEach(input => {
+                    const size = input.dataset.size;
+                    sizeStock[size] = parseInt(input.value) || 0;
+                });
+                
                 colors.push({
                     hex: item.querySelector(`[name="color-hex-${colorId}"]`).value,
                     name: item.querySelector(`[name="color-name-${colorId}"]`).value,
-                    stock: parseInt(item.querySelector(`[name="color-stock-${colorId}"]`).value) || 0
+                    sizeStock
                 });
             });
             
@@ -1716,6 +1823,7 @@
                 price: document.getElementById('product-price').value,
                 badge: document.getElementById('product-badge').value || null,
                 description: document.getElementById('product-description').value,
+                sizes,
                 colors
             };
             
@@ -1767,16 +1875,30 @@
             document.getElementById('stock-modal-title').textContent = `Update Stock - ${product.name}`;
             document.getElementById('stock-product-id').value = id;
             
-            document.getElementById('stock-colors-list').innerHTML = product.colors.map((c, i) => `
-                <div class="color-stock-item">
-                    <div class="color-preview" style="background: ${c.hex};"></div>
-                    <div class="color-info">
-                        <div class="color-name">${c.name}</div>
-                        <div class="color-hex">${c.hex}</div>
+            const sizes = product.sizes || [];
+            
+            document.getElementById('stock-colors-list').innerHTML = product.colors.map((c, colorIndex) => {
+                const sizeStock = c.sizeStock || {};
+                const sizeInputsHTML = sizes.map(size => `
+                    <div class="size-stock-input">
+                        <label>${size}</label>
+                        <input type="number" value="${sizeStock[size] || 0}" data-hex="${c.hex}" data-size="${size}" min="0">
                     </div>
-                    <input type="number" value="${c.stock}" name="stock-${i}" data-hex="${c.hex}" min="0">
-                </div>
-            `).join('');
+                `).join('');
+                
+                return `
+                    <div class="color-stock-item" data-color-hex="${c.hex}">
+                        <div class="color-preview" style="background: ${c.hex};"></div>
+                        <div class="color-info">
+                            <div class="color-name">${c.name}</div>
+                            <div class="color-hex">${c.hex}</div>
+                        </div>
+                        <div class="size-stock-grid">
+                            ${sizeInputsHTML || '<span style="color: var(--md-on-surface-variant); font-size: 0.75rem;">No sizes defined</span>'}
+                        </div>
+                    </div>
+                `;
+            }).join('');
             
             document.getElementById('stock-modal').classList.add('active');
         }
@@ -1790,15 +1912,23 @@
             showLoading();
             
             const id = document.getElementById('stock-product-id').value;
-            const inputs = document.querySelectorAll('#stock-colors-list input[type="number"]');
+            const colorItems = document.querySelectorAll('#stock-colors-list .color-stock-item');
             
             try {
-                for (const input of inputs) {
+                for (const item of colorItems) {
+                    const colorHex = item.dataset.colorHex;
+                    const sizeStock = {};
+                    
+                    item.querySelectorAll('.size-stock-input input').forEach(input => {
+                        const size = input.dataset.size;
+                        sizeStock[size] = parseInt(input.value) || 0;
+                    });
+                    
                     await apiCall(`/api/admin/collections/${id}/stock`, {
                         method: 'PATCH',
                         body: JSON.stringify({
-                            colorHex: input.dataset.hex,
-                            stock: parseInt(input.value) || 0
+                            colorHex,
+                            sizeStock
                         })
                     });
                 }
