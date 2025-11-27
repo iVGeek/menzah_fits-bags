@@ -135,7 +135,7 @@ This is a **full-stack monolithic application** where the Express.js backend ser
    | `PORT` | `10000` | Auto-set by Render, but can specify |
    | `ADMIN_PASSWORD` | `your-secure-password` | Change default admin password |
    | `DEV_PASSWORD` | `your-dev-password` | Change default dev_superior password |
-   | `TOKEN_SECRET` | `your-random-secret-key` | Secret for JWT-like token signing |
+   | `TOKEN_SECRET` | `your-random-secret-key` | Secret for HMAC-SHA256 token signing |
 
 5. **Deploy**
    - Click "Create Web Service"
