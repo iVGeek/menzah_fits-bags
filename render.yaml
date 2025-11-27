@@ -1,11 +1,10 @@
 # Render.com Deployment Configuration
 # https://render.com/docs/deploy-node-express-app
-
-# Build Command
-# npm install
-
-# Start Command
-# npm start
+#
+# This deploys a FULL-STACK application:
+# - Frontend: https://your-service.onrender.com
+# - Admin Panel: https://your-service.onrender.com/admin
+# - API: https://your-service.onrender.com/api/collections
 
 services:
   - type: web
@@ -20,6 +19,12 @@ services:
         value: production
       - key: PORT
         value: 10000
-      - key: ADMIN_TOKEN
+      # Token secret for authentication (auto-generated)
+      - key: TOKEN_SECRET
         generateValue: true
+      # IMPORTANT: Set these manually in Render dashboard for custom passwords
+      # - key: ADMIN_PASSWORD
+      #   sync: false  # Set manually in dashboard
+      # - key: DEV_PASSWORD
+      #   sync: false  # Set manually in dashboard
     healthCheckPath: /api/collections
