@@ -27,6 +27,10 @@
             --color-charcoal: #3D2E25;
             --color-accent-gold: #FFE4B5;
             
+            /* Dev Superior gradient colors */
+            --color-dev-purple: #7C3AED;
+            --color-dev-purple-dark: #5B21B6;
+            
             /* Primary palette - Dusk Nude inspired */
             --md-primary: #B08D7C;
             --md-on-primary: #ffffff;
@@ -878,7 +882,7 @@
         
         /* Role Badges */
         .badge-dev_superior {
-            background: linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%);
+            background: linear-gradient(135deg, var(--color-dev-purple) 0%, var(--color-dev-purple-dark) 100%);
             color: white;
         }
         
@@ -988,7 +992,7 @@
         }
         
         .profile-role-badge.badge-dev_superior {
-            background: linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%);
+            background: linear-gradient(135deg, var(--color-dev-purple) 0%, var(--color-dev-purple-dark) 100%);
             color: white;
         }
         
@@ -1546,7 +1550,7 @@
                                 <label for="new-password">New Password</label>
                             </div>
                             <div class="md-field">
-                                <input type="password" id="confirm-password" placeholder=" " required minlength="4" autocomplete="new-password">
+                                <input type="password" id="confirm-password" placeholder=" " required minlength="4" autocomplete="off">
                                 <label for="confirm-password">Confirm New Password</label>
                             </div>
                             <button type="submit" class="md-btn md-btn-primary">
@@ -1804,8 +1808,11 @@
         
         function updateUserDisplay() {
             if (currentUser) {
-                // Update profile header
-                const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+                // Update profile header - handle edge cases in name parsing
+                const nameParts = currentUser.name.split(' ').filter(n => n.trim().length > 0);
+                const initials = nameParts.length > 0 
+                    ? nameParts.map(n => n[0]).join('').toUpperCase().slice(0, 2) 
+                    : currentUser.username.slice(0, 2).toUpperCase();
                 document.getElementById('profile-avatar').textContent = initials;
                 document.getElementById('profile-name').textContent = currentUser.name;
                 document.getElementById('profile-username').textContent = '@' + currentUser.username;
@@ -1831,8 +1838,10 @@
                 document.getElementById('account-username').textContent = currentUser.username;
                 document.getElementById('account-role').textContent = currentUser.role.replace('_', ' ');
                 
-                // Update session info
-                const deviceInfo = /Mobile|Android|iPhone|iPad/i.test(navigator.userAgent) ? 'Mobile Device' : 'Desktop Browser';
+                // Update session info - detect device using touch capability and screen size
+                const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+                const isSmallScreen = window.matchMedia('(max-width: 768px)').matches;
+                const deviceInfo = (isTouchDevice && isSmallScreen) ? 'Mobile Device' : 'Desktop Browser';
                 document.getElementById('session-device').textContent = deviceInfo;
             }
         }
