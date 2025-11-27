@@ -926,6 +926,307 @@
             color: var(--md-on-surface-variant);
             text-transform: capitalize;
         }
+        
+        /* Profile Page Improvements */
+        .profile-header {
+            background: linear-gradient(135deg, var(--md-primary-container) 0%, var(--md-secondary-container) 100%);
+            border-radius: var(--md-radius-xl);
+            padding: 32px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            box-shadow: var(--md-elevation-2);
+        }
+        
+        .profile-avatar {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            background: var(--md-primary);
+            color: var(--md-on-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            box-shadow: var(--md-elevation-2);
+            flex-shrink: 0;
+        }
+        
+        .profile-details {
+            flex: 1;
+        }
+        
+        .profile-name {
+            font-size: 1.75rem;
+            font-weight: 500;
+            color: var(--md-on-primary-container);
+            margin-bottom: 4px;
+        }
+        
+        .profile-username {
+            font-size: 1rem;
+            color: var(--md-on-surface-variant);
+            margin-bottom: 8px;
+        }
+        
+        .profile-role-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 16px;
+            border-radius: var(--md-radius-xl);
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+        
+        .profile-role-badge .material-icons {
+            font-size: 18px;
+        }
+        
+        .profile-role-badge.badge-dev_superior {
+            background: linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%);
+            color: white;
+        }
+        
+        .profile-role-badge.badge-admin {
+            background: var(--md-primary);
+            color: var(--md-on-primary);
+        }
+        
+        .profile-role-badge.badge-user {
+            background: var(--md-secondary-container);
+            color: var(--md-on-secondary-container);
+        }
+        
+        .settings-grid-improved {
+            display: grid;
+            gap: 24px;
+            grid-template-columns: 1fr;
+        }
+        
+        @media (min-width: 768px) {
+            .settings-grid-improved {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .settings-grid-improved {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        .settings-card-improved {
+            background: var(--md-surface-container-lowest);
+            border-radius: var(--md-radius-lg);
+            box-shadow: var(--md-elevation-1);
+            overflow: hidden;
+            transition: box-shadow var(--md-transition-normal), transform var(--md-transition-normal);
+        }
+        
+        .settings-card-improved:hover {
+            box-shadow: var(--md-elevation-2);
+            transform: translateY(-2px);
+        }
+        
+        .settings-card-icon-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background: var(--md-surface-container);
+        }
+        
+        .settings-card-icon-header .material-icons {
+            font-size: 48px;
+            color: var(--md-primary);
+        }
+        
+        .settings-card-content {
+            padding: 20px 24px 24px;
+        }
+        
+        .settings-card-title {
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: var(--md-on-surface);
+            margin-bottom: 4px;
+            text-align: center;
+        }
+        
+        .settings-card-subtitle {
+            font-size: 0.875rem;
+            color: var(--md-on-surface-variant);
+            text-align: center;
+            margin-bottom: 16px;
+        }
+        
+        .info-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--md-surface-container);
+            border-radius: var(--md-radius-md);
+        }
+        
+        .info-item-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--md-primary-container);
+            color: var(--md-on-primary-container);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .info-item-icon .material-icons {
+            font-size: 20px;
+        }
+        
+        .info-item-content {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .info-item-label {
+            font-size: 0.75rem;
+            color: var(--md-on-surface-variant);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+        }
+        
+        .info-item-value {
+            font-size: 0.9375rem;
+            font-weight: 500;
+            color: var(--md-on-surface);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .password-form-improved {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .password-form-improved .md-field {
+            margin-bottom: 0;
+        }
+        
+        .session-info {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .session-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--md-surface-container);
+            border-radius: var(--md-radius-md);
+        }
+        
+        .session-item-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--md-success-container);
+            color: var(--md-success);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .session-item-icon .material-icons {
+            font-size: 20px;
+        }
+        
+        .session-item-content {
+            flex: 1;
+        }
+        
+        .session-item-label {
+            font-size: 0.75rem;
+            color: var(--md-on-surface-variant);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+        }
+        
+        .session-item-value {
+            font-size: 0.9375rem;
+            font-weight: 500;
+            color: var(--md-on-surface);
+        }
+        
+        .quick-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .quick-action-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--md-outline-variant);
+            border-radius: var(--md-radius-md);
+            background: transparent;
+            color: var(--md-on-surface);
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--md-transition-normal);
+            text-decoration: none;
+        }
+        
+        .quick-action-btn:hover {
+            background: var(--md-surface-container);
+            border-color: var(--md-primary);
+        }
+        
+        .quick-action-btn .material-icons {
+            color: var(--md-primary);
+        }
+        
+        /* Mobile adjustments for profile header */
+        @media (max-width: 600px) {
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+                padding: 24px;
+            }
+            
+            .profile-avatar {
+                width: 80px;
+                height: 80px;
+                font-size: 2rem;
+            }
+            
+            .profile-name {
+                font-size: 1.5rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1104,57 +1405,155 @@
                     <h1>Settings</h1>
                 </div>
                 
-                <div class="settings-grid">
-                    <!-- Account Settings -->
-                    <div class="settings-card">
-                        <div class="settings-card-header">
-                            <span class="material-icons">account_circle</span>
-                            <h2>Account Information</h2>
+                <!-- Profile Header -->
+                <div class="profile-header">
+                    <div id="profile-avatar" class="profile-avatar">-</div>
+                    <div class="profile-details">
+                        <div id="profile-name" class="profile-name">-</div>
+                        <div id="profile-username" class="profile-username">@-</div>
+                        <span id="profile-role-badge" class="profile-role-badge badge-user">
+                            <span class="material-icons">person</span>
+                            <span id="profile-role-text">User</span>
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="settings-grid-improved">
+                    <!-- Account Information Card -->
+                    <div class="settings-card-improved">
+                        <div class="settings-card-icon-header">
+                            <span class="material-icons">badge</span>
                         </div>
-                        <div class="settings-card-body">
-                            <div class="account-info">
-                                <div class="info-row">
-                                    <span class="info-label">Name:</span>
-                                    <span id="account-name" class="info-value">-</span>
+                        <div class="settings-card-content">
+                            <h3 class="settings-card-title">Account Details</h3>
+                            <p class="settings-card-subtitle">Your profile information</p>
+                            <div class="info-list">
+                                <div class="info-item">
+                                    <div class="info-item-icon">
+                                        <span class="material-icons">person</span>
+                                    </div>
+                                    <div class="info-item-content">
+                                        <div class="info-item-label">Full Name</div>
+                                        <div id="account-name" class="info-item-value">-</div>
+                                    </div>
                                 </div>
-                                <div class="info-row">
-                                    <span class="info-label">Username:</span>
-                                    <span id="account-username" class="info-value">-</span>
+                                <div class="info-item">
+                                    <div class="info-item-icon">
+                                        <span class="material-icons">alternate_email</span>
+                                    </div>
+                                    <div class="info-item-content">
+                                        <div class="info-item-label">Username</div>
+                                        <div id="account-username" class="info-item-value">-</div>
+                                    </div>
                                 </div>
-                                <div class="info-row">
-                                    <span class="info-label">Role:</span>
-                                    <span id="account-role" class="info-value badge">-</span>
+                                <div class="info-item">
+                                    <div class="info-item-icon">
+                                        <span class="material-icons">shield</span>
+                                    </div>
+                                    <div class="info-item-content">
+                                        <div class="info-item-label">Access Level</div>
+                                        <div id="account-role" class="info-item-value">-</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Change Password -->
-                    <div class="settings-card">
-                        <div class="settings-card-header">
-                            <span class="material-icons">lock</span>
-                            <h2>Change Password</h2>
+                    <!-- Session Info Card -->
+                    <div class="settings-card-improved">
+                        <div class="settings-card-icon-header">
+                            <span class="material-icons">security</span>
                         </div>
-                        <div class="settings-card-body">
-                            <form id="change-password-form">
-                                <div class="md-field">
-                                    <input type="password" id="current-password" placeholder=" " required>
-                                    <label for="current-password">Current Password</label>
+                        <div class="settings-card-content">
+                            <h3 class="settings-card-title">Session Info</h3>
+                            <p class="settings-card-subtitle">Current login session</p>
+                            <div class="session-info">
+                                <div class="session-item">
+                                    <div class="session-item-icon">
+                                        <span class="material-icons">check_circle</span>
+                                    </div>
+                                    <div class="session-item-content">
+                                        <div class="session-item-label">Status</div>
+                                        <div class="session-item-value">Active Session</div>
+                                    </div>
                                 </div>
-                                <div class="md-field">
-                                    <input type="password" id="new-password" placeholder=" " required minlength="4">
-                                    <label for="new-password">New Password</label>
+                                <div class="session-item">
+                                    <div class="session-item-icon" style="background: var(--md-tertiary-container); color: var(--md-tertiary);">
+                                        <span class="material-icons">schedule</span>
+                                    </div>
+                                    <div class="session-item-content">
+                                        <div class="session-item-label">Session Duration</div>
+                                        <div id="session-duration" class="session-item-value">24 hours</div>
+                                    </div>
                                 </div>
-                                <div class="md-field">
-                                    <input type="password" id="confirm-password" placeholder=" " required minlength="4">
-                                    <label for="confirm-password">Confirm New Password</label>
+                                <div class="session-item">
+                                    <div class="session-item-icon" style="background: var(--md-primary-container); color: var(--md-primary);">
+                                        <span class="material-icons">devices</span>
+                                    </div>
+                                    <div class="session-item-content">
+                                        <div class="session-item-label">Device</div>
+                                        <div id="session-device" class="session-item-value">Current Browser</div>
+                                    </div>
                                 </div>
-                                <button type="submit" class="md-btn md-btn-primary">
-                                    <span class="material-icons">save</span>
-                                    Update Password
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Actions Card -->
+                    <div class="settings-card-improved">
+                        <div class="settings-card-icon-header">
+                            <span class="material-icons">flash_on</span>
+                        </div>
+                        <div class="settings-card-content">
+                            <h3 class="settings-card-title">Quick Actions</h3>
+                            <p class="settings-card-subtitle">Frequently used actions</p>
+                            <div class="quick-actions">
+                                <a href="/" class="quick-action-btn">
+                                    <span class="material-icons">storefront</span>
+                                    View Storefront
+                                </a>
+                                <button class="quick-action-btn" onclick="switchView('dashboard')">
+                                    <span class="material-icons">dashboard</span>
+                                    Go to Dashboard
                                 </button>
-                            </form>
+                                <button class="quick-action-btn" onclick="switchView('products')">
+                                    <span class="material-icons">inventory_2</span>
+                                    Manage Products
+                                </button>
+                                <button class="quick-action-btn" onclick="logout()">
+                                    <span class="material-icons">logout</span>
+                                    Sign Out
+                                </button>
+                            </div>
                         </div>
+                    </div>
+                </div>
+                
+                <!-- Password Change Section (Full Width) -->
+                <div class="settings-card" style="margin-top: 24px;">
+                    <div class="settings-card-header">
+                        <span class="material-icons">lock</span>
+                        <h2>Change Password</h2>
+                    </div>
+                    <div class="settings-card-body">
+                        <form id="change-password-form" class="password-form-improved" style="max-width: 400px;">
+                            <div class="md-field">
+                                <input type="password" id="current-password" placeholder=" " required autocomplete="current-password">
+                                <label for="current-password">Current Password</label>
+                            </div>
+                            <div class="md-field">
+                                <input type="password" id="new-password" placeholder=" " required minlength="4" autocomplete="new-password">
+                                <label for="new-password">New Password</label>
+                            </div>
+                            <div class="md-field">
+                                <input type="password" id="confirm-password" placeholder=" " required minlength="4" autocomplete="new-password">
+                                <label for="confirm-password">Confirm New Password</label>
+                            </div>
+                            <button type="submit" class="md-btn md-btn-primary">
+                                <span class="material-icons">save</span>
+                                Update Password
+                            </button>
+                        </form>
                     </div>
                 </div>
             </section>
@@ -1405,12 +1804,36 @@
         
         function updateUserDisplay() {
             if (currentUser) {
-                // Update settings page
+                // Update profile header
+                const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+                document.getElementById('profile-avatar').textContent = initials;
+                document.getElementById('profile-name').textContent = currentUser.name;
+                document.getElementById('profile-username').textContent = '@' + currentUser.username;
+                
+                // Update profile role badge
+                const profileRoleBadge = document.getElementById('profile-role-badge');
+                const profileRoleText = document.getElementById('profile-role-text');
+                profileRoleBadge.className = `profile-role-badge badge-${currentUser.role}`;
+                profileRoleText.textContent = currentUser.role.replace('_', ' ');
+                
+                // Update role icon based on role
+                const roleIcon = profileRoleBadge.querySelector('.material-icons');
+                if (currentUser.role === 'dev_superior') {
+                    roleIcon.textContent = 'verified_user';
+                } else if (currentUser.role === 'admin') {
+                    roleIcon.textContent = 'admin_panel_settings';
+                } else {
+                    roleIcon.textContent = 'person';
+                }
+                
+                // Update account details section
                 document.getElementById('account-name').textContent = currentUser.name;
                 document.getElementById('account-username').textContent = currentUser.username;
-                const roleEl = document.getElementById('account-role');
-                roleEl.textContent = currentUser.role.replace('_', ' ');
-                roleEl.className = `info-value badge role-badge badge-${currentUser.role}`;
+                document.getElementById('account-role').textContent = currentUser.role.replace('_', ' ');
+                
+                // Update session info
+                const deviceInfo = /Mobile|Android|iPhone|iPad/i.test(navigator.userAgent) ? 'Mobile Device' : 'Desktop Browser';
+                document.getElementById('session-device').textContent = deviceInfo;
             }
         }
         
