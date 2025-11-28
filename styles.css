@@ -2180,6 +2180,225 @@ button:focus-visible {
     transition: fill var(--transition-normal), stroke var(--transition-normal);
 }
 
+/* =================================
+   Media Gallery / Carousel
+   ================================= */
+
+.card-media-gallery {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+}
+
+.media-slides {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.media-slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity var(--transition-normal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.media-slide.active {
+    opacity: 1;
+    z-index: 1;
+}
+
+.media-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.media-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    background: var(--color-sand-light);
+}
+
+.video-play-indicator {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 48px;
+    height: 48px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-charcoal);
+    transition: all var(--transition-normal);
+    pointer-events: none;
+    box-shadow: var(--md-elevation-2);
+}
+
+.video-play-indicator svg {
+    width: 24px;
+    height: 24px;
+    margin-left: 2px;
+}
+
+.media-slide:hover .video-play-indicator {
+    transform: translate(-50%, -50%) scale(1.1);
+}
+
+/* Gallery Navigation Arrows */
+.gallery-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    opacity: 0;
+    transition: all var(--transition-normal);
+    box-shadow: var(--md-elevation-1);
+    color: var(--color-charcoal);
+}
+
+.gallery-nav svg {
+    width: 18px;
+    height: 18px;
+}
+
+.gallery-prev {
+    left: 8px;
+}
+
+.gallery-next {
+    right: 8px;
+}
+
+.card-image:hover .gallery-nav {
+    opacity: 1;
+}
+
+.gallery-nav:hover {
+    background: var(--color-white);
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: var(--md-elevation-2);
+}
+
+.gallery-nav:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+/* Gallery Dots */
+.gallery-dots {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 6px;
+    z-index: 10;
+    padding: 6px 10px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+.gallery-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    border: none;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    padding: 0;
+}
+
+.gallery-dot:hover {
+    background: rgba(255, 255, 255, 0.8);
+}
+
+.gallery-dot.active {
+    background: var(--color-white);
+    width: 16px;
+    border-radius: 4px;
+}
+
+/* Fallback artwork hidden when media is shown */
+.card-artwork-fallback {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Cards with media have specific styles */
+.collection-card.has-media .card-image {
+    background: var(--color-sand-light);
+}
+
+/* Responsive adjustments for gallery */
+@media (max-width: 640px) {
+    .gallery-nav {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .gallery-nav svg {
+        width: 16px;
+        height: 16px;
+    }
+    
+    .gallery-prev {
+        left: 6px;
+    }
+    
+    .gallery-next {
+        right: 6px;
+    }
+    
+    .gallery-dots {
+        bottom: 8px;
+        padding: 4px 8px;
+        gap: 4px;
+    }
+    
+    .gallery-dot {
+        width: 6px;
+        height: 6px;
+    }
+    
+    .gallery-dot.active {
+        width: 12px;
+    }
+    
+    .video-play-indicator {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .video-play-indicator svg {
+        width: 20px;
+        height: 20px;
+    }
+}
+
 /* Collections CTA */
 .collections-cta {
     text-align: center;
