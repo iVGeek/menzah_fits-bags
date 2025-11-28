@@ -2312,10 +2312,18 @@ button:focus-visible {
     gap: 6px;
     z-index: 10;
     padding: 6px 10px;
-    background: rgba(0, 0, 0, 0.3);
+    /* Fallback for browsers without backdrop-filter support */
+    background: rgba(0, 0, 0, 0.5);
     border-radius: 12px;
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+}
+
+/* Use backdrop-filter when supported */
+@supports (backdrop-filter: blur(4px)) or (-webkit-backdrop-filter: blur(4px)) {
+    .gallery-dots {
+        background: rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+    }
 }
 
 .gallery-dot {

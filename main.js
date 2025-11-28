@@ -572,10 +572,12 @@
                 let colorMedia = [];
                 try {
                     colorMedia = JSON.parse(dot.dataset.media || '[]');
-                } catch {
+                } catch (e) {
+                    console.warn('Failed to parse media data:', e);
                     colorMedia = [];
                 }
                 
+                const colorName = dot.dataset.colorName || 'Product';
                 const slidesContainer = mediaGallery.querySelector('.media-slides');
                 const dotsContainer = mediaGallery.querySelector('.gallery-dots');
                 const prevBtn = mediaGallery.querySelector('.gallery-prev');
@@ -586,11 +588,12 @@
                     mediaGallery.style.display = '';
                     if (artworkFallback) artworkFallback.style.display = 'none';
                     
-                    // Update slides
+                    // Update slides with descriptive alt text
                     slidesContainer.innerHTML = colorMedia.map((media, i) => {
+                        const altText = `${colorName} variant - Image ${i + 1} of ${colorMedia.length}`;
                         if (media.type === 'video') {
                             return `<div class="media-slide${i === 0 ? ' active' : ''}" data-index="${i}">
-                                <video src="${media.url}" class="media-video" muted loop playsinline preload="metadata">
+                                <video src="${media.url}" class="media-video" muted loop playsinline preload="metadata" aria-label="${altText}">
                                     <source src="${media.url}" type="video/mp4">
                                 </video>
                                 <div class="video-play-indicator">
@@ -599,7 +602,7 @@
                             </div>`;
                         }
                         return `<div class="media-slide${i === 0 ? ' active' : ''}" data-index="${i}">
-                            <img src="${media.url}" alt="Product image" class="media-image" loading="lazy">
+                            <img src="${media.url}" alt="${altText}" class="media-image" loading="lazy">
                         </div>`;
                     }).join('');
                     
@@ -619,11 +622,11 @@
                     if (prevBtn) prevBtn.style.display = colorMedia.length > 1 ? '' : 'none';
                     if (nextBtn) nextBtn.style.display = colorMedia.length > 1 ? '' : 'none';
                     
-                    // Reset gallery index
+                    // Reset gallery index and rebind events
                     mediaGallery.dataset.currentIndex = '0';
                     
-                    // Reinitialize gallery event listeners
-                    initMediaGallery(mediaGallery);
+                    // Rebind gallery event listeners (DOM was replaced, so new elements need handlers)
+                    bindGalleryEvents(mediaGallery);
                 } else {
                     // No media for this color - show fallback SVG
                     mediaGallery.style.display = 'none';
@@ -719,8 +722,8 @@
         });
     }
     
-    // Initialize media gallery carousel
-    function initMediaGallery(gallery) {
+    // Bind gallery events to elements (using onclick to avoid event accumulation)
+    function bindGalleryEvents(gallery) {
         const slides = gallery.querySelectorAll('.media-slide');
         const dots = gallery.querySelectorAll('.gallery-dot');
         const prevBtn = gallery.querySelector('.gallery-prev');
@@ -729,31 +732,29 @@
         if (slides.length <= 1) return;
         
         function goToSlide(index) {
-            const totalSlides = slides.length;
+            const currentSlides = gallery.querySelectorAll('.media-slide');
+            const currentDots = gallery.querySelectorAll('.gallery-dot');
+            const totalSlides = currentSlides.length;
             if (index < 0) index = totalSlides - 1;
             if (index >= totalSlides) index = 0;
             
-            slides.forEach((slide, i) => {
+            currentSlides.forEach((slide, i) => {
                 slide.classList.toggle('active', i === index);
                 // Pause videos that aren't active
                 const video = slide.querySelector('video');
-                if (video) {
-                    if (i === index) {
-                        // Don't auto-play, let user initiate
-                    } else {
-                        video.pause();
-                    }
+                if (video && i !== index) {
+                    video.pause();
                 }
             });
             
-            dots.forEach((dot, i) => {
+            currentDots.forEach((dot, i) => {
                 dot.classList.toggle('active', i === index);
             });
             
             gallery.dataset.currentIndex = index.toString();
         }
         
-        // Previous button
+        // Previous button (using onclick replaces existing handler, avoids accumulation)
         if (prevBtn) {
             prevBtn.onclick = (e) => {
                 e.preventDefault();
@@ -803,6 +804,11 @@
                 };
             }
         });
+    }
+    
+    // Initialize media gallery carousel (calls bindGalleryEvents)
+    function initMediaGallery(gallery) {
+        bindGalleryEvents(gallery);
     }
 
     // Category filter buttons
