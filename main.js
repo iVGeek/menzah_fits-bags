@@ -316,15 +316,34 @@
         const getColorName = (color) => typeof color === 'object' ? color.name : '';
         const getColorSizeStock = (color) => typeof color === 'object' ? (color.sizeStock || {}) : {};
         const getColorStock = (color) => typeof color === 'object' ? (color.stock || 0) : 0;
+        const getColorMedia = (color) => typeof color === 'object' ? (color.media || []) : [];
 
         // Get the first size for initial display
         const firstSize = item.sizes && item.sizes.length > 0 ? item.sizes[0] : '';
+        
+        // Collect all media from all colors for the gallery
+        const allMedia = item.colors.reduce((acc, color, colorIndex) => {
+            const media = getColorMedia(color);
+            media.forEach((m, mediaIndex) => {
+                acc.push({
+                    ...m,
+                    colorIndex,
+                    colorName: getColorName(color),
+                    colorHex: getColorHex(color)
+                });
+            });
+            return acc;
+        }, []);
+        
+        const hasMedia = allMedia.length > 0;
+        const firstColorMedia = getColorMedia(item.colors[0]);
         
         const colorsHTML = item.colors.map((color, i) => {
             const hex = getColorHex(color);
             const name = getColorName(color);
             const sizeStock = getColorSizeStock(color);
             const totalStock = getColorStock(color);
+            const media = getColorMedia(color);
             const secondaryHex = getColorHex(item.colors[(i + 1) % item.colors.length]);
             const stockClass = getStockClass(totalStock);
             const activeClass = i === 0 ? ' active' : '';
@@ -334,9 +353,11 @@
             return `<button class="color-dot${activeClass} ${stockClass}" 
                 style="background-color: ${hex}" 
                 data-color="${hex}" 
+                data-color-index="${i}"
                 data-secondary-color="${secondaryHex}" 
                 data-size-stock='${JSON.stringify(sizeStock)}' 
-                data-color-name="${name}" 
+                data-color-name="${name}"
+                data-media='${JSON.stringify(media)}'
                 aria-label="${ariaLabel}" 
                 title="${title}"></button>`;
         }).join('');
@@ -352,9 +373,11 @@
         const firstColorSizeStock = getColorSizeStock(item.colors[0]);
         const firstSizeStock = firstSize ? (firstColorSizeStock[firstSize] || 0) : getColorStock(item.colors[0]);
 
-        return `
-            <div class="collection-card" data-item-id="${item.id}" style="transition-delay: ${index * 100}ms">
-                <div class="card-image">
+        // Generate media gallery HTML if media exists
+        const generateMediaHTML = () => {
+            if (!hasMedia) {
+                // Fallback to SVG artwork
+                return `
                     <div class="card-artwork">
                         <svg viewBox="0 0 200 280" class="card-artwork-svg">
                             <ellipse class="artwork-main" cx="100" cy="50" rx="25" ry="30" fill="${firstColorHex}" opacity="0.6"/>
@@ -365,7 +388,62 @@
                                 ).join('')
                             ).join('')}
                         </svg>
+                    </div>`;
+            }
+            
+            // Generate media gallery with carousel
+            const mediaItems = firstColorMedia.length > 0 ? firstColorMedia : allMedia.slice(0, 5);
+            const showCarousel = mediaItems.length > 1;
+            
+            return `
+                <div class="card-media-gallery" data-current-index="0">
+                    <div class="media-slides">
+                        ${mediaItems.map((media, i) => {
+                            if (media.type === 'video') {
+                                return `<div class="media-slide${i === 0 ? ' active' : ''}" data-index="${i}">
+                                    <video src="${media.url}" class="media-video" muted loop playsinline preload="metadata">
+                                        <source src="${media.url}" type="video/mp4">
+                                    </video>
+                                    <div class="video-play-indicator">
+                                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                                    </div>
+                                </div>`;
+                            }
+                            return `<div class="media-slide${i === 0 ? ' active' : ''}" data-index="${i}">
+                                <img src="${media.url}" alt="${item.name} - ${media.colorName || 'Product image'}" class="media-image" loading="lazy">
+                            </div>`;
+                        }).join('')}
                     </div>
+                    ${showCarousel ? `
+                    <button class="gallery-nav gallery-prev" aria-label="Previous image">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+                    </button>
+                    <button class="gallery-nav gallery-next" aria-label="Next image">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+                    </button>
+                    <div class="gallery-dots">
+                        ${mediaItems.map((_, i) => `<button class="gallery-dot${i === 0 ? ' active' : ''}" data-index="${i}" aria-label="Go to image ${i + 1}"></button>`).join('')}
+                    </div>
+                    ` : ''}
+                </div>
+                <!-- Fallback SVG for color switching when no media for that color -->
+                <div class="card-artwork card-artwork-fallback" style="display: none;">
+                    <svg viewBox="0 0 200 280" class="card-artwork-svg">
+                        <ellipse class="artwork-main" cx="100" cy="50" rx="25" ry="30" fill="${firstColorHex}" opacity="0.6"/>
+                        <path class="artwork-body" d="M75 75 L55 280 L145 280 L125 75 Z" fill="${firstColorHex}" opacity="0.4"/>
+                        ${[...Array(6)].map((_, row) => 
+                            [...Array(4)].map((_, col) => 
+                                `<circle class="artwork-pattern" cx="${65 + col * 25}" cy="${95 + row * 28}" r="8" fill="none" stroke="${secondColorHex}" stroke-width="2" opacity="0.5"/>`
+                            ).join('')
+                        ).join('')}
+                    </svg>
+                </div>`;
+        };
+
+        return `
+            <div class="collection-card${hasMedia ? ' has-media' : ''}" data-item-id="${item.id}" style="transition-delay: ${index * 100}ms">
+                <div class="card-image">
+                    ${generateMediaHTML()}
                     ${badgeHTML}
                     <div class="card-overlay">
                         <button class="view-btn" aria-label="View ${item.name} details">View Details</button>
@@ -448,6 +526,13 @@
             const sizeBtns = card.querySelectorAll('.size-btn');
             const artworkSvg = card.querySelector('.card-artwork-svg');
             const stockDisplay = card.querySelector('[data-stock-display]');
+            const mediaGallery = card.querySelector('.card-media-gallery');
+            const artworkFallback = card.querySelector('.card-artwork-fallback');
+            
+            // Initialize media gallery carousel if present
+            if (mediaGallery) {
+                initMediaGallery(mediaGallery);
+            }
             
             // Helper function to update stock display based on selected color and size
             function updateStockDisplay() {
@@ -478,6 +563,89 @@
                 
                 stockDisplay.textContent = formatStockText(displayLabel, stock);
                 stockDisplay.className = `stock-value ${getStockClass(stock)}`;
+            }
+            
+            // Helper function to update media gallery when color changes
+            function updateMediaForColor(dot) {
+                if (!mediaGallery) return;
+                
+                let colorMedia = [];
+                try {
+                    colorMedia = JSON.parse(dot.dataset.media || '[]');
+                } catch (e) {
+                    console.warn('Failed to parse media data:', e);
+                    colorMedia = [];
+                }
+                
+                const colorName = dot.dataset.colorName || 'Product';
+                const slidesContainer = mediaGallery.querySelector('.media-slides');
+                const dotsContainer = mediaGallery.querySelector('.gallery-dots');
+                const prevBtn = mediaGallery.querySelector('.gallery-prev');
+                const nextBtn = mediaGallery.querySelector('.gallery-next');
+                
+                if (colorMedia.length > 0) {
+                    // Show media gallery, hide fallback
+                    mediaGallery.style.display = '';
+                    if (artworkFallback) artworkFallback.style.display = 'none';
+                    
+                    // Update slides with descriptive alt text
+                    slidesContainer.innerHTML = colorMedia.map((media, i) => {
+                        const altText = `${colorName} variant - Image ${i + 1} of ${colorMedia.length}`;
+                        if (media.type === 'video') {
+                            return `<div class="media-slide${i === 0 ? ' active' : ''}" data-index="${i}">
+                                <video src="${media.url}" class="media-video" muted loop playsinline preload="metadata" aria-label="${altText}">
+                                    <source src="${media.url}" type="video/mp4">
+                                </video>
+                                <div class="video-play-indicator">
+                                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                                </div>
+                            </div>`;
+                        }
+                        return `<div class="media-slide${i === 0 ? ' active' : ''}" data-index="${i}">
+                            <img src="${media.url}" alt="${altText}" class="media-image" loading="lazy">
+                        </div>`;
+                    }).join('');
+                    
+                    // Update dots
+                    if (dotsContainer) {
+                        if (colorMedia.length > 1) {
+                            dotsContainer.style.display = '';
+                            dotsContainer.innerHTML = colorMedia.map((_, i) => 
+                                `<button class="gallery-dot${i === 0 ? ' active' : ''}" data-index="${i}" aria-label="Go to image ${i + 1}"></button>`
+                            ).join('');
+                        } else {
+                            dotsContainer.style.display = 'none';
+                        }
+                    }
+                    
+                    // Update navigation visibility
+                    if (prevBtn) prevBtn.style.display = colorMedia.length > 1 ? '' : 'none';
+                    if (nextBtn) nextBtn.style.display = colorMedia.length > 1 ? '' : 'none';
+                    
+                    // Reset gallery index and rebind events
+                    mediaGallery.dataset.currentIndex = '0';
+                    
+                    // Rebind gallery event listeners (DOM was replaced, so new elements need handlers)
+                    bindGalleryEvents(mediaGallery);
+                } else {
+                    // No media for this color - show fallback SVG
+                    mediaGallery.style.display = 'none';
+                    if (artworkFallback) {
+                        artworkFallback.style.display = '';
+                        // Update SVG colors
+                        const mainColor = dot.dataset.color;
+                        const secondaryColor = dot.dataset.secondaryColor;
+                        const svg = artworkFallback.querySelector('.card-artwork-svg');
+                        if (svg) {
+                            svg.querySelectorAll('.artwork-main, .artwork-body').forEach(el => {
+                                el.setAttribute('fill', mainColor);
+                            });
+                            svg.querySelectorAll('.artwork-pattern').forEach(el => {
+                                el.setAttribute('stroke', secondaryColor);
+                            });
+                        }
+                    }
+                }
             }
             
             colorDots.forEach(dot => {
@@ -514,8 +682,11 @@
                     const mainColor = dot.dataset.color;
                     const secondaryColor = dot.dataset.secondaryColor;
                     
-                    // Update SVG artwork colors with smooth transition
-                    if (artworkSvg) {
+                    // Update media gallery for the selected color
+                    updateMediaForColor(dot);
+                    
+                    // Update SVG artwork colors with smooth transition (for non-media cards)
+                    if (artworkSvg && !mediaGallery) {
                         const mainElements = artworkSvg.querySelectorAll('.artwork-main, .artwork-body');
                         const patternElements = artworkSvg.querySelectorAll('.artwork-pattern');
                         
@@ -549,6 +720,95 @@
                 });
             });
         });
+    }
+    
+    // Bind gallery events to elements (using onclick to avoid event accumulation)
+    function bindGalleryEvents(gallery) {
+        const slides = gallery.querySelectorAll('.media-slide');
+        const dots = gallery.querySelectorAll('.gallery-dot');
+        const prevBtn = gallery.querySelector('.gallery-prev');
+        const nextBtn = gallery.querySelector('.gallery-next');
+        
+        if (slides.length <= 1) return;
+        
+        function goToSlide(index) {
+            const currentSlides = gallery.querySelectorAll('.media-slide');
+            const currentDots = gallery.querySelectorAll('.gallery-dot');
+            const totalSlides = currentSlides.length;
+            if (index < 0) index = totalSlides - 1;
+            if (index >= totalSlides) index = 0;
+            
+            currentSlides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === index);
+                // Pause videos that aren't active
+                const video = slide.querySelector('video');
+                if (video && i !== index) {
+                    video.pause();
+                }
+            });
+            
+            currentDots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+            
+            gallery.dataset.currentIndex = index.toString();
+        }
+        
+        // Previous button (using onclick replaces existing handler, avoids accumulation)
+        if (prevBtn) {
+            prevBtn.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const currentIndex = parseInt(gallery.dataset.currentIndex || '0', 10);
+                goToSlide(currentIndex - 1);
+            };
+        }
+        
+        // Next button
+        if (nextBtn) {
+            nextBtn.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const currentIndex = parseInt(gallery.dataset.currentIndex || '0', 10);
+                goToSlide(currentIndex + 1);
+            };
+        }
+        
+        // Dot navigation
+        dots.forEach((dot, index) => {
+            dot.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                goToSlide(index);
+            };
+        });
+        
+        // Video play on click
+        slides.forEach(slide => {
+            const video = slide.querySelector('video');
+            const playIndicator = slide.querySelector('.video-play-indicator');
+            if (video && playIndicator) {
+                slide.onclick = (e) => {
+                    e.stopPropagation();
+                    if (video.paused) {
+                        video.play();
+                        playIndicator.style.opacity = '0';
+                    } else {
+                        video.pause();
+                        playIndicator.style.opacity = '1';
+                    }
+                };
+                
+                video.onended = () => {
+                    playIndicator.style.opacity = '1';
+                };
+            }
+        });
+    }
+    
+    // Initialize media gallery carousel (calls bindGalleryEvents)
+    function initMediaGallery(gallery) {
+        bindGalleryEvents(gallery);
     }
 
     // Category filter buttons

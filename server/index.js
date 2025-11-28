@@ -384,7 +384,7 @@ app.get('/api/collections', (req, res) => {
         result = collections.filter(item => item.category === category);
     }
     
-    // Return public data with color details including sizeStock
+    // Return public data with color details including sizeStock and media
     const publicData = result.map(item => ({
         id: item.id,
         name: item.name,
@@ -394,7 +394,8 @@ app.get('/api/collections', (req, res) => {
             hex: c.hex, 
             name: c.name, 
             sizeStock: c.sizeStock || {},
-            stock: computeColorStock(c.sizeStock) // total stock for this color (for backward compatibility)
+            stock: computeColorStock(c.sizeStock), // total stock for this color (for backward compatibility)
+            media: c.media || [] // include media for frontend display
         })),
         sizes: item.sizes || [],
         description: item.description,
@@ -421,7 +422,8 @@ app.get('/api/collections/:id', (req, res) => {
             hex: c.hex, 
             name: c.name, 
             sizeStock: c.sizeStock || {},
-            stock: computeColorStock(c.sizeStock) // total stock for this color (for backward compatibility)
+            stock: computeColorStock(c.sizeStock), // total stock for this color (for backward compatibility)
+            media: c.media || [] // include media for frontend display
         })),
         sizes: item.sizes || [],
         description: item.description,
