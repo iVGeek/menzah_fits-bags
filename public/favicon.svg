@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Crochet yarn loops forming an M shape -->
+  <defs>
+    <linearGradient id="yarn1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#D4A59A"/>
+      <stop offset="100%" style="stop-color:#B08D7C"/>
+    </linearGradient>
+    <linearGradient id="yarn2" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#E2BFA5"/>
+      <stop offset="100%" style="stop-color:#C69C82"/>
+    </linearGradient>
+  </defs>
+  <!-- Background circle -->
+  <circle cx="16" cy="16" r="15" fill="#FDF8F5" stroke="url(#yarn1)" stroke-width="1.5"/>
+  <!-- Yarn loops forming M pattern -->
+  <ellipse cx="10" cy="16" rx="5" ry="7" fill="none" stroke="url(#yarn1)" stroke-width="2" stroke-linecap="round"/>
+  <ellipse cx="22" cy="16" rx="5" ry="7" fill="none" stroke="url(#yarn2)" stroke-width="2" stroke-linecap="round"/>
+  <!-- Connecting thread at center -->
+  <path d="M15 11 Q16 16 15 21" fill="none" stroke="url(#yarn1)" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+  <path d="M17 11 Q16 16 17 21" fill="none" stroke="url(#yarn2)" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+  <!-- Center knot -->
+  <circle cx="16" cy="16" r="2" fill="none" stroke="#FFE4B5" stroke-width="1.5"/>
+</svg>
