@@ -9,12 +9,29 @@ const cors = require('cors');
 const path = require('path');
 const crypto = require('crypto');
 const { v4: uuidv4 } = require('uuid');
+const cloudinary = require('cloudinary').v2;
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Secret key for token signing (use env variable in production)
 const TOKEN_SECRET = process.env.TOKEN_SECRET || crypto.randomBytes(32).toString('hex');
+
+// Cloudinary configuration for media storage
+// Configure using environment variables for security
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME || '',
+    api_key: process.env.CLOUDINARY_API_KEY || '',
+    api_secret: process.env.CLOUDINARY_API_SECRET || '',
+    secure: true
+});
+
+// Check if Cloudinary is properly configured
+function isCloudinaryConfigured() {
+    return !!(process.env.CLOUDINARY_CLOUD_NAME && 
+              process.env.CLOUDINARY_API_KEY && 
+              process.env.CLOUDINARY_API_SECRET);
+}
 
 // Simple password hashing using crypto
 function hashPassword(password) {
@@ -118,8 +135,8 @@ const corsOptions = {
 
 // Middleware
 app.use(cors(corsOptions));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '50mb' })); // Increased limit for base64 media uploads
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Serve static files from the root directory (frontend)
 app.use(express.static(path.join(__dirname, '..')));
@@ -807,6 +824,191 @@ app.get('/api/admin/inventory', authenticateAdmin, (req, res) => {
         }, {})
     };
     res.json(summary);
+});
+
+// ===========================
+// MEDIA UPLOAD API ROUTES
+// ===========================
+
+// Upload media to Cloudinary (admin only)
+app.post('/api/admin/media/upload', authenticateAdmin, async (req, res) => {
+    // Check if Cloudinary is configured
+    if (!isCloudinaryConfigured()) {
+        return res.status(503).json({ 
+            error: 'Media storage not configured. Please set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET environment variables.',
+            configured: false
+        });
+    }
+    
+    const { data, type, folder, productId, colorIndex } = req.body;
+    
+    if (!data) {
+        return res.status(400).json({ error: 'No media data provided' });
+    }
+    
+    // Validate media type
+    const allowedTypes = ['image', 'video'];
+    const mediaType = type || 'image';
+    if (!allowedTypes.includes(mediaType)) {
+        return res.status(400).json({ error: 'Invalid media type. Allowed: image, video' });
+    }
+    
+    try {
+        // Upload to Cloudinary
+        const uploadOptions = {
+            folder: folder || 'menzah_fits/products',
+            resource_type: mediaType === 'video' ? 'video' : 'image',
+            transformation: mediaType === 'image' ? [
+                { quality: 'auto:good' },
+                { fetch_format: 'auto' }
+            ] : undefined
+        };
+        
+        const result = await cloudinary.uploader.upload(data, uploadOptions);
+        
+        // Return the uploaded media info
+        res.status(201).json({
+            success: true,
+            media: {
+                id: result.public_id,
+                url: result.secure_url,
+                type: mediaType,
+                width: result.width,
+                height: result.height,
+                format: result.format,
+                bytes: result.bytes,
+                createdAt: result.created_at
+            },
+            productId,
+            colorIndex
+        });
+    } catch (error) {
+        console.error('Cloudinary upload error:', error);
+        res.status(500).json({ 
+            error: 'Failed to upload media',
+            details: error.message 
+        });
+    }
+});
+
+// Delete media from Cloudinary (admin only)
+app.delete('/api/admin/media/:publicId', authenticateAdmin, async (req, res) => {
+    if (!isCloudinaryConfigured()) {
+        return res.status(503).json({ 
+            error: 'Media storage not configured',
+            configured: false
+        });
+    }
+    
+    const { publicId } = req.params;
+    const { resourceType } = req.query;
+    
+    if (!publicId) {
+        return res.status(400).json({ error: 'Media ID is required' });
+    }
+    
+    try {
+        // Delete from Cloudinary - handle nested public IDs
+        const fullPublicId = decodeURIComponent(publicId);
+        const result = await cloudinary.uploader.destroy(fullPublicId, {
+            resource_type: resourceType || 'image'
+        });
+        
+        if (result.result === 'ok' || result.result === 'not found') {
+            res.json({ success: true, message: 'Media deleted successfully' });
+        } else {
+            res.status(400).json({ error: 'Failed to delete media', result });
+        }
+    } catch (error) {
+        console.error('Cloudinary delete error:', error);
+        res.status(500).json({ 
+            error: 'Failed to delete media',
+            details: error.message 
+        });
+    }
+});
+
+// Check Cloudinary configuration status (admin only)
+app.get('/api/admin/media/status', authenticateAdmin, (req, res) => {
+    res.json({
+        configured: isCloudinaryConfigured(),
+        cloudName: process.env.CLOUDINARY_CLOUD_NAME ? 
+            process.env.CLOUDINARY_CLOUD_NAME.substring(0, 3) + '***' : null
+    });
+});
+
+// Add media to a product color (admin only)
+app.post('/api/admin/collections/:id/colors/:colorIndex/media', authenticateAdmin, async (req, res) => {
+    const index = collections.findIndex(c => c.id === req.params.id);
+    if (index === -1) {
+        return res.status(404).json({ error: 'Collection not found' });
+    }
+    
+    const colorIndex = parseInt(req.params.colorIndex, 10);
+    if (isNaN(colorIndex) || colorIndex < 0 || colorIndex >= collections[index].colors.length) {
+        return res.status(400).json({ error: 'Invalid color index' });
+    }
+    
+    const { media } = req.body;
+    if (!media || !media.url || !media.type) {
+        return res.status(400).json({ error: 'Media object with url and type is required' });
+    }
+    
+    // Initialize media array if it doesn't exist
+    if (!collections[index].colors[colorIndex].media) {
+        collections[index].colors[colorIndex].media = [];
+    }
+    
+    // Add the media to the color
+    const newMedia = {
+        id: media.id || uuidv4(),
+        url: media.url,
+        type: media.type,
+        createdAt: new Date().toISOString()
+    };
+    
+    collections[index].colors[colorIndex].media.push(newMedia);
+    collections[index].updatedAt = new Date().toISOString();
+    
+    res.status(201).json({
+        success: true,
+        collection: collections[index],
+        addedMedia: newMedia
+    });
+});
+
+// Remove media from a product color (admin only)
+app.delete('/api/admin/collections/:id/colors/:colorIndex/media/:mediaId', authenticateAdmin, (req, res) => {
+    const index = collections.findIndex(c => c.id === req.params.id);
+    if (index === -1) {
+        return res.status(404).json({ error: 'Collection not found' });
+    }
+    
+    const colorIndex = parseInt(req.params.colorIndex, 10);
+    if (isNaN(colorIndex) || colorIndex < 0 || colorIndex >= collections[index].colors.length) {
+        return res.status(400).json({ error: 'Invalid color index' });
+    }
+    
+    const color = collections[index].colors[colorIndex];
+    if (!color.media || color.media.length === 0) {
+        return res.status(404).json({ error: 'No media found for this color' });
+    }
+    
+    const mediaId = decodeURIComponent(req.params.mediaId);
+    const mediaIndex = color.media.findIndex(m => m.id === mediaId);
+    if (mediaIndex === -1) {
+        return res.status(404).json({ error: 'Media not found' });
+    }
+    
+    // Remove the media
+    const removedMedia = color.media.splice(mediaIndex, 1)[0];
+    collections[index].updatedAt = new Date().toISOString();
+    
+    res.json({
+        success: true,
+        collection: collections[index],
+        removedMedia
+    });
 });
 
 // Catch-all route - serve index.html for SPA routing (Express 5 syntax)
