@@ -2478,10 +2478,18 @@
                     sizeStock[size] = parseInt(input.value) || 0;
                 });
                 
+                // Get media data for this color (filter out local file references)
+                const mediaData = (colorMediaData[colorId] || []).map(m => ({
+                    id: m.id || undefined,
+                    url: m.url,
+                    type: m.type
+                }));
+                
                 colors.push({
                     hex: item.querySelector(`[name="color-hex-${colorId}"]`).value,
                     name: item.querySelector(`[name="color-name-${colorId}"]`).value,
-                    sizeStock
+                    sizeStock,
+                    media: mediaData
                 });
             });
             

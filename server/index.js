@@ -668,11 +668,12 @@ app.post('/api/admin/collections', authenticateAdmin, (req, res) => {
         return res.status(400).json({ error: 'Missing required fields' });
     }
     
-    // Process colors to ensure they have sizeStock structure
+    // Process colors to ensure they have sizeStock structure and preserve media
     const processedColors = colors.map(c => ({
         hex: c.hex,
         name: c.name,
-        sizeStock: c.sizeStock || {}
+        sizeStock: c.sizeStock || {},
+        media: c.media || []
     }));
     
     const totalStock = computeTotalStock(processedColors);
@@ -706,13 +707,14 @@ app.put('/api/admin/collections/:id', authenticateAdmin, (req, res) => {
     const { name, category, price, colors, sizes, description, badge } = req.body;
     const existing = collections[index];
     
-    // Process colors to ensure they have sizeStock structure
+    // Process colors to ensure they have sizeStock structure and preserve media
     let updatedColors;
     if (colors) {
         updatedColors = colors.map(c => ({
             hex: c.hex,
             name: c.name,
-            sizeStock: c.sizeStock || {}
+            sizeStock: c.sizeStock || {},
+            media: c.media || []
         }));
     } else {
         updatedColors = existing.colors;
