@@ -1592,7 +1592,7 @@ button:focus-visible {
 
 .section-header {
     text-align: center;
-    margin-bottom: var(--fluid-space-2xl);
+    margin-bottom: var(--fluid-space-xl);
 }
 
 /* =================================
@@ -1600,7 +1600,7 @@ button:focus-visible {
    ================================= */
 
 .about {
-    padding: var(--fluid-space-3xl) 0;
+    padding: var(--fluid-space-2xl) 0;
     /* NEW: Elegant soft gradient with floating shapes */
     background: 
         radial-gradient(
@@ -1636,7 +1636,7 @@ button:focus-visible {
 
 .about-grid {
     display: grid;
-    gap: var(--fluid-space-2xl);
+    gap: var(--fluid-space-xl);
     align-items: center;
 }
 
@@ -1784,7 +1784,7 @@ button:focus-visible {
    ================================= */
 
 .collections {
-    padding: var(--fluid-space-3xl) 0;
+    padding: var(--fluid-space-2xl) 0;
     /* NEW: Layered abstract shapes with nude tones */
     background: 
         radial-gradient(
@@ -2418,7 +2418,7 @@ button:focus-visible {
    ================================= */
 
 .testimonials {
-    padding: var(--fluid-space-3xl) 0;
+    padding: var(--fluid-space-2xl) 0;
     /* NEW: Rich layered nude gradient with depth */
     background: 
         radial-gradient(
@@ -2652,7 +2652,7 @@ button:focus-visible {
    ================================= */
 
 .contact {
-    padding: var(--fluid-space-3xl) 0;
+    padding: var(--fluid-space-2xl) 0;
     /* NEW: Soft abstract gradient with floating accents */
     background: 
         radial-gradient(
@@ -2706,7 +2706,7 @@ button:focus-visible {
 
 .contact-grid {
     display: grid;
-    gap: var(--fluid-space-2xl);
+    gap: var(--fluid-space-xl);
 }
 
 @media (min-width: 1024px) {
