@@ -1562,7 +1562,7 @@ button:focus-visible {
     color: var(--color-ocean);
     padding: 0.375rem 0.875rem;
     border-radius: 9999px;
-    font-size: 0.8125rem;
+    font-size: var(--fluid-text-sm);
     font-weight: 500;
     margin-bottom: 0.75rem;
 }
@@ -1657,12 +1657,13 @@ button:focus-visible {
 /* About Visual */
 .about-visual {
     position: relative;
+    display: none;
 }
 
-/* Hide visual on mobile to save space */
-@media (max-width: 1023px) {
+/* Show visual on desktop */
+@media (min-width: 1024px) {
     .about-visual {
-        display: none;
+        display: block;
     }
 }
 
@@ -1672,7 +1673,6 @@ button:focus-visible {
 
 .about-image {
     aspect-ratio: 3 / 4;
-    max-height: 450px;
     border-radius: 1.5rem;
     background: linear-gradient(135deg, var(--color-sand) 0%, var(--color-sand-dark) 100%);
     overflow: hidden;
@@ -1767,12 +1767,12 @@ button:focus-visible {
 .feature-title {
     font-weight: 600;
     color: var(--color-charcoal);
-    margin-bottom: 0.125rem;
-    font-size: 0.9375rem;
+    margin-bottom: 0.25rem;
+    font-size: var(--fluid-text-sm);
 }
 
 .feature-desc {
-    font-size: 0.8125rem;
+    font-size: var(--fluid-text-sm);
     color: #9ca3af;
 }
 
