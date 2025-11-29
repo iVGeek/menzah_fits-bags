@@ -3611,3 +3611,398 @@ button:focus-visible {
         animation: none;
     }
 }
+
+/* =================================
+   Premium Page Loading Screen
+   ================================= */
+
+.page-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: 
+        radial-gradient(
+            ellipse 80% 60% at 50% 30%,
+            rgba(245, 225, 216, 0.9) 0%,
+            transparent 60%
+        ),
+        linear-gradient(
+            160deg,
+            var(--color-cream-warm) 0%,
+            var(--color-nude-light) 30%,
+            var(--color-cream-nude) 60%,
+            var(--color-soft-cream) 100%
+        );
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.page-loader.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.loader-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    text-align: center;
+    padding: 2rem;
+}
+
+.loader-logo {
+    width: 80px;
+    height: 80px;
+    animation: loader-pulse 2s ease-in-out infinite;
+}
+
+@keyframes loader-pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+}
+
+.loader-crochet-svg {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 4px 12px rgba(176, 141, 124, 0.3));
+}
+
+.loader-brand {
+    display: flex;
+    align-items: baseline;
+}
+
+.loader-brand-main {
+    font-size: var(--fluid-text-3xl);
+    font-family: var(--font-serif);
+    font-weight: 700;
+    color: var(--color-ocean);
+}
+
+.loader-brand-accent {
+    font-size: var(--fluid-text-3xl);
+    font-family: var(--font-serif);
+    font-weight: 500;
+    color: var(--color-coral);
+}
+
+.loader-spinner {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    margin: 1rem 0;
+}
+
+.spinner-circle {
+    position: absolute;
+    inset: 0;
+    border: 3px solid transparent;
+    border-top-color: var(--color-ocean);
+    border-radius: 50%;
+    animation: spinner-rotate 1.2s linear infinite;
+}
+
+.spinner-circle-2 {
+    inset: 8px;
+    border-top-color: var(--color-coral);
+    animation-duration: 1.5s;
+    animation-direction: reverse;
+}
+
+.spinner-circle-3 {
+    inset: 16px;
+    border-top-color: var(--color-natural);
+    animation-duration: 1s;
+}
+
+@keyframes spinner-rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.loader-text {
+    font-size: var(--fluid-text-sm);
+    color: var(--color-charcoal);
+    font-style: italic;
+    opacity: 0.8;
+    animation: text-fade 1.5s ease-in-out infinite;
+}
+
+@keyframes text-fade {
+    0%, 100% {
+        opacity: 0.5;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+/* Premium Content Loading State */
+.content-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--fluid-space-xl);
+    gap: 1rem;
+}
+
+.content-loading .crochet-spinner {
+    width: 48px;
+    height: 48px;
+}
+
+.content-loading-text {
+    font-size: var(--fluid-text-sm);
+    color: var(--color-ocean);
+    font-style: italic;
+}
+
+/* =================================
+   Enhanced Premium Card Styles
+   ================================= */
+
+/* Premium card hover effects */
+.collection-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.collection-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.2),
+        transparent
+    );
+    transition: left 0.6s ease;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.collection-card:hover::before {
+    left: 100%;
+}
+
+/* Premium image loading skeleton */
+.card-image-skeleton {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        90deg,
+        var(--color-sand-light) 0%,
+        var(--color-cream-nude) 50%,
+        var(--color-sand-light) 100%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* =================================
+   Enhanced Section Transitions
+   ================================= */
+
+/* Smooth section appearance */
+section {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+/* Premium divider between sections */
+.section-divider {
+    height: 1px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        var(--color-ocean-light) 30%,
+        var(--color-coral-light) 70%,
+        transparent
+    );
+    margin: var(--fluid-space-lg) 0;
+}
+
+/* =================================
+   Enhanced Button Micro-interactions
+   ================================= */
+
+.btn-primary,
+.btn-secondary {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary::after,
+.btn-secondary::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+}
+
+.btn-primary:active::after,
+.btn-secondary:active::after {
+    width: 300px;
+    height: 300px;
+}
+
+/* =================================
+   Premium Mobile Enhancements
+   ================================= */
+
+@media (max-width: 640px) {
+    /* Better touch targets on mobile */
+    .nav-link,
+    .mobile-link,
+    .filter-btn,
+    .color-dot,
+    .size-btn {
+        min-height: 44px;
+        min-width: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Improved mobile card layout */
+    .collection-card {
+        border-radius: 1rem;
+    }
+    
+    .card-content {
+        padding: 1rem;
+    }
+    
+    .card-header {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-start;
+    }
+    
+    .card-price {
+        font-size: 1rem;
+    }
+    
+    /* Better mobile section spacing */
+    .section-header {
+        padding: 0 var(--fluid-space-sm);
+    }
+    
+    /* Enhanced mobile form inputs */
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        font-size: 16px; /* Prevents iOS zoom on focus */
+    }
+}
+
+/* =================================
+   Premium Glassmorphism Effects
+   ================================= */
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px rgba(176, 141, 124, 0.15);
+}
+
+.glass-dark {
+    background: rgba(61, 46, 37, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* =================================
+   Enhanced Loading States for API
+   ================================= */
+
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    gap: 1rem;
+    grid-column: 1 / -1;
+}
+
+.loading-state .crochet-spinner {
+    width: 56px;
+    height: 56px;
+}
+
+.loading-state .loading-text,
+.loading-text {
+    font-size: var(--fluid-text-sm);
+    color: var(--color-ocean);
+    font-style: italic;
+    animation: text-fade 1.5s ease-in-out infinite;
+}
+
+/* Empty state styling */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    gap: 1rem;
+    grid-column: 1 / -1;
+    text-align: center;
+    color: var(--color-charcoal);
+}
+
+.empty-state-icon {
+    width: 64px;
+    height: 64px;
+    color: var(--color-ocean-light);
+    opacity: 0.6;
+}
+
+.empty-state-text {
+    font-size: var(--fluid-text-lg);
+    font-weight: 500;
+}
+
+.empty-state-subtext {
+    font-size: var(--fluid-text-sm);
+    color: #9ca3af;
+}

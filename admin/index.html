@@ -836,14 +836,39 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(255, 255, 255, 0.9);
+            background: 
+                radial-gradient(ellipse 80% 60% at 50% 30%, rgba(245, 225, 216, 0.95) 0%, transparent 60%),
+                rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
             align-items: center;
             justify-content: center;
             z-index: 250;
+            flex-direction: column;
+            gap: 1rem;
         }
         
         .loading.active {
             display: flex;
+        }
+        
+        .loading-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .loading-text {
+            font-size: 0.875rem;
+            color: var(--md-primary);
+            font-style: italic;
+            animation: loading-pulse 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes loading-pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
         }
         
         .crochet-loader {
@@ -1863,7 +1888,10 @@
     
     <!-- Loading Overlay -->
     <div id="loading" class="loading">
-        <div class="crochet-loader"></div>
+        <div class="loading-content">
+            <div class="crochet-loader"></div>
+            <p class="loading-text">Processing...</p>
+        </div>
     </div>
     
     <!-- Snackbar -->
@@ -1907,7 +1935,7 @@
         // Auth
         async function handleLogin(e) {
             e.preventDefault();
-            showLoading();
+            showLoading('Signing in...');
             
             try {
                 const username = document.getElementById('admin-username').value;
@@ -2848,7 +2876,11 @@
             switchView(activeView);
         }
         
-        function showLoading() {
+        function showLoading(message = 'Processing...') {
+            const loadingText = loading.querySelector('.loading-text');
+            if (loadingText) {
+                loadingText.textContent = message;
+            }
             loading.classList.add('active');
         }
         

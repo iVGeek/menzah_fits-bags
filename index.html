@@ -19,6 +19,41 @@
     <meta name="theme-color" content="#B08D7C">
 </head>
 <body>
+    <!-- Premium Loading Screen -->
+    <div id="page-loader" class="page-loader">
+        <div class="loader-content">
+            <div class="loader-logo">
+                <svg viewBox="0 0 48 48" class="loader-crochet-svg" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="loader-yarn-1" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#FFE4B5;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#D4A59A;stop-opacity:1" />
+                        </linearGradient>
+                        <linearGradient id="loader-yarn-2" x1="100%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#E2BFA5;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#B08D7C;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <ellipse cx="16" cy="24" rx="10" ry="14" fill="none" stroke="url(#loader-yarn-1)" stroke-width="3" stroke-linecap="round"/>
+                    <ellipse cx="32" cy="24" rx="10" ry="14" fill="none" stroke="url(#loader-yarn-2)" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M22 14 Q24 24 22 34" fill="none" stroke="url(#loader-yarn-1)" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+                    <path d="M26 14 Q24 24 26 34" fill="none" stroke="url(#loader-yarn-2)" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+                    <circle cx="24" cy="24" r="4" fill="none" stroke="#FFE4B5" stroke-width="2"/>
+                    <circle cx="10" cy="24" r="1.5" fill="#FFE4B5" opacity="0.7"/>
+                    <circle cx="38" cy="24" r="1.5" fill="#FFE4B5" opacity="0.7"/>
+                </svg>
+            </div>
+            <div class="loader-brand">
+                <span class="loader-brand-main">Menzah</span><span class="loader-brand-accent">_fits</span>
+            </div>
+            <div class="loader-spinner">
+                <div class="spinner-circle"></div>
+                <div class="spinner-circle spinner-circle-2"></div>
+                <div class="spinner-circle spinner-circle-3"></div>
+            </div>
+            <p class="loader-text">Weaving elegance...</p>
+        </div>
+    </div>
     <!-- Header -->
     <header id="header" class="header">
         <nav class="nav-container">
