@@ -12,6 +12,7 @@
     // =================================
     
     const API_BASE = '/api';
+    const PAGE_LOADER_TIMEOUT_MS = 5000; // Maximum time to show loading screen
     
     // =================================
     // Stock Helper Functions
@@ -1086,6 +1087,6 @@
     // Fallback: Hide loader after max wait time (in case of slow networks)
     setTimeout(() => {
         hidePageLoader();
-    }, 5000);
+    }, PAGE_LOADER_TIMEOUT_MS);
 
 })();

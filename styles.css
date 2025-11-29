@@ -45,6 +45,7 @@
     --color-cream: #F5E1D8;
     --color-charcoal: #3D2E25;
     --color-white: #FFFFFF;
+    --color-text-muted: #9ca3af;  /* Muted gray for subtle text */
     
     /* Accent gold for high visibility text */
     --color-accent-gold: #FFE4B5;
@@ -4004,5 +4005,5 @@ section {
 
 .empty-state-subtext {
     font-size: var(--fluid-text-sm);
-    color: #9ca3af;
+    color: var(--color-text-muted);
 }
