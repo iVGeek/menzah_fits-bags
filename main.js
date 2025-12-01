@@ -215,25 +215,6 @@
     handleHeaderScroll(); // Initial check
 
     // =================================
-    // Scroll Indicator Hide on Scroll
-    // =================================
-    
-    const scrollIndicator = document.querySelector('.scroll-indicator');
-    
-    function handleScrollIndicator() {
-        if (scrollIndicator) {
-            if (window.scrollY > 100) {
-                scrollIndicator.classList.add('hidden');
-            } else {
-                scrollIndicator.classList.remove('hidden');
-            }
-        }
-    }
-    
-    window.addEventListener('scroll', handleScrollIndicator);
-    handleScrollIndicator(); // Initial check
-
-    // =================================
     // Mobile Menu Toggle
     // =================================
 
