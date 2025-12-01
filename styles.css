@@ -1144,74 +1144,71 @@ button:focus-visible {
 .hero-bg {
     position: absolute;
     inset: 0;
-    /* NEW: Dynamic multi-layer gradient with depth and movement */
+    /* Beach-inspired gradient background with nude/coral theme colors */
     background: 
-        /* Top spotlight glow */
-        radial-gradient(
-            ellipse 100% 70% at 50% 0%,
-            rgba(255, 228, 181, 0.25) 0%,
-            transparent 50%
-        ),
-        /* Left artistic blob */
-        radial-gradient(
-            ellipse 60% 80% at -10% 60%,
-            rgba(212, 165, 154, 0.5) 0%,
-            transparent 60%
-        ),
-        /* Right artistic blob */
-        radial-gradient(
-            ellipse 55% 75% at 110% 40%,
-            rgba(226, 191, 165, 0.45) 0%,
-            transparent 55%
-        ),
-        /* Center depth layer */
-        radial-gradient(
-            ellipse 80% 60% at 50% 70%,
-            rgba(245, 225, 216, 0.3) 0%,
-            transparent 50%
-        ),
-        /* Main diagonal gradient - rich nude tones */
+        /* Sky gradient - warm sunset tones matching theme */
         linear-gradient(
-            155deg, 
-            var(--color-deep-sienna) 0%, 
-            var(--color-twilight-nude) 20%,
-            var(--color-dusk-nude) 40%, 
-            var(--color-dusty-rose) 60%,
-            var(--color-dusk-nude-light) 80%,
-            var(--color-cream-nude) 100%
+            180deg,
+            var(--color-dusk-nude-light) 0%,
+            var(--color-dusty-rose) 20%,
+            var(--color-dusk-nude) 40%,
+            var(--color-natural-nude) 55%,
+            var(--color-earth-nude) 70%,
+            var(--color-sienna-nude) 85%,
+            var(--color-deep-sienna) 100%
         );
 }
 
-/* NEW: Enhanced atmospheric layers for hero */
+/* Beach horizon line and ocean shimmer effect */
 .hero-bg::before {
     content: '';
     position: absolute;
     inset: 0;
     background: 
-        /* Soft aurora-like waves */
+        /* Horizon glow - warm sunset reflection */
         radial-gradient(
-            ellipse 120% 40% at 30% 15%,
-            rgba(255, 228, 181, 0.2) 0%,
-            transparent 40%
+            ellipse 150% 30% at 50% 55%,
+            rgba(255, 228, 181, 0.4) 0%,
+            transparent 60%
         ),
+        /* Ocean shimmer effect */
         radial-gradient(
-            ellipse 100% 35% at 70% 85%,
-            rgba(212, 165, 154, 0.25) 0%,
-            transparent 45%
+            ellipse 200% 25% at 50% 75%,
+            rgba(176, 141, 124, 0.3) 0%,
+            transparent 50%
         ),
-        /* Subtle noise texture simulation */
-        repeating-conic-gradient(
-            from 0deg at 50% 50%,
-            transparent 0deg,
-            rgba(226, 191, 165, 0.015) 0.5deg,
-            transparent 1deg
+        /* Top sky warmth */
+        radial-gradient(
+            ellipse 120% 50% at 50% 0%,
+            rgba(255, 228, 181, 0.25) 0%,
+            transparent 50%
+        );
+}
+
+/* Sandy beach texture at bottom */
+.hero-bg::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 25%;
+    background: 
+        /* Beach sand gradient */
+        linear-gradient(
+            180deg,
+            transparent 0%,
+            rgba(232, 201, 184, 0.5) 30%,
+            rgba(245, 225, 216, 0.7) 60%,
+            rgba(253, 248, 243, 0.85) 100%
         );
 }
 
 .hero-pattern {
     position: absolute;
     inset: 0;
-    opacity: var(--pattern-opacity);
+    /* Removed animation - static pattern */
+    opacity: 0.08;
 }
 
 .pattern-svg {
@@ -1337,13 +1334,86 @@ button:focus-visible {
     }
 }
 
+/* Palm Tree Silhouettes for beach scene */
+.hero-palm-tree {
+    position: absolute;
+    pointer-events: none;
+    z-index: 4;
+    color: rgba(139, 107, 82, 0.25);
+}
+
+.hero-palm-tree svg {
+    width: 100%;
+    height: 100%;
+}
+
+.hero-palm-left {
+    bottom: 0;
+    left: -20px;
+    width: 120px;
+    height: 240px;
+}
+
+.hero-palm-right {
+    bottom: 0;
+    right: -15px;
+    width: 100px;
+    height: 200px;
+}
+
+@media (min-width: 768px) {
+    .hero-palm-left {
+        left: 0;
+        width: 180px;
+        height: 360px;
+        color: rgba(139, 107, 82, 0.3);
+    }
+    
+    .hero-palm-right {
+        right: 0;
+        width: 150px;
+        height: 300px;
+        color: rgba(139, 107, 82, 0.28);
+    }
+}
+
+@media (min-width: 1024px) {
+    .hero-palm-left {
+        left: 2%;
+        width: 220px;
+        height: 440px;
+        color: rgba(139, 107, 82, 0.35);
+    }
+    
+    .hero-palm-right {
+        right: 2%;
+        width: 180px;
+        height: 360px;
+        color: rgba(139, 107, 82, 0.32);
+    }
+}
+
+@media (min-width: 1440px) {
+    .hero-palm-left {
+        left: 5%;
+        width: 260px;
+        height: 520px;
+    }
+    
+    .hero-palm-right {
+        right: 5%;
+        width: 220px;
+        height: 440px;
+    }
+}
+
 /* Coconut Leaf Decorations for tropical vibes */
 .hero-coconut-leaf {
     position: absolute;
     pointer-events: none;
     z-index: 5;
     color: var(--color-coconut-green);
-    animation: float 8s ease-in-out infinite;
+    /* Removed animation for static appearance */
 }
 
 .hero-coconut-leaf svg {
@@ -1367,7 +1437,6 @@ button:focus-visible {
     height: 130px;
     opacity: 0.15;
     transform: rotate(-10deg);
-    animation-delay: 2s;
 }
 
 @media (min-width: 768px) {
@@ -3961,4 +4030,538 @@ section {
 .empty-state-subtext {
     font-size: var(--fluid-text-sm);
     color: var(--color-text-muted);
+}
+
+/* =================================
+   Product Detail Modal
+   ================================= */
+
+.product-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--transition-normal), visibility var(--transition-normal);
+}
+
+.product-modal.open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.product-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+.product-modal-container {
+    position: relative;
+    background: var(--color-white);
+    border-radius: var(--md-radius-xl);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+    max-width: 900px;
+    width: 100%;
+    max-height: 90vh;
+    overflow: hidden;
+    transform: scale(0.9) translateY(20px);
+    transition: transform var(--transition-normal);
+}
+
+.product-modal.open .product-modal-container {
+    transform: scale(1) translateY(0);
+}
+
+.modal-close-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 20;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-normal);
+    box-shadow: var(--md-elevation-1);
+}
+
+.modal-close-btn:hover {
+    background: var(--color-ocean);
+    color: var(--color-white);
+    transform: scale(1.1);
+}
+
+.modal-close-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+.modal-content {
+    display: grid;
+    grid-template-columns: 1fr;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+@media (min-width: 768px) {
+    .modal-content {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* Modal Media Section */
+.modal-media {
+    background: var(--color-sand-light);
+    position: relative;
+    min-height: 300px;
+}
+
+@media (min-width: 768px) {
+    .modal-media {
+        min-height: 500px;
+    }
+}
+
+.modal-media-gallery {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 300px;
+}
+
+@media (min-width: 768px) {
+    .modal-media-gallery {
+        min-height: 500px;
+    }
+}
+
+.modal-slides {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: inherit;
+}
+
+.modal-slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--transition-normal), visibility var(--transition-normal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-slide.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.modal-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.modal-artwork {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.modal-artwork-svg {
+    width: 80%;
+    max-width: 200px;
+    height: auto;
+}
+
+/* Modal Gallery Navigation */
+.modal-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-normal);
+    box-shadow: var(--md-elevation-1);
+    z-index: 10;
+}
+
+.modal-nav:hover {
+    background: var(--color-white);
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: var(--md-elevation-2);
+}
+
+.modal-prev {
+    left: 1rem;
+}
+
+.modal-next {
+    right: 1rem;
+}
+
+.modal-nav svg {
+    width: 20px;
+    height: 20px;
+    color: var(--color-charcoal);
+}
+
+.modal-dots {
+    position: absolute;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border-radius: 16px;
+    z-index: 10;
+}
+
+.modal-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    border: none;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    padding: 0;
+}
+
+.modal-dot:hover {
+    background: rgba(255, 255, 255, 0.8);
+}
+
+.modal-dot.active {
+    background: var(--color-white);
+    width: 20px;
+    border-radius: 5px;
+}
+
+/* Modal Details Section */
+.modal-details {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    overflow-y: auto;
+}
+
+@media (min-width: 768px) {
+    .modal-details {
+        padding: 2.5rem;
+    }
+}
+
+.modal-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    width: fit-content;
+}
+
+.modal-badge.badge-bestseller {
+    background: linear-gradient(135deg, #fcd34d, #f59e0b);
+    color: #78350f;
+}
+
+.modal-badge.badge-new {
+    background: linear-gradient(135deg, var(--color-ocean-light), var(--color-ocean));
+    color: var(--color-white);
+}
+
+.modal-badge.badge-limited {
+    background: linear-gradient(135deg, var(--color-coral-light), var(--color-coral));
+    color: var(--color-white);
+}
+
+.modal-badge.badge-featured {
+    background: linear-gradient(135deg, #a78bfa, #8b5cf6);
+    color: var(--color-white);
+}
+
+.modal-category {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--color-ocean);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.modal-product-name {
+    font-size: var(--fluid-text-3xl);
+    font-family: var(--font-serif);
+    font-weight: 700;
+    color: var(--color-charcoal);
+    line-height: 1.2;
+    margin: 0;
+}
+
+.modal-price {
+    font-size: var(--fluid-text-xl);
+    font-weight: 600;
+    color: var(--color-ocean);
+    margin: 0;
+}
+
+.modal-description {
+    font-size: var(--fluid-text-base);
+    color: #6b7280;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Modal Options */
+.modal-options {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    padding: 1rem 0;
+    border-top: 1px solid #f3f4f6;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.modal-colors,
+.modal-sizes {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.modal-option-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-charcoal);
+}
+
+.modal-color-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.modal-color-dot {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    position: relative;
+}
+
+.modal-color-dot:hover {
+    transform: scale(1.1);
+}
+
+.modal-color-dot.active {
+    border-color: var(--color-charcoal);
+    transform: scale(1.1);
+}
+
+.modal-color-dot.out-of-stock::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    border: 2px dashed #ef4444;
+}
+
+.modal-size-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.modal-size-btn {
+    padding: 0.5rem 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    background: var(--color-white);
+    font-weight: 500;
+    font-size: 0.875rem;
+    color: var(--color-charcoal);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    min-width: 48px;
+}
+
+.modal-size-btn:hover {
+    border-color: var(--color-ocean);
+    color: var(--color-ocean);
+}
+
+.modal-size-btn.active {
+    background: var(--color-ocean);
+    border-color: var(--color-ocean);
+    color: var(--color-white);
+}
+
+/* Modal Stock */
+.modal-stock {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.modal-stock-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-charcoal);
+}
+
+.modal-stock-value {
+    font-size: 0.875rem;
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+}
+
+.modal-stock-value.in-stock {
+    background: rgba(34, 197, 94, 0.15);
+    color: #15803d;
+}
+
+.modal-stock-value.low-stock {
+    background: rgba(245, 158, 11, 0.15);
+    color: #b45309;
+}
+
+.modal-stock-value.out-of-stock {
+    background: rgba(239, 68, 68, 0.15);
+    color: #dc2626;
+}
+
+/* Modal Actions */
+.modal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: auto;
+    padding-top: 1rem;
+}
+
+@media (min-width: 480px) {
+    .modal-actions {
+        flex-direction: row;
+    }
+}
+
+.modal-order-btn,
+.modal-whatsapp-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 500;
+    font-size: 0.9375rem;
+    text-decoration: none;
+    transition: all var(--transition-normal);
+}
+
+.modal-order-btn {
+    background: var(--color-ocean);
+    color: var(--color-white);
+}
+
+.modal-order-btn:hover {
+    background: var(--color-ocean-dark);
+    transform: translateY(-2px);
+    box-shadow: var(--md-elevation-2);
+}
+
+.modal-whatsapp-btn {
+    background: #dcfce7;
+    color: #15803d;
+    border: 1px solid #86efac;
+}
+
+.modal-whatsapp-btn:hover {
+    background: #22c55e;
+    color: var(--color-white);
+    border-color: #22c55e;
+    transform: translateY(-2px);
+}
+
+/* Mobile modal adjustments */
+@media (max-width: 767px) {
+    .product-modal-container {
+        max-height: 95vh;
+        border-radius: var(--md-radius-lg);
+    }
+    
+    .modal-media {
+        min-height: 250px;
+    }
+    
+    .modal-media-gallery {
+        min-height: 250px;
+    }
+    
+    .modal-details {
+        padding: 1.5rem;
+    }
+    
+    .modal-product-name {
+        font-size: var(--fluid-text-2xl);
+    }
+    
+    .modal-nav {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .modal-nav svg {
+        width: 16px;
+        height: 16px;
+    }
+    
+    .modal-close-btn {
+        width: 36px;
+        height: 36px;
+        top: 0.75rem;
+        right: 0.75rem;
+    }
 }

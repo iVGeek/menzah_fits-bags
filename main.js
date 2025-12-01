@@ -470,6 +470,15 @@
         try {
             const filtered = await fetchCollections(category);
             
+            // Store for modal access - always store all collections for modal lookup
+            if (category === 'all') {
+                currentCollections = filtered;
+            } else {
+                // Fetch all collections for modal lookup if filtered view
+                const all = await fetchCollections('all');
+                currentCollections = all;
+            }
+            
             // Check if there are any items to display
             if (!filtered || filtered.length === 0) {
                 collectionsGrid.innerHTML = `
@@ -504,6 +513,9 @@
                 ? collections 
                 : collections.filter(item => item.category === category);
             
+            // Store all collections for modal access
+            currentCollections = collections;
+            
             collectionsGrid.innerHTML = filtered.map((item, index) => 
                 createCollectionCard(item, index)
             ).join('');
@@ -521,8 +533,384 @@
         }
     }
 
+    // =================================
+    // Product Detail Modal
+    // =================================
+    
+    // Store current collections data for modal access
+    let currentCollections = [];
+    
+    // Create and inject the product detail modal into the DOM
+    function createProductModal() {
+        const modalHTML = `
+            <div id="product-modal" class="product-modal" role="dialog" aria-modal="true" aria-labelledby="modal-product-name">
+                <div class="product-modal-backdrop"></div>
+                <div class="product-modal-container">
+                    <button class="modal-close-btn" aria-label="Close product details">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                    <div class="modal-content">
+                        <div class="modal-media">
+                            <div class="modal-media-gallery" data-current-index="0">
+                                <div class="modal-slides" id="modal-slides">
+                                    <!-- Slides will be inserted here -->
+                                </div>
+                                <button class="modal-nav modal-prev" aria-label="Previous image">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+                                </button>
+                                <button class="modal-nav modal-next" aria-label="Next image">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+                                </button>
+                                <div class="modal-dots" id="modal-dots">
+                                    <!-- Dots will be inserted here -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-details">
+                            <div class="modal-badge" id="modal-badge"></div>
+                            <span class="modal-category" id="modal-category"></span>
+                            <h2 class="modal-product-name" id="modal-product-name"></h2>
+                            <p class="modal-price" id="modal-price"></p>
+                            <p class="modal-description" id="modal-description"></p>
+                            
+                            <div class="modal-options">
+                                <div class="modal-colors">
+                                    <span class="modal-option-label">Colors:</span>
+                                    <div class="modal-color-options" id="modal-colors"></div>
+                                </div>
+                                <div class="modal-sizes">
+                                    <span class="modal-option-label">Sizes:</span>
+                                    <div class="modal-size-options" id="modal-sizes"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="modal-stock">
+                                <span class="modal-stock-label">Availability:</span>
+                                <span class="modal-stock-value" id="modal-stock"></span>
+                            </div>
+                            
+                            <div class="modal-actions">
+                                <a href="#contact" class="btn-primary modal-order-btn" id="modal-order-btn">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                    </svg>
+                                    Order This Item
+                                </a>
+                                <a href="https://wa.me/254700000000?text=Hello%20Menzah_fits!%20I%20would%20like%20to%20order%20" 
+                                   target="_blank" 
+                                   rel="noopener noreferrer" 
+                                   class="btn-secondary modal-whatsapp-btn" 
+                                   id="modal-whatsapp-btn">
+                                    <svg fill="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                                    </svg>
+                                    Chat on WhatsApp
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        initModalEventListeners();
+    }
+    
+    // Initialize modal event listeners
+    function initModalEventListeners() {
+        const modal = document.getElementById('product-modal');
+        if (!modal) return;
+        
+        const closeBtn = modal.querySelector('.modal-close-btn');
+        const backdrop = modal.querySelector('.product-modal-backdrop');
+        
+        // Close modal handlers
+        closeBtn.onclick = closeProductModal;
+        backdrop.onclick = closeProductModal;
+        
+        // Close on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modal.classList.contains('open')) {
+                closeProductModal();
+            }
+        });
+        
+        // Modal gallery navigation
+        const gallery = modal.querySelector('.modal-media-gallery');
+        const prevBtn = modal.querySelector('.modal-prev');
+        const nextBtn = modal.querySelector('.modal-next');
+        
+        prevBtn.onclick = () => navigateModalGallery(-1);
+        nextBtn.onclick = () => navigateModalGallery(1);
+    }
+    
+    // Navigate modal gallery
+    function navigateModalGallery(direction) {
+        const gallery = document.querySelector('.modal-media-gallery');
+        const slides = gallery.querySelectorAll('.modal-slide');
+        const dots = gallery.querySelectorAll('.modal-dot');
+        
+        if (slides.length <= 1) return;
+        
+        let currentIndex = parseInt(gallery.dataset.currentIndex || '0', 10);
+        currentIndex += direction;
+        
+        if (currentIndex < 0) currentIndex = slides.length - 1;
+        if (currentIndex >= slides.length) currentIndex = 0;
+        
+        slides.forEach((slide, i) => slide.classList.toggle('active', i === currentIndex));
+        dots.forEach((dot, i) => dot.classList.toggle('active', i === currentIndex));
+        gallery.dataset.currentIndex = currentIndex.toString();
+    }
+    
+    // Open product modal with item details
+    function openProductModal(itemId) {
+        const item = currentCollections.find(c => c.id === itemId);
+        if (!item) return;
+        
+        const modal = document.getElementById('product-modal');
+        if (!modal) return;
+        
+        // Helper functions
+        const getColorHex = (color) => typeof color === 'object' ? color.hex : color;
+        const getColorName = (color) => typeof color === 'object' ? color.name : '';
+        const getColorSizeStock = (color) => typeof color === 'object' ? (color.sizeStock || {}) : {};
+        const getColorStock = (color) => typeof color === 'object' ? (color.stock || 0) : 0;
+        const getColorMedia = (color) => typeof color === 'object' ? (color.media || []) : [];
+        
+        // Populate modal content
+        document.getElementById('modal-category').textContent = item.category;
+        document.getElementById('modal-product-name').textContent = item.name;
+        document.getElementById('modal-price').textContent = item.price;
+        document.getElementById('modal-description').textContent = item.description;
+        
+        // Badge
+        const badgeEl = document.getElementById('modal-badge');
+        if (item.badge) {
+            badgeEl.textContent = item.badge.charAt(0).toUpperCase() + item.badge.slice(1);
+            badgeEl.className = `modal-badge badge-${item.badge}`;
+            badgeEl.style.display = '';
+        } else {
+            badgeEl.style.display = 'none';
+        }
+        
+        // Colors
+        const colorsContainer = document.getElementById('modal-colors');
+        colorsContainer.innerHTML = item.colors.map((color, i) => {
+            const hex = getColorHex(color);
+            const name = getColorName(color);
+            const totalStock = getColorStock(color);
+            const stockClass = getStockClass(totalStock);
+            const activeClass = i === 0 ? ' active' : '';
+            return `<button class="modal-color-dot${activeClass} ${stockClass}" 
+                style="background-color: ${hex}" 
+                data-color-index="${i}"
+                data-color-name="${name}"
+                data-size-stock='${JSON.stringify(getColorSizeStock(color))}'
+                data-media='${JSON.stringify(getColorMedia(color))}'
+                aria-label="${name}: ${totalStock} in stock" 
+                title="${name}: ${totalStock} in stock"></button>`;
+        }).join('');
+        
+        // Sizes
+        const sizesContainer = document.getElementById('modal-sizes');
+        sizesContainer.innerHTML = item.sizes.map((size, i) => 
+            `<button class="modal-size-btn${i === 0 ? ' active' : ''}" data-size="${size}">${size}</button>`
+        ).join('');
+        
+        // Initial stock display
+        updateModalStock();
+        
+        // Generate media gallery
+        updateModalMedia(item.colors[0]);
+        
+        // Update WhatsApp link
+        const whatsappBtn = document.getElementById('modal-whatsapp-btn');
+        whatsappBtn.href = `https://wa.me/254700000000?text=Hello%20Menzah_fits!%20I%20would%20like%20to%20order%20${encodeURIComponent(item.name)}%20(${encodeURIComponent(item.price)})`;
+        
+        // Add modal color/size interaction handlers
+        initModalInteractions();
+        
+        // Show modal
+        modal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    // Update modal media gallery
+    function updateModalMedia(color) {
+        const getColorMedia = (color) => typeof color === 'object' ? (color.media || []) : [];
+        const getColorHex = (color) => typeof color === 'object' ? color.hex : color;
+        const getColorName = (color) => typeof color === 'object' ? color.name : '';
+        
+        const media = getColorMedia(color);
+        const slidesContainer = document.getElementById('modal-slides');
+        const dotsContainer = document.getElementById('modal-dots');
+        const gallery = document.querySelector('.modal-media-gallery');
+        const prevBtn = document.querySelector('.modal-prev');
+        const nextBtn = document.querySelector('.modal-next');
+        
+        if (media.length > 0) {
+            slidesContainer.innerHTML = media.map((m, i) => {
+                if (m.type === 'video') {
+                    return `<div class="modal-slide${i === 0 ? ' active' : ''}" data-index="${i}">
+                        <video src="${m.url}" class="modal-video" controls muted playsinline>
+                            <source src="${m.url}" type="video/mp4">
+                        </video>
+                    </div>`;
+                }
+                return `<div class="modal-slide${i === 0 ? ' active' : ''}" data-index="${i}">
+                    <img src="${m.url}" alt="${getColorName(color)} - Image ${i + 1}" class="modal-image">
+                </div>`;
+            }).join('');
+            
+            dotsContainer.innerHTML = media.map((_, i) => 
+                `<button class="modal-dot${i === 0 ? ' active' : ''}" data-index="${i}" aria-label="Go to image ${i + 1}"></button>`
+            ).join('');
+            
+            prevBtn.style.display = media.length > 1 ? '' : 'none';
+            nextBtn.style.display = media.length > 1 ? '' : 'none';
+            dotsContainer.style.display = media.length > 1 ? '' : 'none';
+            
+            // Bind dot click events
+            dotsContainer.querySelectorAll('.modal-dot').forEach((dot, index) => {
+                dot.onclick = () => {
+                    const slides = slidesContainer.querySelectorAll('.modal-slide');
+                    const dots = dotsContainer.querySelectorAll('.modal-dot');
+                    slides.forEach((s, i) => s.classList.toggle('active', i === index));
+                    dots.forEach((d, i) => d.classList.toggle('active', i === index));
+                    gallery.dataset.currentIndex = index.toString();
+                };
+            });
+        } else {
+            // Fallback SVG for products without media
+            const colorHex = getColorHex(color);
+            slidesContainer.innerHTML = `
+                <div class="modal-slide active" data-index="0">
+                    <div class="modal-artwork">
+                        <svg viewBox="0 0 200 280" class="modal-artwork-svg">
+                            <ellipse cx="100" cy="50" rx="25" ry="30" fill="${colorHex}" opacity="0.6"/>
+                            <path d="M75 75 L55 280 L145 280 L125 75 Z" fill="${colorHex}" opacity="0.4"/>
+                            ${[...Array(6)].map((_, row) => 
+                                [...Array(4)].map((_, col) => 
+                                    `<circle cx="${65 + col * 25}" cy="${95 + row * 28}" r="8" fill="none" stroke="${colorHex}" stroke-width="2" opacity="0.5"/>`
+                                ).join('')
+                            ).join('')}
+                        </svg>
+                    </div>
+                </div>`;
+            dotsContainer.innerHTML = '';
+            prevBtn.style.display = 'none';
+            nextBtn.style.display = 'none';
+            dotsContainer.style.display = 'none';
+        }
+        
+        gallery.dataset.currentIndex = '0';
+    }
+    
+    // Update modal stock display
+    function updateModalStock() {
+        const activeColor = document.querySelector('.modal-color-dot.active');
+        const activeSize = document.querySelector('.modal-size-btn.active');
+        const stockDisplay = document.getElementById('modal-stock');
+        
+        if (!activeColor || !stockDisplay) return;
+        
+        const colorName = activeColor.dataset.colorName || '';
+        let sizeStock = {};
+        try {
+            sizeStock = JSON.parse(activeColor.dataset.sizeStock || '{}');
+        } catch {
+            sizeStock = {};
+        }
+        
+        const selectedSize = activeSize ? activeSize.dataset.size : '';
+        let stock = 0;
+        let displayLabel = colorName;
+        
+        if (selectedSize && sizeStock[selectedSize] !== undefined) {
+            stock = parseInt(sizeStock[selectedSize], 10) || 0;
+            displayLabel = colorName + ' - ' + selectedSize;
+        } else {
+            stock = Object.values(sizeStock).reduce((sum, v) => sum + (parseInt(v, 10) || 0), 0);
+        }
+        
+        stockDisplay.textContent = formatStockText(displayLabel, stock);
+        stockDisplay.className = `modal-stock-value ${getStockClass(stock)}`;
+    }
+    
+    // Initialize modal color/size interactions
+    function initModalInteractions() {
+        const colorDots = document.querySelectorAll('.modal-color-dot');
+        const sizeBtns = document.querySelectorAll('.modal-size-btn');
+        
+        colorDots.forEach(dot => {
+            dot.onclick = () => {
+                colorDots.forEach(d => d.classList.remove('active'));
+                dot.classList.add('active');
+                
+                // Update media for selected color
+                let media = [];
+                try {
+                    media = JSON.parse(dot.dataset.media || '[]');
+                } catch {
+                    media = [];
+                }
+                
+                const colorObj = {
+                    hex: dot.style.backgroundColor,
+                    name: dot.dataset.colorName,
+                    media: media
+                };
+                updateModalMedia(colorObj);
+                updateModalStock();
+            };
+        });
+        
+        sizeBtns.forEach(btn => {
+            btn.onclick = () => {
+                sizeBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                updateModalStock();
+            };
+        });
+    }
+    
+    // Close product modal
+    function closeProductModal() {
+        const modal = document.getElementById('product-modal');
+        if (!modal) return;
+        
+        modal.classList.remove('open');
+        document.body.style.overflow = '';
+        
+        // Pause any playing videos
+        modal.querySelectorAll('video').forEach(v => v.pause());
+    }
+    
+    // Initialize View Details button handlers
+    function initViewDetailsButtons() {
+        document.querySelectorAll('.view-btn').forEach(btn => {
+            btn.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const card = btn.closest('.collection-card');
+                if (card) {
+                    const itemId = parseInt(card.dataset.itemId, 10);
+                    openProductModal(itemId);
+                }
+            };
+        });
+    }
+
     // Initialize color switching and size selection interactions
     function initCardInteractions() {
+        // Initialize view details buttons
+        initViewDetailsButtons();
+        
         // Color switching functionality
         document.querySelectorAll('.collection-card').forEach(card => {
             const colorDots = card.querySelectorAll('.color-dot');
@@ -1033,6 +1421,9 @@
         
         // Initialize crochet animations
         initCrochetAnimations();
+        
+        // Create product detail modal
+        createProductModal();
         
         // Load and render collections
         await renderCollections();
