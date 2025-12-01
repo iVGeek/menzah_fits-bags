@@ -130,35 +130,47 @@
             <!-- Background gradient -->
             <div class="hero-bg"></div>
             
-            <!-- Animated crochet weaving pattern overlay - enhanced yarn design -->
+            <!-- Static beach-themed pattern overlay -->
             <div class="hero-pattern">
                 <svg class="pattern-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
                     <defs>
-                        <!-- Enhanced crochet weaving pattern with interlocking yarn loops -->
-                        <pattern id="crochet-weave" x="0" y="0" width="16" height="16" patternUnits="userSpaceOnUse">
-                            <!-- Primary yarn loop - vertical orientation -->
-                            <ellipse cx="8" cy="8" rx="5" ry="6" fill="none" stroke="white" stroke-width="0.7" opacity="0.5"/>
-                            <!-- Secondary loop - horizontal weave -->
-                            <ellipse cx="8" cy="8" rx="6" ry="5" fill="none" stroke="white" stroke-width="0.5" opacity="0.35"/>
-                            <!-- Yarn crossing threads -->
-                            <path d="M3 8 Q8 4 13 8" fill="none" stroke="white" stroke-width="0.4" opacity="0.3"/>
-                            <path d="M8 3 Q12 8 8 13" fill="none" stroke="white" stroke-width="0.4" opacity="0.3"/>
-                            <!-- Center knot detail -->
-                            <circle cx="8" cy="8" r="1.5" fill="white" opacity="0.25"/>
-                        </pattern>
-                        <!-- Offset weave layer for depth and realism -->
-                        <pattern id="crochet-weave-overlay" x="8" y="8" width="16" height="16" patternUnits="userSpaceOnUse">
-                            <ellipse cx="8" cy="8" rx="4" ry="5" fill="none" stroke="white" stroke-width="0.5" opacity="0.3"/>
-                            <path d="M4 4 L12 12 M12 4 L4 12" stroke="white" stroke-width="0.3" opacity="0.2"/>
-                        </pattern>
-                        <!-- Subtle yarn texture dots -->
-                        <pattern id="yarn-texture" x="0" y="0" width="8" height="8" patternUnits="userSpaceOnUse">
-                            <circle cx="4" cy="4" r="0.5" fill="white" opacity="0.15"/>
+                        <!-- Subtle wave pattern for beach feel -->
+                        <pattern id="beach-waves" x="0" y="0" width="20" height="10" patternUnits="userSpaceOnUse">
+                            <path d="M0 5 Q5 2, 10 5 T20 5" fill="none" stroke="white" stroke-width="0.3" opacity="0.25"/>
                         </pattern>
                     </defs>
-                    <rect width="100" height="100" fill="url(#crochet-weave)" class="animate-crochet-wave"/>
-                    <rect width="100" height="100" fill="url(#crochet-weave-overlay)" class="animate-crochet-wave" style="animation-delay: -2s;"/>
-                    <rect width="100" height="100" fill="url(#yarn-texture)" opacity="0.5"/>
+                    <rect width="100" height="100" fill="url(#beach-waves)"/>
+                </svg>
+            </div>
+
+            <!-- Palm Tree Silhouettes for tropical beach vibes -->
+            <div class="hero-palm-tree hero-palm-left">
+                <svg viewBox="0 0 150 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Palm trunk -->
+                    <path d="M75 300 Q70 250 72 200 Q74 150 80 120" stroke="currentColor" stroke-width="8" stroke-linecap="round" fill="none"/>
+                    <!-- Palm fronds -->
+                    <path d="M80 120 Q60 90 20 85" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M80 120 Q55 80 15 60" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M80 120 Q70 70 50 30" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M80 120 Q85 65 95 25" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M80 120 Q100 70 130 40" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M80 120 Q110 85 145 75" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                    <!-- Coconuts -->
+                    <circle cx="75" cy="125" r="6" fill="currentColor" opacity="0.8"/>
+                    <circle cx="85" cy="128" r="5" fill="currentColor" opacity="0.7"/>
+                </svg>
+            </div>
+            <div class="hero-palm-tree hero-palm-right">
+                <svg viewBox="0 0 150 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Palm trunk (curved) -->
+                    <path d="M75 300 Q85 240 78 180 Q71 130 65 110" stroke="currentColor" stroke-width="7" stroke-linecap="round" fill="none"/>
+                    <!-- Palm fronds -->
+                    <path d="M65 110 Q40 85 5 90" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                    <path d="M65 110 Q35 65 0 50" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                    <path d="M65 110 Q55 55 45 20" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                    <path d="M65 110 Q75 50 100 15" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                    <path d="M65 110 Q95 70 135 55" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                    <path d="M65 110 Q100 95 140 100" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
                 </svg>
             </div>
 
