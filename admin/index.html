@@ -137,21 +137,193 @@
             margin-bottom: 32px;
         }
         
-        .login-logo h1 {
+        .login-logo-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 16px;
+        }
+        
+        .login-crochet-svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 4px 12px rgba(176, 141, 124, 0.3));
+        }
+        
+        .login-brand {
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+        }
+        
+        .login-brand-main {
             font-size: 2rem;
-            font-weight: 500;
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
             color: var(--md-primary);
         }
         
-        .login-logo span {
+        .login-brand-accent {
+            font-size: 2rem;
+            font-family: 'Playfair Display', serif;
+            font-weight: 500;
             color: var(--md-secondary);
-            font-weight: 300;
         }
         
         .login-logo p {
             color: var(--md-on-surface-variant);
             margin-top: 8px;
             font-size: 0.875rem;
+        }
+        
+        /* Palm F Icon - Matching frontend */
+        .palm-f-icon {
+            display: inline-block;
+            vertical-align: baseline;
+            color: currentColor;
+        }
+        
+        .login-palm-f,
+        .loader-palm-f,
+        .nav-palm-f {
+            width: 0.6em;
+            height: 1em;
+            margin-bottom: -0.1em;
+        }
+        
+        /* Premium Page Loader - Matching frontend */
+        .page-loader {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: 
+                radial-gradient(
+                    ellipse 80% 60% at 50% 30%,
+                    rgba(245, 225, 216, 0.9) 0%,
+                    transparent 60%
+                ),
+                linear-gradient(
+                    160deg,
+                    var(--color-cream-nude) 0%,
+                    rgba(240, 217, 204, 0.95) 30%,
+                    var(--color-cream-nude) 60%,
+                    var(--color-soft-cream) 100%
+                );
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+        
+        .page-loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        
+        .loader-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .loader-logo {
+            width: 80px;
+            height: 80px;
+            animation: loader-pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes loader-pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 0.8;
+            }
+        }
+        
+        .loader-crochet-svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 4px 12px rgba(176, 141, 124, 0.3));
+        }
+        
+        .loader-brand {
+            display: flex;
+            align-items: baseline;
+        }
+        
+        .loader-brand-main {
+            font-size: 1.875rem;
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            color: var(--md-primary);
+        }
+        
+        .loader-brand-accent {
+            font-size: 1.875rem;
+            font-family: 'Playfair Display', serif;
+            font-weight: 500;
+            color: var(--md-secondary);
+        }
+        
+        .loader-spinner {
+            position: relative;
+            width: 60px;
+            height: 60px;
+            margin: 1rem 0;
+        }
+        
+        .spinner-circle {
+            position: absolute;
+            inset: 0;
+            border: 3px solid transparent;
+            border-top-color: var(--md-primary);
+            border-radius: 50%;
+            animation: spinner-rotate 1.2s linear infinite;
+        }
+        
+        .spinner-circle-2 {
+            inset: 8px;
+            border-top-color: var(--md-secondary);
+            animation-duration: 1.5s;
+            animation-direction: reverse;
+        }
+        
+        .spinner-circle-3 {
+            inset: 16px;
+            border-top-color: var(--md-tertiary);
+            animation-duration: 1s;
+        }
+        
+        @keyframes spinner-rotate {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .loader-text {
+            font-size: 0.875rem;
+            color: var(--color-charcoal);
+            font-style: italic;
+            opacity: 0.8;
+            animation: text-fade 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes text-fade {
+            0%, 100% {
+                opacity: 0.5;
+            }
+            50% {
+                opacity: 1;
+            }
         }
         
         /* Material Input Fields */
@@ -287,11 +459,16 @@
         }
         
         .nav-rail-logo {
-            padding: 16px;
+            padding: 12px;
             margin-bottom: 24px;
-            font-weight: 500;
-            color: var(--md-primary);
-            font-size: 1.25rem;
+            width: 48px;
+            height: 48px;
+        }
+        
+        .nav-crochet-svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 2px 8px rgba(176, 141, 124, 0.25));
         }
         
         .nav-item {
@@ -1411,11 +1588,82 @@
     </style>
 </head>
 <body>
+    <!-- SVG Symbol Definitions (hidden) - Matching frontend -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+        <symbol id="palm-f-icon" viewBox="0 0 24 40">
+            <path d="M12 40 Q10 32 11 24 Q12 16 13 10" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            <path d="M13 10 Q8 6 3 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+            <path d="M13 10 Q8 3 5 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+            <path d="M13 10 Q15 3 18 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+            <path d="M13 10 Q18 5 22 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+            <path d="M13 10 Q20 8 23 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+        </symbol>
+    </svg>
+
+    <!-- Premium Loading Screen - Matching frontend -->
+    <div id="page-loader" class="page-loader">
+        <div class="loader-content">
+            <div class="loader-logo">
+                <svg viewBox="0 0 48 48" class="loader-crochet-svg" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="loader-yarn-1" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#FFE4B5;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#D4A59A;stop-opacity:1" />
+                        </linearGradient>
+                        <linearGradient id="loader-yarn-2" x1="100%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#E2BFA5;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#B08D7C;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <ellipse cx="16" cy="24" rx="10" ry="14" fill="none" stroke="url(#loader-yarn-1)" stroke-width="3" stroke-linecap="round"/>
+                    <ellipse cx="32" cy="24" rx="10" ry="14" fill="none" stroke="url(#loader-yarn-2)" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M22 14 Q24 24 22 34" fill="none" stroke="url(#loader-yarn-1)" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+                    <path d="M26 14 Q24 24 26 34" fill="none" stroke="url(#loader-yarn-2)" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+                    <circle cx="24" cy="24" r="4" fill="none" stroke="#FFE4B5" stroke-width="2"/>
+                    <circle cx="10" cy="24" r="1.5" fill="#FFE4B5" opacity="0.7"/>
+                    <circle cx="38" cy="24" r="1.5" fill="#FFE4B5" opacity="0.7"/>
+                </svg>
+            </div>
+            <div class="loader-brand">
+                <span class="loader-brand-main">Menzah</span><span class="loader-brand-accent">_<svg class="palm-f-icon loader-palm-f" aria-hidden="true"><use href="#palm-f-icon"/></svg>its</span>
+            </div>
+            <div class="loader-spinner">
+                <div class="spinner-circle"></div>
+                <div class="spinner-circle spinner-circle-2"></div>
+                <div class="spinner-circle spinner-circle-3"></div>
+            </div>
+            <p class="loader-text">Loading admin panel...</p>
+        </div>
+    </div>
+
     <!-- Login Screen -->
     <div id="login-screen" class="login-screen">
         <div class="login-card">
             <div class="login-logo">
-                <h1>Menzah<span>_fits</span></h1>
+                <div class="login-logo-icon">
+                    <svg viewBox="0 0 48 48" class="login-crochet-svg" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="login-yarn-1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#FFE4B5;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#D4A59A;stop-opacity:1" />
+                            </linearGradient>
+                            <linearGradient id="login-yarn-2" x1="100%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#E2BFA5;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#B08D7C;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        <ellipse cx="16" cy="24" rx="10" ry="14" fill="none" stroke="url(#login-yarn-1)" stroke-width="3" stroke-linecap="round"/>
+                        <ellipse cx="32" cy="24" rx="10" ry="14" fill="none" stroke="url(#login-yarn-2)" stroke-width="3" stroke-linecap="round"/>
+                        <path d="M22 14 Q24 24 22 34" fill="none" stroke="url(#login-yarn-1)" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+                        <path d="M26 14 Q24 24 26 34" fill="none" stroke="url(#login-yarn-2)" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+                        <circle cx="24" cy="24" r="4" fill="none" stroke="#FFE4B5" stroke-width="2"/>
+                        <circle cx="10" cy="24" r="1.5" fill="#FFE4B5" opacity="0.7"/>
+                        <circle cx="38" cy="24" r="1.5" fill="#FFE4B5" opacity="0.7"/>
+                    </svg>
+                </div>
+                <div class="login-brand">
+                    <span class="login-brand-main">Menzah</span><span class="login-brand-accent">_<svg class="palm-f-icon login-palm-f" aria-hidden="true"><use href="#palm-f-icon"/></svg>its</span>
+                </div>
                 <p>Admin Stock Management</p>
             </div>
             
@@ -1446,7 +1694,27 @@
     <div id="app-layout" class="app-layout">
         <!-- Navigation Rail -->
         <nav class="nav-rail">
-            <div class="nav-rail-logo">M</div>
+            <div class="nav-rail-logo">
+                <svg viewBox="0 0 48 48" class="nav-crochet-svg" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="nav-yarn-1" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#FFE4B5;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#D4A59A;stop-opacity:1" />
+                        </linearGradient>
+                        <linearGradient id="nav-yarn-2" x1="100%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#E2BFA5;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#B08D7C;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <ellipse cx="16" cy="24" rx="10" ry="14" fill="none" stroke="url(#nav-yarn-1)" stroke-width="3" stroke-linecap="round"/>
+                    <ellipse cx="32" cy="24" rx="10" ry="14" fill="none" stroke="url(#nav-yarn-2)" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M22 14 Q24 24 22 34" fill="none" stroke="url(#nav-yarn-1)" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+                    <path d="M26 14 Q24 24 26 34" fill="none" stroke="url(#nav-yarn-2)" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+                    <circle cx="24" cy="24" r="4" fill="none" stroke="#FFE4B5" stroke-width="2"/>
+                    <circle cx="10" cy="24" r="1.5" fill="#FFE4B5" opacity="0.7"/>
+                    <circle cx="38" cy="24" r="1.5" fill="#FFE4B5" opacity="0.7"/>
+                </svg>
+            </div>
             
             <button class="nav-item active" data-view="dashboard">
                 <span class="material-icons">dashboard</span>
@@ -2894,7 +3162,20 @@
             setTimeout(() => snackbar.classList.remove('active'), 3000);
         }
         
+        // Hide page loader after content loads
+        function hidePageLoader() {
+            const pageLoader = document.getElementById('page-loader');
+            if (pageLoader) {
+                pageLoader.classList.add('hidden');
+            }
+        }
+        
         // Initialize on load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Short delay to show the loading animation
+            setTimeout(hidePageLoader, 800);
+        });
+        
         init();
     </script>
 </body>
