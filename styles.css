@@ -2458,6 +2458,7 @@ button:focus-visible {
     border-radius: 1.5rem;
     padding: var(--fluid-space-md);
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    position: relative;
 }
 
 .quote-icon {
@@ -2472,23 +2473,34 @@ button:focus-visible {
 
 .testimonial-content {
     position: relative;
-    min-height: 160px;
+    min-height: 220px;
+    overflow: hidden;
 }
 
 @media (min-width: 640px) {
     .testimonial-content {
-        min-height: 140px;
+        min-height: 200px;
+    }
+}
+
+@media (min-width: 768px) {
+    .testimonial-content {
+        min-height: 180px;
     }
 }
 
 .testimonial-item {
     position: absolute;
-    inset: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
     opacity: 0;
     transform: translateX(20px);
     transition: all var(--transition-slow);
     pointer-events: none;
     visibility: hidden;
+    overflow: hidden;
 }
 
 .testimonial-item.active {
@@ -2557,6 +2569,8 @@ button:focus-visible {
     justify-content: center;
     gap: 0.5rem;
     margin-top: 1.5rem;
+    position: relative;
+    z-index: 10;
 }
 
 .dot {
