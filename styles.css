@@ -2373,7 +2373,10 @@ button:focus-visible {
    ================================= */
 
 .testimonials {
-    padding: var(--fluid-space-sm) 0;
+    padding-top: var(--fluid-space-xs);
+    padding-bottom: var(--fluid-space-sm);
+    padding-left: 0;
+    padding-right: 0;
     /* NEW: Rich layered nude gradient with depth */
     background: 
         radial-gradient(
@@ -2419,9 +2422,9 @@ button:focus-visible {
     position: absolute;
     top: 0;
     left: 0;
-    width: 12rem;
-    height: 12rem;
-    opacity: 0.12;
+    width: 8rem;
+    height: 8rem;
+    opacity: 0.08;
     background-image: 
         radial-gradient(circle at 12.5px 12.5px, transparent 8px, transparent 8px),
         radial-gradient(circle at 12.5px 12.5px, rgba(255, 228, 181, 0.8) 10px, transparent 10px);
@@ -2434,7 +2437,7 @@ button:focus-visible {
 }
 
 .testimonials .section-header {
-    margin-bottom: var(--fluid-space-sm);
+    margin-bottom: var(--fluid-space-xs);
 }
 
 /* Testimonials Container */
@@ -2446,28 +2449,28 @@ button:focus-visible {
 .testimonial-card {
     background: var(--color-white);
     border-radius: 1.5rem;
-    padding: var(--fluid-space-lg);
+    padding: var(--fluid-space-md);
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
 
 .quote-icon {
     color: rgba(42, 123, 155, 0.2);
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
 }
 
 .quote-icon svg {
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 2rem;
+    height: 2rem;
 }
 
 .testimonial-content {
     position: relative;
-    min-height: 180px;
+    min-height: 160px;
 }
 
 @media (min-width: 640px) {
     .testimonial-content {
-        min-height: 160px;
+        min-height: 140px;
     }
 }
 
@@ -2478,12 +2481,14 @@ button:focus-visible {
     transform: translateX(20px);
     transition: all var(--transition-slow);
     pointer-events: none;
+    visibility: hidden;
 }
 
 .testimonial-item.active {
     opacity: 1;
     transform: translateX(0);
     pointer-events: auto;
+    visibility: visible;
 }
 
 .testimonial-rating {
