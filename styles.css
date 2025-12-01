@@ -1138,18 +1138,18 @@ button:focus-visible {
 
 .hero {
     position: relative;
-    min-height: 70vh;
+    min-height: 60vh;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    padding: var(--fluid-space-lg) 0;
+    padding: var(--fluid-space-md) 0;
 }
 
 @media (max-width: 768px) {
     .hero {
-        min-height: 65vh;
-        padding: var(--fluid-space-md) 0;
+        min-height: 55vh;
+        padding: var(--fluid-space-sm) 0;
     }
 }
 
@@ -1268,7 +1268,7 @@ button:focus-visible {
 
 /* Hero Yarn Animation */
 .hero-yarn {
-    margin-bottom: var(--fluid-space-lg);
+    margin-bottom: var(--fluid-space-md);
 }
 
 .yarn-svg {
@@ -1301,7 +1301,7 @@ button:focus-visible {
     font-family: var(--font-serif);
     font-weight: 700;
     color: var(--color-white);
-    margin-bottom: var(--fluid-space-md);
+    margin-bottom: var(--fluid-space-sm);
     /* Enhanced visibility with text shadow for better contrast */
     text-shadow: 
         0 2px 4px rgba(0, 0, 0, 0.3),
@@ -1323,7 +1323,7 @@ button:focus-visible {
     color: var(--color-white);
     font-weight: 300;
     letter-spacing: 0.025em;
-    margin-bottom: var(--fluid-space-lg);
+    margin-bottom: var(--fluid-space-md);
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
@@ -1331,7 +1331,7 @@ button:focus-visible {
     font-size: var(--fluid-text-base);
     color: rgba(255, 255, 255, 0.9);
     max-width: 42rem;
-    margin: 0 auto var(--fluid-space-lg);
+    margin: 0 auto var(--fluid-space-md);
     line-height: 1.75;
 }
 
@@ -1347,57 +1347,6 @@ button:focus-visible {
     .hero-cta {
         flex-direction: row;
     }
-}
-
-/* Scroll Indicator */
-.scroll-indicator {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    color: rgba(255, 255, 255, 0.8);
-    margin-top: var(--fluid-space-lg);
-    position: absolute;
-    bottom: 4rem;
-    left: 50%;
-    transform: translateX(-50%);
-    transition: opacity 0.5s ease, visibility 0.5s ease;
-    z-index: 10;
-}
-
-.scroll-indicator.hidden {
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-}
-
-/* Hide scroll indicator on mobile to prevent overlap with CTA buttons */
-@media (max-width: 767px) {
-    .scroll-indicator {
-        display: none;
-    }
-}
-
-.scroll-text {
-    font-size: 0.75rem;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    margin-bottom: 0.75rem;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-}
-
-.scroll-icon {
-    width: 2rem;
-    height: 2rem;
-    padding: 0.25rem;
-    border: 2px solid rgba(255, 255, 255, 0.6);
-    border-radius: 50%;
-    animation: bounce 2s infinite;
-}
-
-.scroll-icon svg,
-.scroll-icon path {
-    stroke-width: 1.5;
 }
 
 /* Coconut Leaf Decorations for tropical vibes */
@@ -1609,7 +1558,7 @@ button:focus-visible {
    ================================= */
 
 .about {
-    padding: var(--fluid-space-lg) 0;
+    padding: var(--fluid-space-md) 0;
     /* NEW: Elegant soft gradient with floating shapes */
     background: 
         radial-gradient(
@@ -1645,7 +1594,7 @@ button:focus-visible {
 
 .about-grid {
     display: grid;
-    gap: var(--fluid-space-lg);
+    gap: var(--fluid-space-md);
     align-items: center;
 }
 
@@ -1802,7 +1751,7 @@ button:focus-visible {
    ================================= */
 
 .collections {
-    padding: var(--fluid-space-lg) 0;
+    padding: var(--fluid-space-md) 0;
     /* NEW: Layered abstract shapes with nude tones */
     background: 
         radial-gradient(
@@ -2428,7 +2377,7 @@ button:focus-visible {
 /* Collections CTA */
 .collections-cta {
     text-align: center;
-    margin-top: var(--fluid-space-lg);
+    margin-top: var(--fluid-space-md);
 }
 
 /* =================================
@@ -2436,7 +2385,7 @@ button:focus-visible {
    ================================= */
 
 .testimonials {
-    padding: var(--fluid-space-lg) 0;
+    padding: var(--fluid-space-md) 0;
     /* NEW: Rich layered nude gradient with depth */
     background: 
         radial-gradient(
@@ -2624,7 +2573,7 @@ button:focus-visible {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
-    margin-top: var(--fluid-space-lg);
+    margin-top: var(--fluid-space-md);
 }
 
 @media (min-width: 640px) {
@@ -2670,7 +2619,7 @@ button:focus-visible {
    ================================= */
 
 .contact {
-    padding: var(--fluid-space-lg) 0;
+    padding: var(--fluid-space-md) 0;
     /* NEW: Soft abstract gradient with floating accents */
     background: 
         radial-gradient(
@@ -2724,7 +2673,7 @@ button:focus-visible {
 
 .contact-grid {
     display: grid;
-    gap: var(--fluid-space-lg);
+    gap: var(--fluid-space-md);
 }
 
 @media (min-width: 1024px) {
@@ -3033,13 +2982,13 @@ button:focus-visible {
 }
 
 .footer .container {
-    padding-top: var(--fluid-space-lg);
-    padding-bottom: var(--fluid-space-lg);
+    padding-top: var(--fluid-space-md);
+    padding-bottom: var(--fluid-space-md);
 }
 
 .footer-grid {
     display: grid;
-    gap: var(--fluid-space-lg);
+    gap: var(--fluid-space-md);
 }
 
 @media (min-width: 768px) {
@@ -3577,10 +3526,6 @@ button:focus-visible {
     .hero {
         min-height: auto;
         padding: 4rem 0;
-    }
-    
-    .scroll-indicator {
-        display: none;
     }
     
     .hero-yarn {
