@@ -1301,6 +1301,37 @@ button:focus-visible {
         0 4px 8px rgba(0, 0, 0, 0.25);
 }
 
+/* Palm Tree "F" Icon - replaces letter f in _fits */
+.palm-f-icon {
+    display: inline-block;
+    vertical-align: baseline;
+    color: currentColor;
+}
+
+.hero-palm-f {
+    width: 0.65em;
+    height: 1.1em;
+    margin-bottom: -0.15em;
+}
+
+.nav-palm-f {
+    width: 0.6em;
+    height: 1em;
+    margin-bottom: -0.1em;
+}
+
+.loader-palm-f {
+    width: 0.6em;
+    height: 1em;
+    margin-bottom: -0.1em;
+}
+
+.footer-palm-f {
+    width: 0.6em;
+    height: 1em;
+    margin-bottom: -0.1em;
+}
+
 .hero-tagline {
     font-size: var(--fluid-text-3xl);
     color: var(--color-white);
@@ -1337,8 +1368,8 @@ button:focus-visible {
 .hero-palm-tree {
     position: absolute;
     pointer-events: none;
-    z-index: 4;
-    color: rgba(139, 107, 82, 0.25);
+    z-index: 2;
+    color: rgba(139, 107, 82, 0.18);
 }
 
 .hero-palm-tree svg {
@@ -1348,61 +1379,61 @@ button:focus-visible {
 
 .hero-palm-left {
     bottom: 0;
-    left: -20px;
-    width: 120px;
-    height: 240px;
-}
-
-.hero-palm-right {
-    bottom: 0;
-    right: -15px;
+    left: -40px;
     width: 100px;
     height: 200px;
 }
 
+.hero-palm-right {
+    bottom: 0;
+    right: -35px;
+    width: 85px;
+    height: 170px;
+}
+
 @media (min-width: 768px) {
     .hero-palm-left {
-        left: 0;
-        width: 180px;
-        height: 360px;
-        color: rgba(139, 107, 82, 0.3);
+        left: -20px;
+        width: 140px;
+        height: 280px;
+        color: rgba(139, 107, 82, 0.22);
     }
     
     .hero-palm-right {
-        right: 0;
-        width: 150px;
-        height: 300px;
-        color: rgba(139, 107, 82, 0.28);
+        right: -20px;
+        width: 120px;
+        height: 240px;
+        color: rgba(139, 107, 82, 0.2);
     }
 }
 
 @media (min-width: 1024px) {
     .hero-palm-left {
-        left: 2%;
-        width: 220px;
-        height: 440px;
-        color: rgba(139, 107, 82, 0.35);
+        left: 0;
+        width: 160px;
+        height: 320px;
+        color: rgba(139, 107, 82, 0.25);
     }
     
     .hero-palm-right {
-        right: 2%;
-        width: 180px;
-        height: 360px;
-        color: rgba(139, 107, 82, 0.32);
+        right: 0;
+        width: 140px;
+        height: 280px;
+        color: rgba(139, 107, 82, 0.22);
     }
 }
 
 @media (min-width: 1440px) {
     .hero-palm-left {
-        left: 5%;
-        width: 260px;
-        height: 520px;
+        left: 2%;
+        width: 180px;
+        height: 360px;
     }
     
     .hero-palm-right {
-        right: 5%;
-        width: 220px;
-        height: 440px;
+        right: 2%;
+        width: 160px;
+        height: 320px;
     }
 }
 
