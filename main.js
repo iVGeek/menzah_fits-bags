@@ -12,6 +12,7 @@
     // =================================
     
     const API_BASE = '/api';
+    const PAGE_LOADER_TIMEOUT_MS = 5000; // Maximum time to show loading screen
     
     // =================================
     // Stock Helper Functions
@@ -478,20 +479,39 @@
     }
 
     async function renderCollections(category = 'all') {
-        // Show loading state
-        collectionsGrid.innerHTML = '<div class="loading-state"><div class="crochet-spinner"></div></div>';
+        // Show loading state with premium animation
+        collectionsGrid.innerHTML = `
+            <div class="loading-state">
+                <div class="crochet-spinner"></div>
+                <p class="loading-text">Loading collections...</p>
+            </div>`;
         
         try {
             const filtered = await fetchCollections(category);
+            
+            // Check if there are any items to display
+            if (!filtered || filtered.length === 0) {
+                collectionsGrid.innerHTML = `
+                    <div class="empty-state">
+                        <svg class="empty-state-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5-7c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3z"/>
+                        </svg>
+                        <p class="empty-state-text">No items found</p>
+                        <p class="empty-state-subtext">Try selecting a different category</p>
+                    </div>`;
+                return;
+            }
             
             collectionsGrid.innerHTML = filtered.map((item, index) => 
                 createCollectionCard(item, index)
             ).join('');
 
-            // Animate cards in
+            // Animate cards in with staggered delay
             setTimeout(() => {
-                document.querySelectorAll('.collection-card').forEach(card => {
-                    card.classList.add('visible');
+                document.querySelectorAll('.collection-card').forEach((card, i) => {
+                    setTimeout(() => {
+                        card.classList.add('visible');
+                    }, i * 100);
                 });
             }, 100);
             
@@ -508,8 +528,10 @@
             ).join('');
 
             setTimeout(() => {
-                document.querySelectorAll('.collection-card').forEach(card => {
-                    card.classList.add('visible');
+                document.querySelectorAll('.collection-card').forEach((card, i) => {
+                    setTimeout(() => {
+                        card.classList.add('visible');
+                    }, i * 100);
                 });
             }, 100);
             
@@ -998,6 +1020,32 @@
     // Initialize
     // =================================
 
+    // =================================
+    // Page Loader Management
+    // =================================
+    
+    const pageLoader = document.getElementById('page-loader');
+    
+    function hidePageLoader() {
+        if (pageLoader) {
+            // Add a small delay for smooth transition
+            setTimeout(() => {
+                pageLoader.classList.add('hidden');
+                // Remove from DOM after transition
+                setTimeout(() => {
+                    pageLoader.style.display = 'none';
+                }, 500);
+            }, 500);
+        }
+    }
+    
+    function showPageLoader() {
+        if (pageLoader) {
+            pageLoader.style.display = 'flex';
+            pageLoader.classList.remove('hidden');
+        }
+    }
+
     async function init() {
         // Initialize scroll progress
         initScrollProgress();
@@ -1024,6 +1072,9 @@
         } else {
             console.log('📦 Running in static mode');
         }
+        
+        // Hide the page loader after everything is initialized
+        hidePageLoader();
     }
 
     // Wait for DOM to be ready
@@ -1032,5 +1083,10 @@
     } else {
         init();
     }
+    
+    // Fallback: Hide loader after max wait time (in case of slow networks)
+    setTimeout(() => {
+        hidePageLoader();
+    }, PAGE_LOADER_TIMEOUT_MS);
 
 })();
