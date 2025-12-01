@@ -2373,7 +2373,7 @@ button:focus-visible {
    ================================= */
 
 .testimonials {
-    padding: var(--fluid-space-md) 0;
+    padding: var(--fluid-space-sm) 0;
     /* NEW: Rich layered nude gradient with depth */
     background: 
         radial-gradient(
@@ -2410,7 +2410,7 @@ button:focus-visible {
     bottom: 0;
     left: 0;
     right: 0;
-    height: 50%;
+    height: 30%;
     background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M0 50 Q25 30, 50 50 T100 50 V100 H0 Z' fill='%23F5E1D8'/%3E%3C/svg%3E");
     background-size: 100% 100%;
 }
@@ -2433,6 +2433,10 @@ button:focus-visible {
     color: var(--color-white);
 }
 
+.testimonials .section-header {
+    margin-bottom: var(--fluid-space-sm);
+}
+
 /* Testimonials Container */
 .testimonials-container {
     max-width: 56rem;
@@ -2448,17 +2452,23 @@ button:focus-visible {
 
 .quote-icon {
     color: rgba(42, 123, 155, 0.2);
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
 }
 
 .quote-icon svg {
-    width: 3rem;
-    height: 3rem;
+    width: 2.5rem;
+    height: 2.5rem;
 }
 
 .testimonial-content {
     position: relative;
-    min-height: 200px;
+    min-height: 180px;
+}
+
+@media (min-width: 640px) {
+    .testimonial-content {
+        min-height: 160px;
+    }
 }
 
 .testimonial-item {
@@ -2534,7 +2544,7 @@ button:focus-visible {
     display: flex;
     justify-content: center;
     gap: 0.5rem;
-    margin-top: 2rem;
+    margin-top: 1.5rem;
 }
 
 .dot {
@@ -2560,13 +2570,14 @@ button:focus-visible {
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-    margin-top: var(--fluid-space-md);
+    gap: 0.75rem;
+    margin-top: var(--fluid-space-sm);
 }
 
 @media (min-width: 640px) {
     .stats-grid {
         grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
     }
 }
 
@@ -2577,9 +2588,15 @@ button:focus-visible {
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     border-radius: var(--md-radius-lg);
-    padding: 1.5rem 1rem;
+    padding: 1rem 0.75rem;
     border: 1px solid rgba(255, 255, 255, 0.25);
     transition: all var(--transition-normal);
+}
+
+@media (min-width: 640px) {
+    .stat {
+        padding: 1.25rem 1rem;
+    }
 }
 
 .stat:hover {
