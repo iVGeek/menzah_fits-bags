@@ -48,84 +48,84 @@
 
     let collections = [
         {
-            id: 1,
+            id: '1',
             name: 'Ocean Breeze Maxi',
             category: 'dresses',
             price: 'KES 8,500',
             colors: [
-                { hex: '#2A7B9B', name: 'Ocean Blue', sizeStock: { 'S': 1, 'M': 2, 'L': 1, 'XL': 1 }, stock: 5 },
-                { hex: '#E8DED1', name: 'Sand', sizeStock: { 'S': 1, 'M': 1, 'L': 1, 'XL': 0 }, stock: 3 },
-                { hex: '#E87461', name: 'Coral', sizeStock: { 'S': 0, 'M': 1, 'L': 1, 'XL': 0 }, stock: 2 }
+                { hex: '#2A7B9B', name: 'Ocean Blue', sizeStock: { 'S': 1, 'M': 2, 'L': 1, 'XL': 1 }, stock: 5, media: [] },
+                { hex: '#E8DED1', name: 'Sand', sizeStock: { 'S': 1, 'M': 1, 'L': 1, 'XL': 0 }, stock: 3, media: [] },
+                { hex: '#E87461', name: 'Coral', sizeStock: { 'S': 0, 'M': 1, 'L': 1, 'XL': 0 }, stock: 2, media: [] }
             ],
             sizes: ['S', 'M', 'L', 'XL'],
             description: 'Flowing maxi dress with intricate wave patterns',
             badge: 'bestseller',
         },
         {
-            id: 2,
+            id: '2',
             name: 'Coral Sunset Top',
             category: 'tops',
             price: 'KES 4,200',
             colors: [
-                { hex: '#E87461', name: 'Coral', sizeStock: { 'XS': 2, 'S': 2, 'M': 2, 'L': 2 }, stock: 8 },
-                { hex: '#F09B8D', name: 'Light Coral', sizeStock: { 'XS': 1, 'S': 1, 'M': 1, 'L': 1 }, stock: 4 },
-                { hex: '#C9BBA8', name: 'Taupe', sizeStock: { 'XS': 2, 'S': 1, 'M': 2, 'L': 1 }, stock: 6 }
+                { hex: '#E87461', name: 'Coral', sizeStock: { 'XS': 2, 'S': 2, 'M': 2, 'L': 2 }, stock: 8, media: [] },
+                { hex: '#F09B8D', name: 'Light Coral', sizeStock: { 'XS': 1, 'S': 1, 'M': 1, 'L': 1 }, stock: 4, media: [] },
+                { hex: '#C9BBA8', name: 'Taupe', sizeStock: { 'XS': 2, 'S': 1, 'M': 2, 'L': 1 }, stock: 6, media: [] }
             ],
             sizes: ['XS', 'S', 'M', 'L'],
             description: 'Lightweight crochet top perfect for warm evenings',
             badge: null,
         },
         {
-            id: 3,
+            id: '3',
             name: 'Sandy Shores Dress',
             category: 'dresses',
             price: 'KES 7,800',
             colors: [
-                { hex: '#E8DED1', name: 'Sand', sizeStock: { 'S': 2, 'M': 1, 'L': 1 }, stock: 4 },
-                { hex: '#8B7355', name: 'Natural', sizeStock: { 'S': 1, 'M': 1, 'L': 1 }, stock: 3 },
-                { hex: '#FDF8F3', name: 'Cream', sizeStock: { 'S': 2, 'M': 2, 'L': 1 }, stock: 5 }
+                { hex: '#E8DED1', name: 'Sand', sizeStock: { 'S': 2, 'M': 1, 'L': 1 }, stock: 4, media: [] },
+                { hex: '#8B7355', name: 'Natural', sizeStock: { 'S': 1, 'M': 1, 'L': 1 }, stock: 3, media: [] },
+                { hex: '#FDF8F3', name: 'Cream', sizeStock: { 'S': 2, 'M': 2, 'L': 1 }, stock: 5, media: [] }
             ],
             sizes: ['S', 'M', 'L'],
             description: 'Elegant beach dress with natural fiber texture',
             badge: 'new',
         },
         {
-            id: 4,
+            id: '4',
             name: 'Coastal Elegance Set',
             category: 'sets',
             price: 'KES 12,500',
             colors: [
-                { hex: '#2A7B9B', name: 'Ocean', sizeStock: { 'S': 1, 'M': 0, 'L': 1, 'XL': 0 }, stock: 2 },
-                { hex: '#1E5A73', name: 'Deep Ocean', sizeStock: { 'S': 0, 'M': 1, 'L': 0, 'XL': 0 }, stock: 1 },
-                { hex: '#E8DED1', name: 'Sand', sizeStock: { 'S': 1, 'M': 1, 'L': 1, 'XL': 0 }, stock: 3 }
+                { hex: '#2A7B9B', name: 'Ocean', sizeStock: { 'S': 1, 'M': 0, 'L': 1, 'XL': 0 }, stock: 2, media: [] },
+                { hex: '#1E5A73', name: 'Deep Ocean', sizeStock: { 'S': 0, 'M': 1, 'L': 0, 'XL': 0 }, stock: 1, media: [] },
+                { hex: '#E8DED1', name: 'Sand', sizeStock: { 'S': 1, 'M': 1, 'L': 1, 'XL': 0 }, stock: 3, media: [] }
             ],
             sizes: ['S', 'M', 'L', 'XL'],
             description: 'Two-piece ensemble for special occasions',
             badge: 'limited',
         },
         {
-            id: 5,
+            id: '5',
             name: 'Tidal Wave Skirt',
             category: 'skirts',
             price: 'KES 5,500',
             colors: [
-                { hex: '#4FA3C7', name: 'Light Ocean', sizeStock: { 'XS': 1, 'S': 2, 'M': 2, 'L': 1, 'XL': 1 }, stock: 7 },
-                { hex: '#2A7B9B', name: 'Ocean', sizeStock: { 'XS': 1, 'S': 1, 'M': 1, 'L': 1, 'XL': 1 }, stock: 5 },
-                { hex: '#FDF8F3', name: 'Cream', sizeStock: { 'XS': 1, 'S': 1, 'M': 1, 'L': 1, 'XL': 0 }, stock: 4 }
+                { hex: '#4FA3C7', name: 'Light Ocean', sizeStock: { 'XS': 1, 'S': 2, 'M': 2, 'L': 1, 'XL': 1 }, stock: 7, media: [] },
+                { hex: '#2A7B9B', name: 'Ocean', sizeStock: { 'XS': 1, 'S': 1, 'M': 1, 'L': 1, 'XL': 1 }, stock: 5, media: [] },
+                { hex: '#FDF8F3', name: 'Cream', sizeStock: { 'XS': 1, 'S': 1, 'M': 1, 'L': 1, 'XL': 0 }, stock: 4, media: [] }
             ],
             sizes: ['XS', 'S', 'M', 'L', 'XL'],
             description: 'Flowing midi skirt with wave-inspired patterns',
             badge: null,
         },
         {
-            id: 6,
+            id: '6',
             name: 'Reef Romance Dress',
             category: 'dresses',
             price: 'KES 9,200',
             colors: [
-                { hex: '#E87461', name: 'Coral', sizeStock: { 'S': 1, 'M': 1, 'L': 1 }, stock: 3 },
-                { hex: '#D45341', name: 'Deep Coral', sizeStock: { 'S': 1, 'M': 1, 'L': 0 }, stock: 2 },
-                { hex: '#E8DED1', name: 'Sand', sizeStock: { 'S': 1, 'M': 2, 'L': 1 }, stock: 4 }
+                { hex: '#E87461', name: 'Coral', sizeStock: { 'S': 1, 'M': 1, 'L': 1 }, stock: 3, media: [] },
+                { hex: '#D45341', name: 'Deep Coral', sizeStock: { 'S': 1, 'M': 1, 'L': 0 }, stock: 2, media: [] },
+                { hex: '#E8DED1', name: 'Sand', sizeStock: { 'S': 1, 'M': 2, 'L': 1 }, stock: 4, media: [] }
             ],
             sizes: ['S', 'M', 'L'],
             description: 'Romantic crochet dress with coral accents',
@@ -899,7 +899,7 @@
                 
                 const card = btn.closest('.collection-card');
                 if (card) {
-                    const itemId = parseInt(card.dataset.itemId, 10);
+                    const itemId = card.dataset.itemId;
                     openProductModal(itemId);
                 }
             };
