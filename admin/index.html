@@ -143,12 +143,6 @@
             margin: 0 auto 16px;
         }
         
-        .login-crochet-svg {
-            width: 100%;
-            height: 100%;
-            filter: drop-shadow(0 4px 12px rgba(176, 141, 124, 0.3));
-        }
-        
         .login-brand {
             display: flex;
             align-items: baseline;
@@ -246,7 +240,8 @@
             }
         }
         
-        .loader-crochet-svg {
+        /* Unified crochet logo SVG styling */
+        .crochet-logo-svg {
             width: 100%;
             height: 100%;
             filter: drop-shadow(0 4px 12px rgba(176, 141, 124, 0.3));
@@ -1590,6 +1585,7 @@
 <body>
     <!-- SVG Symbol Definitions (hidden) - Matching frontend -->
     <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+        <!-- Palm tree F icon for brand text (uses currentColor for flexibility) -->
         <symbol id="palm-f-icon" viewBox="0 0 24 40">
             <path d="M12 40 Q10 32 11 24 Q12 16 13 10" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" fill="none"/>
             <path d="M13 10 Q8 6 3 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/>
@@ -1604,7 +1600,7 @@
     <div id="page-loader" class="page-loader">
         <div class="loader-content">
             <div class="loader-logo">
-                <svg viewBox="0 0 48 48" class="loader-crochet-svg" xmlns="http://www.w3.org/2000/svg">
+                <svg viewBox="0 0 48 48" class="crochet-logo-svg" xmlns="http://www.w3.org/2000/svg">
                     <defs>
                         <linearGradient id="loader-yarn-1" x1="0%" y1="0%" x2="100%" y2="100%">
                             <stop offset="0%" style="stop-color:#FFE4B5;stop-opacity:1" />
@@ -1641,7 +1637,7 @@
         <div class="login-card">
             <div class="login-logo">
                 <div class="login-logo-icon">
-                    <svg viewBox="0 0 48 48" class="login-crochet-svg" xmlns="http://www.w3.org/2000/svg">
+                    <svg viewBox="0 0 48 48" class="crochet-logo-svg" xmlns="http://www.w3.org/2000/svg">
                         <defs>
                             <linearGradient id="login-yarn-1" x1="0%" y1="0%" x2="100%" y2="100%">
                                 <stop offset="0%" style="stop-color:#FFE4B5;stop-opacity:1" />
@@ -1695,7 +1691,7 @@
         <!-- Navigation Rail -->
         <nav class="nav-rail">
             <div class="nav-rail-logo">
-                <svg viewBox="0 0 48 48" class="nav-crochet-svg" xmlns="http://www.w3.org/2000/svg">
+                <svg viewBox="0 0 48 48" class="crochet-logo-svg nav-crochet-svg" xmlns="http://www.w3.org/2000/svg">
                     <defs>
                         <linearGradient id="nav-yarn-1" x1="0%" y1="0%" x2="100%" y2="100%">
                             <stop offset="0%" style="stop-color:#FFE4B5;stop-opacity:1" />
@@ -3163,6 +3159,10 @@
         }
         
         // Hide page loader after content loads
+        // Delay timing (800ms) allows the loading animation to be visible
+        // before transitioning to the login screen or main app
+        const PAGE_LOADER_DELAY_MS = 800;
+        
         function hidePageLoader() {
             const pageLoader = document.getElementById('page-loader');
             if (pageLoader) {
@@ -3172,8 +3172,7 @@
         
         // Initialize on load
         document.addEventListener('DOMContentLoaded', function() {
-            // Short delay to show the loading animation
-            setTimeout(hidePageLoader, 800);
+            setTimeout(hidePageLoader, PAGE_LOADER_DELAY_MS);
         });
         
         init();
