@@ -1314,18 +1314,8 @@ button:focus-visible {
     margin-bottom: -0.15em;
 }
 
-.nav-palm-f {
-    width: 0.6em;
-    height: 1em;
-    margin-bottom: -0.1em;
-}
-
-.loader-palm-f {
-    width: 0.6em;
-    height: 1em;
-    margin-bottom: -0.1em;
-}
-
+.nav-palm-f,
+.loader-palm-f,
 .footer-palm-f {
     width: 0.6em;
     height: 1em;
