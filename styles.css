@@ -2401,8 +2401,8 @@ button:focus-visible {
    ================================= */
 
 .testimonials {
-    padding-top: var(--fluid-space-xl);
-    padding-bottom: var(--fluid-space-xl);
+    padding-top: var(--fluid-space-sm);
+    padding-bottom: var(--fluid-space-lg);
     padding-left: 0;
     padding-right: 0;
     /* Enhanced clean gradient background with soft transitions */
