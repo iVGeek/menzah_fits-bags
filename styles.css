@@ -3479,6 +3479,8 @@ button:focus-visible {
         transparent
     );
     border-radius: 2px;
+    pointer-events: none;
+    z-index: 0;
 }
 
 /* =================================
