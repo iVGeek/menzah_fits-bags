@@ -15,6 +15,15 @@
     const PAGE_LOADER_TIMEOUT_MS = 5000; // Maximum time to show loading screen
     
     // =================================
+    // Scroll Reset on Page Load
+    // Reset scroll position immediately to ensure page starts at top
+    // =================================
+    if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'manual';
+    }
+    window.scrollTo(0, 0);
+    
+    // =================================
     // Stock Helper Functions
     // =================================
     
@@ -266,8 +275,16 @@
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
+                    // Remove and re-add visible class to replay animation
+                    // Use requestAnimationFrame for smooth animation replay
+                    const target = entry.target;
+                    target.classList.remove('visible');
+                    // Force reflow to restart animation
+                    void target.offsetWidth;
+                    target.classList.add('visible');
                 }
+                // Don't remove visible class when leaving viewport
+                // to keep content visible after animation
             });
         }, {
             threshold: 0.1,
