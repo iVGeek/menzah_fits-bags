@@ -15,6 +15,15 @@
     const PAGE_LOADER_TIMEOUT_MS = 5000; // Maximum time to show loading screen
     
     // =================================
+    // Scroll Reset on Page Load
+    // Reset scroll position immediately to ensure page starts at top
+    // =================================
+    if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'manual';
+    }
+    window.scrollTo(0, 0);
+    
+    // =================================
     // Stock Helper Functions
     // =================================
     
@@ -267,6 +276,10 @@
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('visible');
+                } else {
+                    // Remove visible class when element leaves viewport
+                    // so animation replays when scrolling back
+                    entry.target.classList.remove('visible');
                 }
             });
         }, {
