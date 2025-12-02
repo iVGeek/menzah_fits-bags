@@ -3491,19 +3491,30 @@ button:focus-visible {
 /* Extra small devices (< 360px) - Compact mobile */
 @media (max-width: 359px) {
     :root {
-        --fluid-text-6xl: clamp(2rem, 1.5rem + 3vw, 2.5rem);
+        --fluid-text-6xl: clamp(1.75rem, 1.5rem + 3vw, 2.25rem);
         --fluid-text-4xl: clamp(1.5rem, 1.2rem + 2vw, 2rem);
-        --fluid-text-3xl: clamp(1.25rem, 1rem + 1.5vw, 1.75rem);
+        --fluid-text-3xl: clamp(1.125rem, 1rem + 1.5vw, 1.5rem);
+    }
+    
+    /* Extra small screen hero title adjustments */
+    .hero-title {
+        font-size: clamp(1.75rem, 7vw, 2.25rem);
+    }
+    
+    .hero-tagline {
+        font-size: clamp(1rem, 4vw, 1.25rem);
     }
     
     .hero-cta {
         gap: 0.75rem;
+        padding: 0 1rem;
     }
     
-    .btn-primary,
-    .btn-secondary {
+    .hero-cta .btn-primary,
+    .hero-cta .btn-secondary {
         padding: 0.75rem 1.25rem;
         font-size: 0.875rem;
+        max-width: 240px;
     }
     
     .category-filter {
@@ -3511,8 +3522,12 @@ button:focus-visible {
     }
     
     .filter-btn {
-        padding: 0.5rem 1rem;
+        padding: 0.5rem 0.875rem;
         font-size: 0.75rem;
+    }
+    
+    .section-title {
+        font-size: clamp(1.25rem, 5vw, 1.75rem);
     }
 }
 
@@ -3883,6 +3898,108 @@ section {
         justify-content: center;
     }
     
+    /* ================================= */
+    /* Mobile Hero Section Improvements */
+    /* ================================= */
+    
+    /* Prevent hero title from breaking awkwardly */
+    .hero-title {
+        font-size: clamp(2rem, 8vw, 3rem);
+        white-space: nowrap;
+        line-height: 1.2;
+    }
+    
+    /* Keep title accent inline */
+    .hero-title-accent {
+        display: inline;
+        white-space: nowrap;
+    }
+    
+    /* Better tagline sizing on mobile */
+    .hero-tagline {
+        font-size: clamp(1.1rem, 4.5vw, 1.5rem);
+        line-height: 1.4;
+        padding: 0 0.5rem;
+    }
+    
+    /* Better subtitle sizing on mobile */
+    .hero-subtitle {
+        font-size: clamp(0.875rem, 3.5vw, 1rem);
+        padding: 0 1rem;
+        line-height: 1.6;
+    }
+    
+    /* Hero CTA buttons - stack nicely */
+    .hero-cta {
+        flex-direction: column;
+        gap: 0.75rem;
+        width: 100%;
+        padding: 0 1.5rem;
+    }
+    
+    .hero-cta .btn-primary,
+    .hero-cta .btn-secondary {
+        width: 100%;
+        max-width: 280px;
+        padding: 0.875rem 1.5rem;
+        font-size: 0.9375rem;
+        justify-content: center;
+    }
+    
+    /* Hero content spacing */
+    .hero-content {
+        padding: 0 1rem;
+    }
+    
+    /* Hero yarn animation smaller on mobile */
+    .hero-yarn {
+        margin-bottom: 0.75rem;
+    }
+    
+    .yarn-svg {
+        width: 3.5rem;
+        height: 3.5rem;
+    }
+    
+    /* ================================= */
+    /* Mobile Section Improvements */
+    /* ================================= */
+    
+    /* Section titles and headers */
+    .section-title {
+        font-size: clamp(1.5rem, 6vw, 2rem);
+        padding: 0 0.5rem;
+    }
+    
+    .section-subtitle {
+        font-size: clamp(0.875rem, 3.5vw, 1rem);
+        padding: 0 1rem;
+    }
+    
+    /* About section content */
+    .about-content {
+        padding: 0 0.5rem;
+    }
+    
+    .about-text {
+        font-size: 0.9375rem;
+        line-height: 1.7;
+    }
+    
+    /* About features grid - single column on small screens */
+    .about-features {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    .feature {
+        padding: 0.5rem 0;
+    }
+    
+    /* ================================= */
+    /* Mobile Card Improvements */
+    /* ================================= */
+    
     /* Improved mobile card layout */
     .collection-card {
         border-radius: 1rem;
@@ -3900,6 +4017,89 @@ section {
     
     .card-price {
         font-size: 1rem;
+    }
+    
+    /* Card options better spacing */
+    .card-options {
+        gap: 0.75rem;
+    }
+    
+    .card-colors,
+    .card-sizes {
+        gap: 0.375rem;
+    }
+    
+    /* ================================= */
+    /* Mobile Filter Buttons */
+    /* ================================= */
+    
+    .category-filter {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0 0.5rem;
+    }
+    
+    .filter-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.8125rem;
+    }
+    
+    /* ================================= */
+    /* Mobile Testimonials */
+    /* ================================= */
+    
+    .testimonial-card {
+        padding: 1.25rem;
+    }
+    
+    .testimonial-text {
+        font-size: 0.9375rem;
+        line-height: 1.6;
+    }
+    
+    .testimonial-stats {
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .stat-item {
+        min-width: 45%;
+    }
+    
+    /* ================================= */
+    /* Mobile Contact Section */
+    /* ================================= */
+    
+    .contact-grid {
+        gap: 1.5rem;
+    }
+    
+    .contact-info,
+    .contact-form {
+        padding: 1.25rem;
+    }
+    
+    /* ================================= */
+    /* Mobile Footer */
+    /* ================================= */
+    
+    .footer-grid {
+        gap: 1.5rem;
+    }
+    
+    .footer-brand,
+    .footer-links,
+    .footer-contact {
+        text-align: center;
+    }
+    
+    .footer-logo {
+        justify-content: center;
+    }
+    
+    .footer-social {
+        justify-content: center;
     }
     
     /* Better mobile section spacing */
