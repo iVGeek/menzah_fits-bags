@@ -2401,28 +2401,18 @@ button:focus-visible {
    ================================= */
 
 .testimonials {
-    padding-top: var(--fluid-space-lg);
-    padding-bottom: var(--fluid-space-sm);
+    padding-top: var(--fluid-space-xl);
+    padding-bottom: var(--fluid-space-xl);
     padding-left: 0;
     padding-right: 0;
-    /* NEW: Rich layered nude gradient with depth */
+    /* Enhanced clean gradient background with soft transitions */
     background: 
-        radial-gradient(
-            ellipse 80% 50% at 20% 30%,
-            rgba(226, 191, 165, 0.25) 0%,
-            transparent 50%
-        ),
-        radial-gradient(
-            ellipse 60% 45% at 80% 70%,
-            rgba(245, 225, 216, 0.2) 0%,
-            transparent 45%
-        ),
         linear-gradient(
-            160deg,
-            var(--color-twilight-nude) 0%,
-            var(--color-dusk-nude) 30%,
-            var(--color-dusty-rose) 60%,
-            var(--color-dusk-nude-light) 100%
+            180deg,
+            var(--color-dusk-nude) 0%,
+            var(--color-dusty-rose) 35%,
+            var(--color-dusk-nude-light) 70%,
+            var(--color-cream-nude) 100%
         );
     position: relative;
     overflow: hidden;
@@ -2431,33 +2421,27 @@ button:focus-visible {
 .testimonials-wave {
     position: absolute;
     inset: 0;
-    opacity: 0.15;
+    opacity: 0.1;
     z-index: 0;
+    background: 
+        radial-gradient(circle at 15% 85%, rgba(255, 255, 255, 0.15) 0%, transparent 30%),
+        radial-gradient(circle at 85% 15%, rgba(255, 255, 255, 0.1) 0%, transparent 25%);
 }
 
 .testimonials-wave::before {
     content: '';
     position: absolute;
-    bottom: 0;
+    top: 0;
     left: 0;
     right: 0;
-    height: 30%;
-    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M0 50 Q25 30, 50 50 T100 50 V100 H0 Z' fill='%23F5E1D8'/%3E%3C/svg%3E");
-    background-size: 100% 100%;
+    height: 100%;
+    background: 
+        linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.05) 50%, transparent 100%);
+    pointer-events: none;
 }
 
 .testimonials-pattern {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 8rem;
-    height: 8rem;
-    opacity: 0.08;
-    background-image: 
-        radial-gradient(circle at 12.5px 12.5px, transparent 8px, transparent 8px),
-        radial-gradient(circle at 12.5px 12.5px, rgba(255, 228, 181, 0.8) 10px, transparent 10px);
-    background-size: 25px 25px;
-    z-index: 0;
+    display: none;
 }
 
 .testimonials .section-title {
@@ -2465,7 +2449,8 @@ button:focus-visible {
 }
 
 .testimonials .section-header {
-    margin-bottom: var(--fluid-space-xs);
+    margin-bottom: var(--fluid-space-md);
+    text-align: center;
 }
 
 /* Testimonials Container */
@@ -2617,8 +2602,8 @@ button:focus-visible {
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
-    margin-top: var(--fluid-space-sm);
+    gap: 1rem;
+    margin-top: var(--fluid-space-md);
 }
 
 @media (min-width: 640px) {
