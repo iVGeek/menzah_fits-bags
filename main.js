@@ -275,12 +275,16 @@
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                } else {
-                    // Remove visible class when element leaves viewport
-                    // so animation replays when scrolling back
-                    entry.target.classList.remove('visible');
+                    // Remove and re-add visible class to replay animation
+                    // Use requestAnimationFrame for smooth animation replay
+                    const target = entry.target;
+                    target.classList.remove('visible');
+                    // Force reflow to restart animation
+                    void target.offsetWidth;
+                    target.classList.add('visible');
                 }
+                // Don't remove visible class when leaving viewport
+                // to keep content visible after animation
             });
         }, {
             threshold: 0.1,
