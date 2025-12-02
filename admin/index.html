@@ -121,6 +121,19 @@
                 radial-gradient(ellipse 70% 55% at 85% 8%, rgba(226, 191, 165, 0.3) 0%, transparent 55%),
                 radial-gradient(ellipse 90% 50% at 5% 45%, rgba(240, 217, 204, 0.4) 0%, transparent 50%),
                 linear-gradient(135deg, var(--color-cream-nude) 0%, var(--color-soft-cream) 50%, var(--color-vanilla-cream) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .login-screen::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                repeating-linear-gradient(45deg, transparent 0px, transparent 18px, rgba(212, 165, 154, 0.04) 18px, rgba(212, 165, 154, 0.04) 20px),
+                repeating-linear-gradient(-45deg, transparent 0px, transparent 18px, rgba(226, 191, 165, 0.04) 18px, rgba(226, 191, 165, 0.04) 20px);
+            background-size: 40px 40px;
+            pointer-events: none;
         }
         
         .login-card {
@@ -130,6 +143,18 @@
             width: 100%;
             max-width: 400px;
             box-shadow: var(--md-elevation-3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--color-dusk-nude) 0%, var(--color-dusty-rose) 50%, var(--color-twilight-nude) 100%);
         }
         
         .login-logo {
@@ -385,6 +410,34 @@
             cursor: pointer;
             transition: all var(--md-transition-normal);
             text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .md-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: currentColor;
+            opacity: 0;
+            transition: opacity var(--md-transition-fast);
+        }
+        
+        .md-btn:hover::before {
+            opacity: 0.08;
+        }
+        
+        .md-btn:active::before {
+            opacity: 0.12;
+        }
+        
+        .md-btn .material-icons {
+            font-size: 18px;
+            transition: transform var(--md-transition-normal);
+        }
+        
+        .md-btn:hover .material-icons {
+            transform: scale(1.1);
         }
         
         .md-btn-primary {
@@ -408,7 +461,7 @@
         }
         
         .md-btn-text:hover {
-            background: rgba(0, 100, 148, 0.08);
+            background: rgba(176, 141, 124, 0.08);
         }
         
         .md-btn-icon {
@@ -416,6 +469,10 @@
             height: 40px;
             padding: 8px;
             border-radius: 50%;
+        }
+        
+        .md-btn-icon:hover {
+            background: var(--md-surface-container-high);
         }
         
         .md-btn-fab {
@@ -442,7 +499,7 @@
         /* Navigation Rail */
         .nav-rail {
             width: 80px;
-            background: var(--md-surface-container);
+            background: linear-gradient(180deg, var(--md-surface-container) 0%, var(--md-surface-container-high) 100%);
             border-right: 1px solid var(--md-outline-variant);
             padding: 16px 0;
             display: flex;
@@ -453,11 +510,31 @@
             z-index: 50;
         }
         
+        .nav-rail::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(circle at 50% 0%, rgba(212, 165, 154, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        
         .nav-rail-logo {
             padding: 12px;
             margin-bottom: 24px;
-            width: 48px;
-            height: 48px;
+            width: 52px;
+            height: 52px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(176, 141, 124, 0.15);
+            position: relative;
+            z-index: 1;
         }
         
         .nav-crochet-svg {
@@ -492,7 +569,7 @@
             color: var(--md-on-primary-container);
         }
         
-        .nav-item span {
+        .nav-item span:not(.material-icons) {
             font-size: 0.625rem;
             font-weight: 500;
             text-transform: uppercase;
@@ -504,6 +581,42 @@
             overflow: hidden;
             width: 24px;
             height: 24px;
+            transition: transform var(--md-transition-normal), color var(--md-transition-normal);
+        }
+        
+        .nav-item:hover .material-icons {
+            transform: scale(1.1);
+        }
+        
+        .nav-item.active .material-icons {
+            transform: scale(1.15);
+            animation: nav-icon-pulse 0.3s ease-out;
+        }
+        
+        @keyframes nav-icon-pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.25); }
+            100% { transform: scale(1.15); }
+        }
+        
+        /* Nav item icon colors */
+        .nav-item[data-view="dashboard"] .material-icons {
+            color: var(--md-tertiary);
+        }
+        .nav-item[data-view="products"] .material-icons {
+            color: var(--color-dusty-rose);
+        }
+        .nav-item[data-view="users"] .material-icons {
+            color: var(--color-earth-nude);
+        }
+        .nav-item[data-view="settings"] .material-icons {
+            color: var(--color-sienna-nude);
+        }
+        .nav-item.active[data-view="dashboard"] .material-icons,
+        .nav-item.active[data-view="products"] .material-icons,
+        .nav-item.active[data-view="users"] .material-icons,
+        .nav-item.active[data-view="settings"] .material-icons {
+            color: var(--md-on-primary-container);
         }
         
         /* Main Content */
@@ -523,11 +636,31 @@
             border-radius: var(--md-radius-lg);
             margin-bottom: 24px;
             box-shadow: var(--md-elevation-1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .top-bar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--color-dusk-nude) 0%, var(--color-dusty-rose) 50%, var(--color-twilight-nude) 100%);
         }
         
         .top-bar h1 {
             font-size: 1.5rem;
             font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .top-bar h1 .material-icons {
+            font-size: 28px;
+            color: var(--md-primary);
         }
         
         .top-bar-actions {
@@ -549,16 +682,45 @@
             border-radius: var(--md-radius-lg);
             padding: 24px;
             box-shadow: var(--md-elevation-1);
+            transition: all var(--md-transition-normal);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card:hover {
+            box-shadow: var(--md-elevation-2);
+            transform: translateY(-2px);
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle at top right, rgba(176, 141, 124, 0.08) 0%, transparent 70%);
+            border-radius: 0 var(--md-radius-lg) 0 80%;
         }
         
         .stat-card-icon {
-            width: 48px;
-            height: 48px;
+            width: 56px;
+            height: 56px;
             border-radius: var(--md-radius-md);
             display: flex;
             align-items: center;
             justify-content: center;
             margin-bottom: 16px;
+            position: relative;
+            transition: transform var(--md-transition-normal);
+        }
+        
+        .stat-card:hover .stat-card-icon {
+            transform: scale(1.05);
+        }
+        
+        .stat-card-icon .material-icons {
+            font-size: 28px;
         }
         
         .stat-card-icon.primary {
@@ -600,6 +762,11 @@
             border-radius: var(--md-radius-lg);
             overflow: hidden;
             box-shadow: var(--md-elevation-1);
+            transition: box-shadow var(--md-transition-normal);
+        }
+        
+        .data-table:hover {
+            box-shadow: var(--md-elevation-2);
         }
         
         .data-table-header {
@@ -608,11 +775,20 @@
             justify-content: space-between;
             padding: 16px 24px;
             border-bottom: 1px solid var(--md-outline-variant);
+            background: linear-gradient(135deg, var(--md-surface-container) 0%, var(--md-surface-container-low) 100%);
         }
         
         .data-table-header h2 {
             font-size: 1.125rem;
             font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .data-table-header h2 .material-icons {
+            font-size: 22px;
+            color: var(--md-primary);
         }
         
         .data-table table {
@@ -635,8 +811,16 @@
             background: var(--md-surface-container);
         }
         
+        .data-table th .material-icons {
+            font-size: 16px;
+            vertical-align: middle;
+            margin-right: 4px;
+            opacity: 0.7;
+        }
+        
         .data-table tr {
             border-bottom: 1px solid var(--md-outline-variant);
+            transition: background var(--md-transition-fast);
         }
         
         .data-table tr:hover {
@@ -645,6 +829,14 @@
         
         .data-table tr:last-child {
             border-bottom: none;
+        }
+        
+        .data-table td {
+            vertical-align: middle;
+        }
+        
+        .data-table td .material-icons {
+            font-size: 18px;
         }
         
         /* Color Dots */
@@ -668,16 +860,23 @@
         
         /* Badge */
         .badge {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
             padding: 4px 12px;
             border-radius: var(--md-radius-xl);
             font-size: 0.75rem;
             font-weight: 500;
         }
         
+        .badge .material-icons {
+            font-size: 14px;
+        }
+        
         .badge-bestseller {
-            background: var(--md-primary-container);
-            color: var(--md-on-primary-container);
+            background: linear-gradient(135deg, rgba(255, 213, 79, 0.2) 0%, rgba(255, 193, 7, 0.15) 100%);
+            color: #b88a00;
+            border: 1px solid rgba(255, 193, 7, 0.3);
         }
         
         .badge-new {
@@ -691,7 +890,7 @@
         }
         
         .badge-featured {
-            background: var(--md-error-container);
+            background: linear-gradient(135deg, var(--md-error-container) 0%, rgba(186, 26, 26, 0.08) 100%);
             color: var(--md-on-error-container);
         }
         
@@ -714,6 +913,8 @@
             right: 0;
             bottom: 0;
             background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
             align-items: center;
             justify-content: center;
             z-index: 200;
@@ -732,6 +933,18 @@
             max-height: 90vh;
             overflow-y: auto;
             box-shadow: var(--md-elevation-3);
+            animation: modal-appear 0.3s ease-out;
+        }
+        
+        @keyframes modal-appear {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
         }
         
         .modal-header {
@@ -740,11 +953,21 @@
             justify-content: space-between;
             padding: 24px;
             border-bottom: 1px solid var(--md-outline-variant);
+            background: linear-gradient(135deg, var(--md-primary-container) 0%, var(--md-surface-container) 100%);
         }
         
         .modal-header h2 {
             font-size: 1.5rem;
             font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--md-on-primary-container);
+        }
+        
+        .modal-header h2 .material-icons {
+            font-size: 28px;
+            color: var(--md-primary);
         }
         
         .modal-body {
@@ -987,13 +1210,22 @@
             bottom: 24px;
             left: 50%;
             transform: translateX(-50%) translateY(100px);
-            background: var(--md-on-surface);
+            background: linear-gradient(135deg, var(--color-charcoal) 0%, #4a3c32 100%);
             color: var(--md-surface);
             padding: 14px 24px;
-            border-radius: var(--md-radius-sm);
+            border-radius: var(--md-radius-md);
             box-shadow: var(--md-elevation-3);
             z-index: 300;
             transition: transform var(--md-transition-normal);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .snackbar::before {
+            content: 'info';
+            font-family: 'Material Icons';
+            font-size: 20px;
         }
         
         .snackbar.active {
@@ -1290,13 +1522,36 @@
             align-items: center;
             gap: 24px;
             box-shadow: var(--md-elevation-2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .profile-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        
+        .profile-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--color-dusk-nude), var(--color-dusty-rose), var(--color-twilight-nude));
         }
         
         .profile-avatar {
             width: 96px;
             height: 96px;
             border-radius: 50%;
-            background: var(--md-primary);
+            background: linear-gradient(135deg, var(--md-primary) 0%, var(--md-tertiary) 100%);
             color: var(--md-on-primary);
             display: flex;
             align-items: center;
@@ -1306,6 +1561,9 @@
             text-transform: uppercase;
             box-shadow: var(--md-elevation-2);
             flex-shrink: 0;
+            position: relative;
+            z-index: 1;
+            border: 4px solid rgba(255, 255, 255, 0.5);
         }
         
         .profile-details {
@@ -1391,12 +1649,24 @@
             align-items: center;
             justify-content: center;
             padding: 24px;
-            background: var(--md-surface-container);
+            background: linear-gradient(135deg, var(--md-surface-container) 0%, var(--md-surface-container-high) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .settings-card-icon-header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, rgba(176, 141, 124, 0.1) 0%, transparent 70%);
         }
         
         .settings-card-icon-header .material-icons {
             font-size: 48px;
             color: var(--md-primary);
+            position: relative;
+            z-index: 1;
+            filter: drop-shadow(0 2px 4px rgba(176, 141, 124, 0.2));
         }
         
         .settings-card-content {
@@ -1551,15 +1821,36 @@
             cursor: pointer;
             transition: all var(--md-transition-normal);
             text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .quick-action-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, transparent 0%, rgba(176, 141, 124, 0.05) 100%);
+            opacity: 0;
+            transition: opacity var(--md-transition-normal);
         }
         
         .quick-action-btn:hover {
             background: var(--md-surface-container);
             border-color: var(--md-primary);
+            transform: translateX(4px);
+        }
+        
+        .quick-action-btn:hover::before {
+            opacity: 1;
         }
         
         .quick-action-btn .material-icons {
             color: var(--md-primary);
+            transition: transform var(--md-transition-normal);
+        }
+        
+        .quick-action-btn:hover .material-icons {
+            transform: scale(1.15);
         }
         
         /* Mobile adjustments for profile header */
@@ -1713,22 +2004,22 @@
             </div>
             
             <button class="nav-item active" data-view="dashboard">
-                <span class="material-icons">dashboard</span>
+                <span class="material-icons">space_dashboard</span>
                 <span>Dashboard</span>
             </button>
             
             <button class="nav-item" data-view="products">
-                <span class="material-icons">inventory_2</span>
+                <span class="material-icons">checkroom</span>
                 <span>Products</span>
             </button>
             
             <button class="nav-item" data-view="users" id="users-nav">
-                <span class="material-icons">people</span>
+                <span class="material-icons">manage_accounts</span>
                 <span>Users</span>
             </button>
             
             <button class="nav-item" data-view="settings">
-                <span class="material-icons">settings</span>
+                <span class="material-icons">tune</span>
                 <span>Settings</span>
             </button>
             
@@ -1743,10 +2034,10 @@
             <!-- Dashboard View -->
             <section id="dashboard-view" class="view active">
                 <div class="top-bar">
-                    <h1>Dashboard</h1>
+                    <h1><span class="material-icons">space_dashboard</span>Dashboard</h1>
                     <div class="top-bar-actions">
                         <button class="md-btn md-btn-text" onclick="refreshData()">
-                            <span class="material-icons">refresh</span>
+                            <span class="material-icons">sync</span>
                             Refresh
                         </button>
                     </div>
@@ -1758,7 +2049,7 @@
                 
                 <div class="data-table">
                     <div class="data-table-header">
-                        <h2>Low Stock Alerts</h2>
+                        <h2><span class="material-icons">warning_amber</span>Low Stock Alerts</h2>
                     </div>
                     <div id="low-stock-table">
                         <!-- Low stock items will be loaded here -->
@@ -1769,7 +2060,7 @@
             <!-- Products View -->
             <section id="products-view" class="view hidden">
                 <div class="top-bar">
-                    <h1>Products</h1>
+                    <h1><span class="material-icons">checkroom</span>Products</h1>
                     <div class="top-bar-actions">
                         <div class="view-toggle">
                             <button class="md-btn md-btn-icon view-toggle-btn active" id="list-view-btn" onclick="setProductView('list')" title="List View">
@@ -1780,7 +2071,7 @@
                             </button>
                         </div>
                         <button class="md-btn md-btn-primary" onclick="openAddProductModal()">
-                            <span class="material-icons">add</span>
+                            <span class="material-icons">add_circle</span>
                             Add Product
                         </button>
                     </div>
@@ -1791,13 +2082,13 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>Product</th>
-                                <th>Category</th>
-                                <th>Price</th>
-                                <th>Colors</th>
-                                <th>Stock</th>
-                                <th>Badge</th>
-                                <th>Actions</th>
+                                <th><span class="material-icons">shopping_bag</span> Product</th>
+                                <th><span class="material-icons">category</span> Category</th>
+                                <th><span class="material-icons">sell</span> Price</th>
+                                <th><span class="material-icons">palette</span> Colors</th>
+                                <th><span class="material-icons">inventory</span> Stock</th>
+                                <th><span class="material-icons">star</span> Badge</th>
+                                <th><span class="material-icons">touch_app</span> Actions</th>
                             </tr>
                         </thead>
                         <tbody id="products-table">
@@ -1817,7 +2108,7 @@
             <!-- Users View -->
             <section id="users-view" class="view hidden">
                 <div class="top-bar">
-                    <h1>User Management</h1>
+                    <h1><span class="material-icons">manage_accounts</span>User Management</h1>
                     <div class="top-bar-actions">
                         <button class="md-btn md-btn-primary" onclick="openAddUserModal()">
                             <span class="material-icons">person_add</span>
@@ -1830,11 +2121,11 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>Name</th>
-                                <th>Username</th>
-                                <th>Role</th>
-                                <th>Created</th>
-                                <th>Actions</th>
+                                <th><span class="material-icons">person</span> Name</th>
+                                <th><span class="material-icons">alternate_email</span> Username</th>
+                                <th><span class="material-icons">admin_panel_settings</span> Role</th>
+                                <th><span class="material-icons">calendar_today</span> Created</th>
+                                <th><span class="material-icons">touch_app</span> Actions</th>
                             </tr>
                         </thead>
                         <tbody id="users-table">
@@ -1847,7 +2138,7 @@
             <!-- Settings View -->
             <section id="settings-view" class="view hidden">
                 <div class="top-bar">
-                    <h1>Settings</h1>
+                    <h1><span class="material-icons">tune</span>Settings</h1>
                 </div>
                 
                 <!-- Profile Header -->
@@ -2009,7 +2300,7 @@
     <div id="product-modal" class="modal-overlay">
         <div class="modal">
             <div class="modal-header">
-                <h2 id="modal-title">Add Product</h2>
+                <h2 id="modal-title"><span class="material-icons">add_shopping_cart</span> Add Product</h2>
                 <button class="md-btn md-btn-icon md-btn-text" onclick="closeProductModal()">
                     <span class="material-icons">close</span>
                 </button>
@@ -2074,8 +2365,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="md-btn md-btn-text" onclick="closeProductModal()">Cancel</button>
-                    <button type="submit" class="md-btn md-btn-primary">Save Product</button>
+                    <button type="button" class="md-btn md-btn-text" onclick="closeProductModal()"><span class="material-icons">close</span> Cancel</button>
+                    <button type="submit" class="md-btn md-btn-primary"><span class="material-icons">save</span> Save Product</button>
                 </div>
             </form>
         </div>
@@ -2085,7 +2376,7 @@
     <div id="stock-modal" class="modal-overlay">
         <div class="modal">
             <div class="modal-header">
-                <h2 id="stock-modal-title">Edit Stock</h2>
+                <h2 id="stock-modal-title"><span class="material-icons">inventory_2</span> Edit Stock</h2>
                 <button class="md-btn md-btn-icon md-btn-text" onclick="closeStockModal()">
                     <span class="material-icons">close</span>
                 </button>
@@ -2098,8 +2389,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="md-btn md-btn-text" onclick="closeStockModal()">Cancel</button>
-                    <button type="submit" class="md-btn md-btn-primary">Update Stock</button>
+                    <button type="button" class="md-btn md-btn-text" onclick="closeStockModal()"><span class="material-icons">close</span> Cancel</button>
+                    <button type="submit" class="md-btn md-btn-primary"><span class="material-icons">save</span> Update Stock</button>
                 </div>
             </form>
         </div>
@@ -2109,7 +2400,7 @@
     <div id="user-modal" class="modal-overlay">
         <div class="modal">
             <div class="modal-header">
-                <h2 id="user-modal-title">Add User</h2>
+                <h2 id="user-modal-title"><span class="material-icons">person_add</span> Add User</h2>
                 <button class="md-btn md-btn-icon md-btn-text" onclick="closeUserModal()">
                     <span class="material-icons">close</span>
                 </button>
@@ -2143,8 +2434,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="md-btn md-btn-text" onclick="closeUserModal()">Cancel</button>
-                    <button type="submit" class="md-btn md-btn-primary">Save User</button>
+                    <button type="button" class="md-btn md-btn-text" onclick="closeUserModal()"><span class="material-icons">close</span> Cancel</button>
+                    <button type="submit" class="md-btn md-btn-primary"><span class="material-icons">save</span> Save User</button>
                 </div>
             </form>
         </div>
@@ -2539,7 +2830,7 @@
         
         // Product Modal
         function openAddProductModal() {
-            document.getElementById('modal-title').textContent = 'Add Product';
+            document.getElementById('modal-title').innerHTML = '<span class="material-icons">add_shopping_cart</span> Add Product';
             document.getElementById('product-form').reset();
             document.getElementById('product-id').value = '';
             document.getElementById('product-sizes').value = 'S, M, L, XL';
@@ -2552,7 +2843,7 @@
             const product = collections.find(c => c.id === id);
             if (!product) return;
             
-            document.getElementById('modal-title').textContent = 'Edit Product';
+            document.getElementById('modal-title').innerHTML = '<span class="material-icons">edit</span> Edit Product';
             document.getElementById('product-id').value = product.id;
             document.getElementById('product-name').value = product.name;
             document.getElementById('product-category').value = product.category;
@@ -2840,7 +3131,7 @@
             const product = collections.find(c => c.id === id);
             if (!product) return;
             
-            document.getElementById('stock-modal-title').textContent = `Update Stock - ${product.name}`;
+            document.getElementById('stock-modal-title').innerHTML = `<span class="material-icons">inventory_2</span> Update Stock - ${product.name}`;
             document.getElementById('stock-product-id').value = id;
             
             const sizes = product.sizes || [];
@@ -2973,7 +3264,7 @@
         }
         
         function openAddUserModal() {
-            document.getElementById('user-modal-title').textContent = 'Add User';
+            document.getElementById('user-modal-title').innerHTML = '<span class="material-icons">person_add</span> Add User';
             document.getElementById('user-form').reset();
             document.getElementById('user-id').value = '';
             document.getElementById('user-username').readOnly = false;
@@ -2996,7 +3287,7 @@
             const user = users.find(u => u.id === id);
             if (!user) return;
             
-            document.getElementById('user-modal-title').textContent = 'Edit User';
+            document.getElementById('user-modal-title').innerHTML = '<span class="material-icons">edit</span> Edit User';
             document.getElementById('user-id').value = user.id;
             document.getElementById('user-name').value = user.name;
             document.getElementById('user-username').value = user.username;
