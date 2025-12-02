@@ -2401,7 +2401,7 @@ button:focus-visible {
    ================================= */
 
 .testimonials {
-    padding-top: var(--fluid-space-xs);
+    padding-top: var(--fluid-space-lg);
     padding-bottom: var(--fluid-space-sm);
     padding-left: 0;
     padding-right: 0;
