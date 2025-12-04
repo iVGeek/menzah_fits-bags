@@ -1871,6 +1871,267 @@
                 font-size: 1.5rem;
             }
         }
+        
+        /* Stories Grid Styles */
+        .stories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            padding: 8px 0;
+        }
+        
+        .story-card {
+            background: var(--md-surface-container-lowest);
+            border-radius: var(--md-radius-lg);
+            overflow: hidden;
+            box-shadow: var(--md-elevation-1);
+            transition: all var(--md-transition-normal);
+            position: relative;
+        }
+        
+        .story-card:hover {
+            box-shadow: var(--md-elevation-2);
+            transform: translateY(-2px);
+        }
+        
+        .story-card.inactive {
+            opacity: 0.6;
+        }
+        
+        .story-card.expired {
+            border: 2px solid var(--md-error);
+        }
+        
+        .story-media {
+            width: 100%;
+            height: 200px;
+            background: var(--md-surface-container);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .story-media img,
+        .story-media video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .story-media .no-media {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--md-on-surface-variant);
+        }
+        
+        .story-media .no-media .material-icons {
+            font-size: 48px;
+            margin-bottom: 8px;
+        }
+        
+        .story-media-badge {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            padding: 4px 8px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border-radius: 4px;
+            font-size: 0.625rem;
+            text-transform: uppercase;
+        }
+        
+        .story-status-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.625rem;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+        
+        .story-status-badge.active {
+            background: var(--md-success-container);
+            color: var(--md-success);
+        }
+        
+        .story-status-badge.inactive {
+            background: var(--md-surface-container-high);
+            color: var(--md-on-surface-variant);
+        }
+        
+        .story-status-badge.expired {
+            background: var(--md-error-container);
+            color: var(--md-on-error-container);
+        }
+        
+        .story-content {
+            padding: 16px;
+        }
+        
+        .story-title {
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 4px;
+            color: var(--md-on-surface);
+        }
+        
+        .story-caption {
+            font-size: 0.875rem;
+            color: var(--md-on-surface-variant);
+            margin-bottom: 12px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .story-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--md-on-surface-variant);
+            margin-bottom: 12px;
+        }
+        
+        .story-actions {
+            display: flex;
+            gap: 8px;
+            padding-top: 12px;
+            border-top: 1px solid var(--md-outline-variant);
+        }
+        
+        .story-actions .md-btn {
+            flex: 1;
+        }
+        
+        /* Story Upload Styles */
+        .story-media-upload {
+            margin-top: 16px;
+            border: 2px dashed var(--md-outline-variant);
+            border-radius: var(--md-radius-md);
+            overflow: hidden;
+        }
+        
+        .story-upload-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: var(--md-surface-container);
+            color: var(--md-on-surface-variant);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        .story-upload-header .material-icons {
+            font-size: 20px;
+            color: var(--md-primary);
+        }
+        
+        .story-upload-area {
+            padding: 24px;
+            min-height: 150px;
+            cursor: pointer;
+            transition: background var(--md-transition-fast);
+        }
+        
+        .story-upload-area:hover {
+            background: var(--md-surface-container-low);
+        }
+        
+        .story-upload-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: var(--md-on-surface-variant);
+            height: 100%;
+        }
+        
+        .story-upload-placeholder .material-icons {
+            font-size: 48px;
+            margin-bottom: 12px;
+            color: var(--md-primary);
+        }
+        
+        .story-upload-placeholder small {
+            font-size: 0.75rem;
+            margin-top: 4px;
+        }
+        
+        .story-preview {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .story-preview img,
+        .story-preview video {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: var(--md-radius-sm);
+        }
+        
+        .remove-story-media {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--md-error);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform var(--md-transition-fast);
+        }
+        
+        .remove-story-media:hover {
+            transform: scale(1.1);
+        }
+        
+        .remove-story-media .material-icons {
+            font-size: 18px;
+        }
+        
+        /* Empty state for stories */
+        .stories-empty {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 24px;
+            text-align: center;
+            color: var(--md-on-surface-variant);
+        }
+        
+        .stories-empty .material-icons {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+        
+        .stories-empty h3 {
+            font-size: 1.25rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        
+        .stories-empty p {
+            font-size: 0.875rem;
+            margin-bottom: 16px;
+        }
     </style>
 </head>
 <body>
@@ -2013,6 +2274,11 @@
                 <span>Products</span>
             </button>
             
+            <button class="nav-item" data-view="stories" id="stories-nav">
+                <span class="material-icons">auto_stories</span>
+                <span>Stories</span>
+            </button>
+            
             <button class="nav-item" data-view="users" id="users-nav">
                 <span class="material-icons">manage_accounts</span>
                 <span>Users</span>
@@ -2132,6 +2398,23 @@
                             <!-- Users will be loaded here -->
                         </tbody>
                     </table>
+                </div>
+            </section>
+            
+            <!-- Stories View -->
+            <section id="stories-view" class="view hidden">
+                <div class="top-bar">
+                    <h1><span class="material-icons">auto_stories</span>Stories</h1>
+                    <div class="top-bar-actions">
+                        <button class="md-btn md-btn-primary" onclick="openAddStoryModal()">
+                            <span class="material-icons">add_circle</span>
+                            Add Story
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="stories-grid" id="stories-grid">
+                    <!-- Stories will be loaded here -->
                 </div>
             </section>
             
@@ -2441,6 +2724,85 @@
         </div>
     </div>
     
+    <!-- Add/Edit Story Modal -->
+    <div id="story-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="story-modal-title"><span class="material-icons">add_photo_alternate</span> Add Story</h2>
+                <button class="md-btn md-btn-icon md-btn-text" onclick="closeStoryModal()">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            <form id="story-form">
+                <div class="modal-body">
+                    <input type="hidden" id="story-id">
+                    
+                    <div class="md-field">
+                        <input type="text" id="story-title" placeholder=" " required>
+                        <label for="story-title">Story Title</label>
+                    </div>
+                    
+                    <div class="md-field">
+                        <textarea id="story-caption" rows="3" placeholder=" "></textarea>
+                        <label for="story-caption" style="top: 16px; transform: none;">Caption (optional)</label>
+                    </div>
+                    
+                    <div class="md-field">
+                        <input type="url" id="story-link" placeholder=" ">
+                        <label for="story-link">Link URL (optional)</label>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="md-field">
+                            <select id="story-media-type">
+                                <option value="image">Image</option>
+                                <option value="video">Video</option>
+                            </select>
+                            <label for="story-media-type" style="top: 0; font-size: 0.75rem; color: var(--md-primary);">Media Type</label>
+                        </div>
+                        
+                        <div class="md-field">
+                            <select id="story-expires">
+                                <option value="24">24 Hours</option>
+                                <option value="48">48 Hours</option>
+                                <option value="72">72 Hours</option>
+                                <option value="168">1 Week</option>
+                                <option value="720">1 Month</option>
+                            </select>
+                            <label for="story-expires" style="top: 0; font-size: 0.75rem; color: var(--md-primary);">Expires In</label>
+                        </div>
+                    </div>
+                    
+                    <div class="story-media-upload">
+                        <div class="story-upload-header">
+                            <span class="material-icons">cloud_upload</span>
+                            <span>Upload Media</span>
+                        </div>
+                        <div class="story-upload-area" id="story-upload-area">
+                            <div class="story-upload-placeholder" id="story-upload-placeholder">
+                                <span class="material-icons">add_photo_alternate</span>
+                                <span>Click or drag to upload</span>
+                                <small>Supports images and videos up to 50MB</small>
+                            </div>
+                            <div class="story-preview" id="story-preview" style="display: none;">
+                                <img id="story-preview-img" src="" alt="Preview">
+                                <video id="story-preview-video" src="" style="display: none;" controls muted></video>
+                                <button type="button" class="remove-story-media" onclick="removeStoryMedia()">
+                                    <span class="material-icons">close</span>
+                                </button>
+                            </div>
+                            <input type="file" id="story-media-input" accept="image/*,video/*" style="display: none;">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="md-btn md-btn-text" onclick="closeStoryModal()"><span class="material-icons">close</span> Cancel</button>
+                    <button type="submit" class="md-btn md-btn-primary"><span class="material-icons">save</span> Save Story</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
     <!-- Loading Overlay -->
     <div id="loading" class="loading">
         <div class="loading-content">
@@ -2458,6 +2820,11 @@
         let currentUser = JSON.parse(localStorage.getItem('menzah_admin_user') || 'null');
         let collections = [];
         let users = [];
+        let stories = [];
+        let storyMediaData = null;
+        
+        // Constants
+        const MAX_STORY_FILE_SIZE = 50 * 1024 * 1024; // 50MB
         
         // DOM Elements
         const loginScreen = document.getElementById('login-screen');
@@ -2485,6 +2852,10 @@
             document.getElementById('stock-form').addEventListener('submit', handleStockSubmit);
             document.getElementById('user-form').addEventListener('submit', handleUserSubmit);
             document.getElementById('change-password-form').addEventListener('submit', handleChangePassword);
+            document.getElementById('story-form').addEventListener('submit', handleStorySubmit);
+            
+            // Story media upload handlers
+            initStoryMediaUpload();
         }
         
         // Auth
@@ -2597,6 +2968,7 @@
             if (viewName === 'dashboard') loadDashboard();
             if (viewName === 'products') loadProducts();
             if (viewName === 'users') loadUsers();
+            if (viewName === 'stories') loadStories();
             if (viewName === 'settings') loadSettings();
         }
         
@@ -3368,6 +3740,308 @@
                 loadUsers();
             } catch {
                 showSnackbar('Failed to delete user');
+            }
+            
+            hideLoading();
+        }
+        
+        // ===========================
+        // STORIES MANAGEMENT
+        // ===========================
+        
+        async function loadStories() {
+            showLoading();
+            
+            try {
+                stories = await apiCall('/api/admin/stories');
+                renderStoriesGrid();
+            } catch (err) {
+                showSnackbar('Failed to load stories');
+            }
+            
+            hideLoading();
+        }
+        
+        function renderStoriesGrid() {
+            const grid = document.getElementById('stories-grid');
+            
+            if (!stories || stories.length === 0) {
+                grid.innerHTML = `
+                    <div class="stories-empty">
+                        <span class="material-icons">auto_stories</span>
+                        <h3>No Stories Yet</h3>
+                        <p>Create your first story to share updates with customers</p>
+                        <button class="md-btn md-btn-primary" onclick="openAddStoryModal()">
+                            <span class="material-icons">add_circle</span>
+                            Add Story
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            const now = new Date();
+            
+            grid.innerHTML = stories.map(story => {
+                const expiresAt = new Date(story.expiresAt);
+                const isExpired = expiresAt < now;
+                const timeLeft = isExpired ? 'Expired' : getTimeRemaining(expiresAt);
+                const statusClass = isExpired ? 'expired' : (story.isActive ? 'active' : 'inactive');
+                const statusText = isExpired ? 'Expired' : (story.isActive ? 'Active' : 'Inactive');
+                
+                const mediaHTML = story.mediaUrl 
+                    ? (story.mediaType === 'video' 
+                        ? `<video src="${story.mediaUrl}" muted></video><span class="story-media-badge">Video</span>`
+                        : `<img src="${story.mediaUrl}" alt="${story.title}">`)
+                    : `<div class="no-media"><span class="material-icons">image</span><span>No media</span></div>`;
+                
+                return `
+                    <div class="story-card ${statusClass}">
+                        <div class="story-media">
+                            ${mediaHTML}
+                            <span class="story-status-badge ${statusClass}">${statusText}</span>
+                        </div>
+                        <div class="story-content">
+                            <h3 class="story-title">${story.title}</h3>
+                            ${story.caption ? `<p class="story-caption">${story.caption}</p>` : ''}
+                            <div class="story-meta">
+                                <span>Created: ${new Date(story.createdAt).toLocaleDateString()}</span>
+                                <span>${timeLeft}</span>
+                            </div>
+                            <div class="story-actions">
+                                <button class="md-btn md-btn-text" onclick="editStory('${story.id}')" title="Edit">
+                                    <span class="material-icons">edit</span>
+                                </button>
+                                <button class="md-btn md-btn-text" onclick="toggleStoryStatus('${story.id}')" title="${story.isActive ? 'Deactivate' : 'Activate'}">
+                                    <span class="material-icons">${story.isActive ? 'visibility_off' : 'visibility'}</span>
+                                </button>
+                                <button class="md-btn md-btn-text" onclick="deleteStory('${story.id}')" title="Delete" style="color: var(--md-error);">
+                                    <span class="material-icons">delete</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function getTimeRemaining(expiresAt) {
+            const now = new Date();
+            const diff = expiresAt - now;
+            
+            if (diff < 0) return 'Expired';
+            
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const days = Math.floor(hours / 24);
+            
+            if (days > 0) return `${days}d ${hours % 24}h left`;
+            if (hours > 0) return `${hours}h left`;
+            
+            const minutes = Math.floor(diff / (1000 * 60));
+            return `${minutes}m left`;
+        }
+        
+        // Story Media Upload Handlers
+        function initStoryMediaUpload() {
+            const uploadArea = document.getElementById('story-upload-area');
+            const mediaInput = document.getElementById('story-media-input');
+            
+            if (!uploadArea || !mediaInput) return;
+            
+            // Click to upload
+            uploadArea.addEventListener('click', () => mediaInput.click());
+            
+            // Handle file selection
+            mediaInput.addEventListener('change', handleStoryMediaSelect);
+            
+            // Drag and drop
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.style.background = 'var(--md-primary-container)';
+            });
+            
+            uploadArea.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                uploadArea.style.background = '';
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.style.background = '';
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleStoryFile(files[0]);
+                }
+            });
+        }
+        
+        function handleStoryMediaSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                handleStoryFile(file);
+            }
+        }
+        
+        function handleStoryFile(file) {
+            // Validate file size (max 50MB)
+            if (file.size > MAX_STORY_FILE_SIZE) {
+                showSnackbar('File too large. Maximum size is 50MB');
+                return;
+            }
+            
+            // Determine media type
+            const isVideo = file.type.startsWith('video/');
+            document.getElementById('story-media-type').value = isVideo ? 'video' : 'image';
+            
+            // Read file as base64
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                storyMediaData = e.target.result;
+                showStoryPreview(storyMediaData, isVideo);
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        function showStoryPreview(data, isVideo) {
+            const placeholder = document.getElementById('story-upload-placeholder');
+            const preview = document.getElementById('story-preview');
+            const previewImg = document.getElementById('story-preview-img');
+            const previewVideo = document.getElementById('story-preview-video');
+            
+            placeholder.style.display = 'none';
+            preview.style.display = 'flex';
+            
+            if (isVideo) {
+                previewImg.style.display = 'none';
+                previewVideo.style.display = 'block';
+                previewVideo.src = data;
+            } else {
+                previewVideo.style.display = 'none';
+                previewImg.style.display = 'block';
+                previewImg.src = data;
+            }
+        }
+        
+        function removeStoryMedia() {
+            storyMediaData = null;
+            
+            const placeholder = document.getElementById('story-upload-placeholder');
+            const preview = document.getElementById('story-preview');
+            const previewImg = document.getElementById('story-preview-img');
+            const previewVideo = document.getElementById('story-preview-video');
+            const mediaInput = document.getElementById('story-media-input');
+            
+            placeholder.style.display = 'flex';
+            preview.style.display = 'none';
+            previewImg.src = '';
+            previewVideo.src = '';
+            mediaInput.value = '';
+        }
+        
+        // Story Modal Functions
+        function openAddStoryModal() {
+            document.getElementById('story-modal-title').innerHTML = '<span class="material-icons">add_photo_alternate</span> Add Story';
+            document.getElementById('story-form').reset();
+            document.getElementById('story-id').value = '';
+            removeStoryMedia();
+            document.getElementById('story-modal').classList.add('active');
+        }
+        
+        function editStory(id) {
+            const story = stories.find(s => s.id === id);
+            if (!story) return;
+            
+            document.getElementById('story-modal-title').innerHTML = '<span class="material-icons">edit</span> Edit Story';
+            document.getElementById('story-id').value = story.id;
+            document.getElementById('story-title').value = story.title;
+            document.getElementById('story-caption').value = story.caption || '';
+            document.getElementById('story-link').value = story.link || '';
+            document.getElementById('story-media-type').value = story.mediaType || 'image';
+            
+            // Show existing media preview if available
+            if (story.mediaUrl) {
+                storyMediaData = story.mediaUrl;
+                showStoryPreview(story.mediaUrl, story.mediaType === 'video');
+            } else {
+                removeStoryMedia();
+            }
+            
+            document.getElementById('story-modal').classList.add('active');
+        }
+        
+        function closeStoryModal() {
+            document.getElementById('story-modal').classList.remove('active');
+            removeStoryMedia();
+        }
+        
+        async function handleStorySubmit(e) {
+            e.preventDefault();
+            showLoading();
+            
+            const id = document.getElementById('story-id').value;
+            const data = {
+                title: document.getElementById('story-title').value,
+                caption: document.getElementById('story-caption').value,
+                link: document.getElementById('story-link').value,
+                mediaType: document.getElementById('story-media-type').value,
+                expiresIn: parseInt(document.getElementById('story-expires').value, 10)
+            };
+            
+            // Include media data if it's new (base64 data starts with 'data:')
+            if (storyMediaData && storyMediaData.startsWith('data:')) {
+                data.mediaData = storyMediaData;
+            }
+            
+            try {
+                if (id) {
+                    await apiCall(`/api/admin/stories/${id}`, {
+                        method: 'PUT',
+                        body: JSON.stringify(data)
+                    });
+                    showSnackbar('Story updated successfully');
+                } else {
+                    await apiCall('/api/admin/stories', {
+                        method: 'POST',
+                        body: JSON.stringify(data)
+                    });
+                    showSnackbar('Story created successfully');
+                }
+                
+                closeStoryModal();
+                loadStories();
+            } catch (err) {
+                showSnackbar('Failed to save story');
+            }
+            
+            hideLoading();
+        }
+        
+        async function toggleStoryStatus(id) {
+            showLoading();
+            
+            try {
+                await apiCall(`/api/admin/stories/${id}/toggle`, { method: 'PATCH' });
+                showSnackbar('Story status updated');
+                loadStories();
+            } catch (err) {
+                showSnackbar('Failed to update story status');
+            }
+            
+            hideLoading();
+        }
+        
+        async function deleteStory(id) {
+            if (!confirm('Are you sure you want to delete this story?')) return;
+            
+            showLoading();
+            
+            try {
+                await apiCall(`/api/admin/stories/${id}`, { method: 'DELETE' });
+                showSnackbar('Story deleted successfully');
+                loadStories();
+            } catch (err) {
+                showSnackbar('Failed to delete story');
             }
             
             hideLoading();
