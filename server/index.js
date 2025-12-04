@@ -270,6 +270,23 @@ let collections = [
     }
 ];
 
+// In-memory stories store (replace with database in production)
+// Stories are like Instagram stories - temporary featured content
+let stories = [
+    {
+        id: 'story-001',
+        title: 'New Collection Launch',
+        mediaUrl: '',
+        mediaType: 'image',
+        caption: 'Check out our latest coastal crochet designs!',
+        link: '',
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours from now
+        createdBy: 'admin-001'
+    }
+];
+
 // User roles hierarchy: dev_superior > admin > user
 const USER_ROLES = {
     DEV_SUPERIOR: 'dev_superior',
@@ -1013,6 +1030,165 @@ app.delete('/api/admin/collections/:id/colors/:colorIndex/media/:mediaId', authe
         collection: collections[index],
         removedMedia
     });
+});
+
+// ===========================
+// STORIES API ROUTES
+// ===========================
+
+// Get all stories (public - for frontend display)
+app.get('/api/stories', (req, res) => {
+    // Filter to only active and non-expired stories for public view
+    const now = new Date();
+    const activeStories = stories.filter(s => s.isActive && new Date(s.expiresAt) > now);
+    res.json(activeStories);
+});
+
+// Get all stories including inactive (admin only)
+app.get('/api/admin/stories', authenticateAdmin, (req, res) => {
+    res.json(stories);
+});
+
+// Get single story (admin only)
+app.get('/api/admin/stories/:id', authenticateAdmin, (req, res) => {
+    const story = stories.find(s => s.id === req.params.id);
+    if (!story) {
+        return res.status(404).json({ error: 'Story not found' });
+    }
+    res.json(story);
+});
+
+// Create new story (admin only)
+app.post('/api/admin/stories', authenticateAdmin, async (req, res) => {
+    const { title, mediaData, mediaType, caption, link, expiresIn } = req.body;
+    
+    if (!title) {
+        return res.status(400).json({ error: 'Title is required' });
+    }
+    
+    // Calculate expiration (default 24 hours)
+    const expirationHours = expiresIn || 24;
+    const expiresAt = new Date(Date.now() + expirationHours * 60 * 60 * 1000).toISOString();
+    
+    let mediaUrl = '';
+    
+    // If media data is provided, upload to Cloudinary
+    if (mediaData && isCloudinaryConfigured()) {
+        try {
+            const uploadOptions = {
+                folder: 'menzah_fits/stories',
+                resource_type: mediaType === 'video' ? 'video' : 'image',
+                transformation: mediaType === 'image' ? [
+                    { quality: 'auto:good' },
+                    { fetch_format: 'auto' }
+                ] : undefined
+            };
+            
+            const result = await cloudinary.uploader.upload(mediaData, uploadOptions);
+            mediaUrl = result.secure_url;
+        } catch (error) {
+            console.error('Story media upload error:', error);
+            return res.status(500).json({ error: 'Failed to upload media', details: error.message });
+        }
+    } else if (mediaData) {
+        // Store base64 data directly if Cloudinary not configured (not recommended for production)
+        mediaUrl = mediaData;
+    }
+    
+    const newStory = {
+        id: uuidv4(),
+        title,
+        mediaUrl,
+        mediaType: mediaType || 'image',
+        caption: caption || '',
+        link: link || '',
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        expiresAt,
+        createdBy: req.user.id
+    };
+    
+    stories.unshift(newStory); // Add to beginning of array
+    res.status(201).json(newStory);
+});
+
+// Update story (admin only)
+app.put('/api/admin/stories/:id', authenticateAdmin, async (req, res) => {
+    const index = stories.findIndex(s => s.id === req.params.id);
+    if (index === -1) {
+        return res.status(404).json({ error: 'Story not found' });
+    }
+    
+    const { title, mediaData, mediaType, caption, link, isActive, expiresIn } = req.body;
+    const existing = stories[index];
+    
+    let mediaUrl = existing.mediaUrl;
+    
+    // If new media data is provided, upload to Cloudinary
+    if (mediaData && mediaData !== existing.mediaUrl && isCloudinaryConfigured()) {
+        try {
+            const uploadOptions = {
+                folder: 'menzah_fits/stories',
+                resource_type: (mediaType || existing.mediaType) === 'video' ? 'video' : 'image',
+                transformation: (mediaType || existing.mediaType) === 'image' ? [
+                    { quality: 'auto:good' },
+                    { fetch_format: 'auto' }
+                ] : undefined
+            };
+            
+            const result = await cloudinary.uploader.upload(mediaData, uploadOptions);
+            mediaUrl = result.secure_url;
+        } catch (error) {
+            console.error('Story media upload error:', error);
+            return res.status(500).json({ error: 'Failed to upload media', details: error.message });
+        }
+    } else if (mediaData && mediaData !== existing.mediaUrl) {
+        mediaUrl = mediaData;
+    }
+    
+    // Calculate new expiration if provided
+    let expiresAt = existing.expiresAt;
+    if (expiresIn) {
+        expiresAt = new Date(Date.now() + expiresIn * 60 * 60 * 1000).toISOString();
+    }
+    
+    stories[index] = {
+        ...existing,
+        title: title || existing.title,
+        mediaUrl,
+        mediaType: mediaType || existing.mediaType,
+        caption: caption !== undefined ? caption : existing.caption,
+        link: link !== undefined ? link : existing.link,
+        isActive: isActive !== undefined ? isActive : existing.isActive,
+        expiresAt,
+        updatedAt: new Date().toISOString()
+    };
+    
+    res.json(stories[index]);
+});
+
+// Delete story (admin only)
+app.delete('/api/admin/stories/:id', authenticateAdmin, (req, res) => {
+    const index = stories.findIndex(s => s.id === req.params.id);
+    if (index === -1) {
+        return res.status(404).json({ error: 'Story not found' });
+    }
+    
+    stories.splice(index, 1);
+    res.json({ success: true, message: 'Story deleted successfully' });
+});
+
+// Toggle story active status (admin only)
+app.patch('/api/admin/stories/:id/toggle', authenticateAdmin, (req, res) => {
+    const index = stories.findIndex(s => s.id === req.params.id);
+    if (index === -1) {
+        return res.status(404).json({ error: 'Story not found' });
+    }
+    
+    stories[index].isActive = !stories[index].isActive;
+    stories[index].updatedAt = new Date().toISOString();
+    
+    res.json(stories[index]);
 });
 
 // Catch-all route - serve index.html for SPA routing (Express 5 syntax)
