@@ -2363,8 +2363,11 @@ button:focus-visible {
     justify-content: center;
     color: var(--color-charcoal);
     transition: all var(--transition-normal);
-    pointer-events: none;
+    pointer-events: auto;
+    cursor: pointer;
+    z-index: 5;
     box-shadow: var(--md-elevation-2);
+    border: none;
 }
 
 .video-play-indicator svg {

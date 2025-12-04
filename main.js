@@ -403,9 +403,9 @@
                                     <video src="${media.url}" class="media-video" muted loop playsinline preload="metadata">
                                         <source src="${media.url}" type="video/mp4">
                                     </video>
-                                    <div class="video-play-indicator">
+                                    <button class="video-play-indicator" aria-label="Play video">
                                         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                                    </div>
+                                    </button>
                                 </div>`;
                             }
                             return `<div class="media-slide${i === 0 ? ' active' : ''}" data-index="${i}">
@@ -1004,9 +1004,9 @@
                                 <video src="${media.url}" class="media-video" muted loop playsinline preload="metadata" aria-label="${altText}">
                                     <source src="${media.url}" type="video/mp4">
                                 </video>
-                                <div class="video-play-indicator">
+                                <button class="video-play-indicator" aria-label="Play video">
                                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                                </div>
+                                </button>
                             </div>`;
                         }
                         return `<div class="media-slide${i === 0 ? ' active' : ''}" data-index="${i}">
@@ -1196,7 +1196,8 @@
             const video = slide.querySelector('video');
             const playIndicator = slide.querySelector('.video-play-indicator');
             if (video && playIndicator) {
-                slide.onclick = (e) => {
+                // Function to toggle video play/pause
+                const toggleVideoPlayback = (e) => {
                     e.stopPropagation();
                     if (video.paused) {
                         video.play();
@@ -1205,6 +1206,15 @@
                         video.pause();
                         playIndicator.style.opacity = '1';
                     }
+                };
+                
+                // Click on slide to play/pause (includes clicks on play indicator due to bubbling)
+                slide.onclick = toggleVideoPlayback;
+                
+                // Prevent play indicator click from double-firing by stopping propagation
+                playIndicator.onclick = (e) => {
+                    e.stopPropagation();
+                    toggleVideoPlayback(e);
                 };
                 
                 video.onended = () => {
