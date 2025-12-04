@@ -2074,11 +2074,26 @@ button:focus-visible {
     gap: 0.75rem;
     opacity: 0;
     transition: all var(--transition-normal);
+    z-index: 15; /* Higher than media slides (z-index: 1) and gallery nav (z-index: 10) */
 }
 
 .collection-card:hover .card-overlay {
     background: rgba(44, 44, 44, 0.2);
     opacity: 1;
+}
+
+/* For cards with media, position overlay at bottom to not block video playback */
+.collection-card.has-media .card-overlay {
+    top: auto;
+    bottom: 0;
+    height: auto;
+    padding: 1rem;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, transparent 100%);
+    opacity: 1;
+}
+
+.collection-card.has-media:hover .card-overlay {
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.2) 100%);
 }
 
 .view-btn {
@@ -2348,8 +2363,11 @@ button:focus-visible {
     justify-content: center;
     color: var(--color-charcoal);
     transition: all var(--transition-normal);
-    pointer-events: none;
+    pointer-events: auto;
+    cursor: pointer;
+    z-index: 5;
     box-shadow: var(--md-elevation-2);
+    border: none;
 }
 
 .video-play-indicator svg {
