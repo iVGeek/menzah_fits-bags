@@ -7,15 +7,199 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const crypto = require('crypto');
 const { v4: uuidv4 } = require('uuid');
 const cloudinary = require('cloudinary').v2;
 
+// Import modular Cloudinary configuration
+const modularCloudinary = require('./config/cloudinary');
+
+// Import utilities
+const { generateReceipt } = require('./utils/pdfGenerator');
+const { sendReceiptEmail } = require('./utils/emailService');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Secret key for token signing (use env variable in production)
+// ===========================
+// AUTHENTICATION CONFIGURATION
+// ===========================
+
+// Token secret for JWT-like signing (using HMAC-SHA256)
 const TOKEN_SECRET = process.env.TOKEN_SECRET || crypto.randomBytes(32).toString('hex');
+
+// Password hashing configuration
+const HASH_CONFIG = {
+    iterations: 100000, // PBKDF2 iterations
+    keyLength: 64,      // Hash length in bytes
+    digest: 'sha512'    // Hash algorithm
+};
+
+// Hash password using PBKDF2
+function hashPassword(password, salt = null) {
+    const passwordSalt = salt || crypto.randomBytes(16).toString('hex');
+    const hash = crypto.pbkdf2Sync(
+        password,
+        passwordSalt,
+        HASH_CONFIG.iterations,
+        HASH_CONFIG.keyLength,
+        HASH_CONFIG.digest
+    ).toString('hex');
+    
+    return {
+        hash,
+        salt: passwordSalt
+    };
+}
+
+// Verify password against hash
+function verifyPassword(password, hash, salt) {
+    const { hash: newHash } = hashPassword(password, salt);
+    // Use timing-safe comparison to prevent timing attacks
+    const hashBuffer = Buffer.from(hash, 'hex');
+    const newHashBuffer = Buffer.from(newHash, 'hex');
+    
+    if (hashBuffer.length !== newHashBuffer.length) {
+        return false;
+    }
+    
+    return crypto.timingSafeEqual(hashBuffer, newHashBuffer);
+}
+
+// Generate JWT-like token (simplified, using HMAC)
+function generateToken(payload) {
+    const header = {
+        alg: 'HS256',
+        typ: 'JWT'
+    };
+    
+    const data = {
+        ...payload,
+        iat: Math.floor(Date.now() / 1000),
+        exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60) // 24 hours
+    };
+    
+    const encodedHeader = Buffer.from(JSON.stringify(header)).toString('base64url');
+    const encodedPayload = Buffer.from(JSON.stringify(data)).toString('base64url');
+    
+    const signature = crypto
+        .createHmac('sha256', TOKEN_SECRET)
+        .update(`${encodedHeader}.${encodedPayload}`)
+        .digest('base64url');
+    
+    return `${encodedHeader}.${encodedPayload}.${signature}`;
+}
+
+// Verify and decode token
+function verifyToken(token) {
+    try {
+        const [encodedHeader, encodedPayload, signature] = token.split('.');
+        
+        if (!encodedHeader || !encodedPayload || !signature) {
+            return null;
+        }
+        
+        // Verify signature using timing-safe comparison
+        const expectedSignature = crypto
+            .createHmac('sha256', TOKEN_SECRET)
+            .update(`${encodedHeader}.${encodedPayload}`)
+            .digest('base64url');
+        
+        // Use timing-safe comparison to prevent timing attacks on signature
+        const signatureBuffer = Buffer.from(signature, 'utf8');
+        const expectedBuffer = Buffer.from(expectedSignature, 'utf8');
+        
+        if (signatureBuffer.length !== expectedBuffer.length) {
+            return null;
+        }
+        
+        if (!crypto.timingSafeEqual(signatureBuffer, expectedBuffer)) {
+            return null;
+        }
+        
+        // Decode payload
+        const payload = JSON.parse(Buffer.from(encodedPayload, 'base64url').toString());
+        
+        // Check expiration
+        if (payload.exp && payload.exp < Math.floor(Date.now() / 1000)) {
+            return null;
+        }
+        
+        return payload;
+    } catch (error) {
+        return null;
+    }
+}
+
+// Authentication middleware
+function authenticate(req, res, next) {
+    const authHeader = req.headers.authorization;
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'Unauthorized - No token provided' });
+    }
+    
+    const token = authHeader.substring(7);
+    const payload = verifyToken(token);
+    
+    if (!payload) {
+        return res.status(401).json({ error: 'Unauthorized - Invalid or expired token' });
+    }
+    
+    req.user = payload;
+    next();
+}
+
+// Check if user is admin or dev_superior
+function requireAdmin(req, res, next) {
+    if (!req.user || (req.user.role !== 'admin' && req.user.role !== 'dev_superior')) {
+        return res.status(403).json({ error: 'Forbidden - Admin access required' });
+    }
+    next();
+}
+
+// Check if user is dev_superior
+function requireDevSuperior(req, res, next) {
+    if (!req.user || req.user.role !== 'dev_superior') {
+        return res.status(403).json({ error: 'Forbidden - Dev Superior access required' });
+    }
+    next();
+}
+
+// ===========================
+// MEDIA STORAGE CONFIGURATION
+// ===========================
+
+// Media upload configuration from environment variables
+const MEDIA_CONFIG = {
+    // File size limits (in bytes)
+    maxImageSize: (parseInt(process.env.MAX_FILE_SIZE_MB, 10) || 10) * 1024 * 1024,
+    maxVideoSize: (parseInt(process.env.MAX_VIDEO_SIZE_MB, 10) || 50) * 1024 * 1024,
+    
+    // Allowed formats
+    allowedImageFormats: (process.env.ALLOWED_IMAGE_FORMATS || 'jpg,jpeg,png,gif,webp').split(',').map(f => f.trim().toLowerCase()),
+    allowedVideoFormats: (process.env.ALLOWED_VIDEO_FORMATS || 'mp4,webm,mov').split(',').map(f => f.trim().toLowerCase()),
+    
+    // Image optimization settings
+    imageQuality: parseInt(process.env.IMAGE_QUALITY, 10) || 80,
+    autoFormat: process.env.AUTO_FORMAT_CONVERSION !== 'false',
+    responsiveImages: process.env.RESPONSIVE_IMAGES !== 'false',
+    
+    // Cloudinary folder structure
+    folder: process.env.CLOUDINARY_FOLDER || 'menzah_fits/products',
+    
+    // Moderation settings (false, 'manual', 'webpurify', 'aws_rek')
+    moderation: process.env.ENABLE_MODERATION && process.env.ENABLE_MODERATION !== 'false' ? process.env.ENABLE_MODERATION : false,
+    
+    // Responsive image sizes (widths in pixels)
+    responsiveSizes: [320, 640, 960, 1280, 1920],
+    
+    // Image transformations for different use cases
+    thumbnailSize: 300,
+    previewSize: 800,
+    fullSize: 1920
+};
 
 // Cloudinary configuration for media storage
 // Configure using environment variables for security
@@ -33,17 +217,122 @@ function isCloudinaryConfigured() {
               process.env.CLOUDINARY_API_SECRET);
 }
 
-// Simple password hashing using crypto
-function hashPassword(password) {
-    const salt = crypto.randomBytes(16).toString('hex');
-    const hash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
-    return `${salt}:${hash}`;
+// Validate media file size
+function validateFileSize(base64Data, maxSize, mediaType) {
+    // Calculate approximate file size from base64 string
+    // Base64 adds ~33% overhead, so actual size = (base64Length * 0.75)
+    const base64Length = base64Data.replace(/^data:.*?;base64,/, '').length;
+    const fileSizeBytes = (base64Length * 0.75);
+    
+    if (fileSizeBytes > maxSize) {
+        const maxSizeMB = (maxSize / (1024 * 1024)).toFixed(1);
+        const actualSizeMB = (fileSizeBytes / (1024 * 1024)).toFixed(1);
+        return {
+            valid: false,
+            error: `File size (${actualSizeMB}MB) exceeds maximum allowed size of ${maxSizeMB}MB for ${mediaType}`
+        };
+    }
+    
+    return { valid: true };
 }
 
-function verifyPassword(password, storedHash) {
-    const [salt, hash] = storedHash.split(':');
-    const verifyHash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
-    return hash === verifyHash;
+// Validate media format
+function validateMediaFormat(base64Data, allowedFormats, mediaType) {
+    // Extract format from base64 data URI
+    const match = base64Data.match(/^data:.*?\/(.*?);base64,/);
+    if (!match) {
+        return {
+            valid: false,
+            error: 'Invalid media data format'
+        };
+    }
+    
+    const format = match[1].toLowerCase();
+    
+    if (!allowedFormats.includes(format)) {
+        return {
+            valid: false,
+            error: `Format '${format}' is not allowed for ${mediaType}. Allowed formats: ${allowedFormats.join(', ')}`
+        };
+    }
+    
+    return { valid: true, format };
+}
+
+// Sanitize filename to prevent path traversal and other security issues
+function sanitizeFilename(filename) {
+    if (!filename) return '';
+    
+    return filename
+        .replace(/[^a-zA-Z0-9._-]/g, '_') // Replace special chars
+        .replace(/\.{2,}/g, '_') // Remove double dots
+        .replace(/^\.+/, '') // Remove leading dots
+        .substring(0, 255); // Limit length
+}
+
+// Generate optimized image transformations
+function getImageTransformations(options = {}) {
+    const transformations = [];
+    
+    // Quality optimization
+    if (MEDIA_CONFIG.imageQuality && !options.skipQuality) {
+        transformations.push({
+            quality: options.quality || MEDIA_CONFIG.imageQuality
+        });
+    }
+    
+    // Automatic format conversion (WebP/AVIF for modern browsers)
+    if (MEDIA_CONFIG.autoFormat && !options.skipAutoFormat) {
+        transformations.push({
+            fetch_format: 'auto'
+        });
+    }
+    
+    // Responsive sizing
+    if (options.width) {
+        transformations.push({
+            width: options.width,
+            crop: options.crop || 'limit'
+        });
+    }
+    
+    if (options.height) {
+        transformations.push({
+            height: options.height,
+            crop: options.crop || 'limit'
+        });
+    }
+    
+    // DPR (Device Pixel Ratio) support for retina displays
+    if (options.dpr) {
+        transformations.push({
+            dpr: options.dpr
+        });
+    }
+    
+    return transformations;
+}
+
+// Generate responsive image URLs
+function generateResponsiveUrls(publicId, baseUrl) {
+    if (!MEDIA_CONFIG.responsiveImages) {
+        return { original: baseUrl };
+    }
+    
+    const urls = { original: baseUrl };
+    
+    // Generate URLs for different sizes
+    MEDIA_CONFIG.responsiveSizes.forEach(width => {
+        const transformation = `w_${width},c_limit,q_auto,f_auto`;
+        urls[`w${width}`] = baseUrl.replace('/upload/', `/upload/${transformation}/`);
+    });
+    
+    // Generate specific use-case URLs
+    urls.thumbnail = baseUrl.replace('/upload/', `/upload/w_${MEDIA_CONFIG.thumbnailSize},c_fill,q_auto,f_auto/`);
+    urls.preview = baseUrl.replace('/upload/', `/upload/w_${MEDIA_CONFIG.previewSize},c_limit,q_auto,f_auto/`);
+    urls.full = baseUrl.replace('/upload/', `/upload/w_${MEDIA_CONFIG.fullSize},c_limit,q_auto,f_auto/`);
+    
+    return urls;
 }
 
 // Simple rate limiter for file serving routes
@@ -76,36 +365,6 @@ function rateLimit(req, res, next) {
     next();
 }
 
-// Stricter rate limiter for authentication endpoints (prevent brute force)
-const authRateLimitStore = new Map();
-const AUTH_RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
-const MAX_AUTH_REQUESTS = 10; // 10 auth requests per minute per IP
-
-function authRateLimit(req, res, next) {
-    const ip = req.ip || req.connection.remoteAddress;
-    const now = Date.now();
-    
-    if (!authRateLimitStore.has(ip)) {
-        authRateLimitStore.set(ip, { count: 1, resetTime: now + AUTH_RATE_LIMIT_WINDOW });
-        return next();
-    }
-    
-    const record = authRateLimitStore.get(ip);
-    
-    if (now > record.resetTime) {
-        record.count = 1;
-        record.resetTime = now + AUTH_RATE_LIMIT_WINDOW;
-        return next();
-    }
-    
-    if (record.count >= MAX_AUTH_REQUESTS) {
-        return res.status(429).json({ error: 'Too many authentication attempts. Please try again later.' });
-    }
-    
-    record.count++;
-    next();
-}
-
 // Clean up rate limit store periodically
 setInterval(() => {
     const now = Date.now();
@@ -114,23 +373,53 @@ setInterval(() => {
             rateLimitStore.delete(ip);
         }
     }
-    for (const [ip, record] of authRateLimitStore.entries()) {
-        if (now > record.resetTime) {
-            authRateLimitStore.delete(ip);
-        }
-    }
 }, RATE_LIMIT_WINDOW);
 
-// CORS configuration for production
+// CORS configuration
 const corsOptions = {
-  origin: [
-    'https://menzah-fits-bags.onrender.com', // Your Render domain
-    'http://localhost:3000', // Local development
-    'http://localhost:3001' // Additional local ports
-  ],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, Postman, curl, etc.)
+    if (!origin) return callback(null, true);
+    
+    // In development, allow all origins
+    if (process.env.NODE_ENV !== 'production') {
+      return callback(null, true);
+    }
+    
+    // In production, check against whitelist
+    // Support comma-separated ALLOWED_ORIGINS environment variable
+    const envOrigins = process.env.ALLOWED_ORIGINS 
+      ? process.env.ALLOWED_ORIGINS.split(',')
+          .map(o => o.trim())
+          .filter(o => {
+            // Validate that each origin is a valid URL with http:// or https://
+            try {
+              const url = new URL(o);
+              return url.protocol === 'http:' || url.protocol === 'https:';
+            } catch {
+              return false;
+            }
+          })
+      : [];
+    
+    const allowedOrigins = [
+      'https://menzah-fits-bags.onrender.com',
+      'http://localhost:3000',
+      'http://localhost:3001',
+      'http://127.0.0.1:3000',
+      'http://127.0.0.1:3001',
+      ...envOrigins
+    ];
+    
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 };
 
 // Middleware
@@ -138,13 +427,117 @@ app.use(cors(corsOptions));
 app.use(express.json({ limit: '50mb' })); // Increased limit for base64 media uploads
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
+// ===========================
+// HEALTH CHECK (before static files to ensure it's not overridden)
+// ===========================
+
+// Health check endpoint to verify Cloudinary configuration
+app.get('/health', (req, res) => {
+  const configured = modularCloudinary.isConfigured();
+  
+  // Check if Cloudinary is configured
+  if (!configured) {
+    return res.json({
+      status: 'healthy',
+      cloudinary: 'not configured',
+      environment: process.env.NODE_ENV || 'development',
+      message: 'Server is running. Cloudinary media storage is optional.'
+    });
+  }
+  
+  // If configured, test the connection using the modular instance
+  const cloudinaryInstance = modularCloudinary.getInstance();
+  cloudinaryInstance.api.ping((error, result) => {
+    if (error) {
+      return res.status(500).json({
+        status: 'error',
+        message: 'Cloudinary connection failed',
+        error: error.message,
+        environment: process.env.NODE_ENV || 'development'
+      });
+    }
+    
+    res.json({
+      status: 'healthy',
+      cloudinary: 'connected',
+      environment: process.env.NODE_ENV || 'development'
+    });
+  });
+});
+
 // Serve static files from the root directory (frontend)
 app.use(express.static(path.join(__dirname, '..')));
 
 // Serve admin panel
 app.use('/admin', express.static(path.join(__dirname, '..', 'admin')));
 
-// In-memory data store (replace with database in production)
+// ===========================
+// NEW MODULAR ROUTES
+// ===========================
+
+// Import the new upload routes (only if Cloudinary is configured)
+let uploadRoutes;
+if (modularCloudinary.isConfigured()) {
+  uploadRoutes = require('./routes/uploadRoutes');
+} else {
+  console.warn('Cloudinary not configured - upload routes disabled');
+  console.warn('To enable media uploads, set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET');
+}
+
+// Mount upload routes (requires authentication to be added in the routes)
+// Only mount if Cloudinary is configured
+if (modularCloudinary.isConfigured() && uploadRoutes) {
+  app.use('/api/media', uploadRoutes);
+}
+
+// ===========================
+// DATA PERSISTENCE
+// ===========================
+
+// Data directory for JSON storage
+const DATA_DIR = path.join(__dirname, 'data');
+const COLLECTIONS_FILE = path.join(DATA_DIR, 'collections.json');
+const SALES_FILE = path.join(DATA_DIR, 'sales.json');
+const ANALYTICS_FILE = path.join(DATA_DIR, 'analytics.json');
+const USERS_FILE = path.join(DATA_DIR, 'users.json');
+const STORY_GALLERY_FILE = path.join(DATA_DIR, 'story-gallery.json');
+const SETTINGS_FILE = path.join(DATA_DIR, 'settings.json');
+const RECEIPTS_DIR = path.join(DATA_DIR, 'receipts');
+
+// Ensure data directory exists
+if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+}
+
+// Ensure receipts directory exists
+if (!fs.existsSync(RECEIPTS_DIR)) {
+    fs.mkdirSync(RECEIPTS_DIR, { recursive: true });
+}
+
+// Load data from JSON file
+function loadData(filepath, defaultData) {
+    try {
+        if (fs.existsSync(filepath)) {
+            const data = fs.readFileSync(filepath, 'utf8');
+            return JSON.parse(data);
+        }
+    } catch (error) {
+        console.error(`Error loading data from ${filepath}:`, error);
+    }
+    return defaultData;
+}
+
+// Save data to JSON file
+function saveData(filepath, data) {
+    try {
+        fs.writeFileSync(filepath, JSON.stringify(data, null, 2), 'utf8');
+        return true;
+    } catch (error) {
+        console.error(`Error saving data to ${filepath}:`, error);
+        return false;
+    }
+}
+
 // Helper function to compute total stock from sizeStock
 function computeTotalStock(colors) {
     return colors.reduce((sum, color) => {
@@ -159,7 +552,8 @@ function computeColorStock(sizeStock) {
     return Object.values(sizeStock).reduce((sum, v) => sum + (v || 0), 0);
 }
 
-let collections = [
+// Default collections data
+const defaultCollections = [
     {
         id: '1',
         name: 'Ocean Breeze Maxi',
@@ -270,123 +664,246 @@ let collections = [
     }
 ];
 
-// In-memory stories store (replace with database in production)
-// Stories are like Instagram stories - temporary featured content
-let stories = [
-    {
-        id: 'story-001',
-        title: 'New Collection Launch',
-        mediaUrl: '',
-        mediaType: 'image',
-        caption: 'Check out our latest coastal crochet designs!',
-        link: '',
-        isActive: true,
-        createdAt: new Date().toISOString(),
-        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours from now
-        createdBy: 'admin-001'
-    }
-];
+// Load collections from file or use defaults
+let collections = loadData(COLLECTIONS_FILE, defaultCollections);
 
-// User roles hierarchy: dev_superior > admin > user
-const USER_ROLES = {
-    DEV_SUPERIOR: 'dev_superior',
-    ADMIN: 'admin',
-    USER: 'user'
-};
-
-// Default credentials from environment or fallback (for initial setup only)
-const DEFAULT_DEV_PASSWORD = process.env.DEV_PASSWORD || 'dev@menzah2024';
-const DEFAULT_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin';
-
-// In-memory users store (replace with database in production)
-// Passwords are hashed on server startup
-let users = [
-    {
-        id: 'dev-001',
-        username: 'devsuperior',
-        password: hashPassword(DEFAULT_DEV_PASSWORD),
-        role: USER_ROLES.DEV_SUPERIOR,
-        name: 'Dev Superior',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-    },
-    {
-        id: 'admin-001',
-        username: 'admin',
-        password: hashPassword(DEFAULT_ADMIN_PASSWORD),
-        role: USER_ROLES.ADMIN,
-        name: 'Administrator',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-    }
-];
-
-// Generate secure token with HMAC signature
-function generateToken(user) {
-    const payload = JSON.stringify({
-        id: user.id,
-        username: user.username,
-        role: user.role,
-        exp: Date.now() + 24 * 60 * 60 * 1000 // 24 hours
-    });
-    const signature = crypto.createHmac('sha256', TOKEN_SECRET).update(payload).digest('hex');
-    return Buffer.from(`${payload}.${signature}`).toString('base64');
-}
-
-// Parse and verify token
-function parseToken(token) {
-    try {
-        const decoded = Buffer.from(token, 'base64').toString();
-        const [payload, signature] = decoded.split(/\.(?=[^.]+$)/);
-        
-        // Verify signature
-        const expectedSignature = crypto.createHmac('sha256', TOKEN_SECRET).update(payload).digest('hex');
-        if (signature !== expectedSignature) {
-            return null;
-        }
-        
-        const data = JSON.parse(payload);
-        if (data.exp < Date.now()) {
-            return null;
-        }
-        return data;
-    } catch {
-        return null;
-    }
-}
-
-// Auth middleware
-const authenticateAdmin = (req, res, next) => {
-    const token = req.headers.authorization?.replace('Bearer ', '');
-    const tokenData = parseToken(token);
+// Default users data
+function createDefaultUsers() {
+    const adminPassword = process.env.ADMIN_PASSWORD || 'admin';
+    const devPassword = process.env.DEV_PASSWORD || 'dev@menzah2024';
     
-    if (tokenData) {
-        req.user = tokenData;
-        next();
-    } else {
-        res.status(401).json({ error: 'Unauthorized' });
-    }
+    const adminHash = hashPassword(adminPassword);
+    const devHash = hashPassword(devPassword);
+    
+    return [
+        {
+            id: uuidv4(),
+            username: 'admin',
+            name: 'Admin User',
+            role: 'admin',
+            passwordHash: adminHash.hash,
+            passwordSalt: adminHash.salt,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        },
+        {
+            id: uuidv4(),
+            username: 'devsuperior',
+            name: 'Dev Superior',
+            role: 'dev_superior',
+            passwordHash: devHash.hash,
+            passwordSalt: devHash.salt,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        }
+    ];
+}
+
+// Load or create users
+let users = loadData(USERS_FILE, createDefaultUsers());
+
+// Save users if they were just created (to persist default users)
+if (!fs.existsSync(USERS_FILE)) {
+    saveData(USERS_FILE, users);
+    console.log('✓ Default admin users created');
+    console.log('  - Username: admin, Password:', process.env.ADMIN_PASSWORD || 'admin');
+    console.log('  - Username: devsuperior, Password:', process.env.DEV_PASSWORD || 'dev@menzah2024');
+}
+
+// Default sales data structure
+const defaultSales = [];
+
+// Default analytics data structure
+const defaultAnalytics = {
+    totalRevenue: 0,
+    totalOrders: 0,
+    averageOrderValue: 0,
+    topProducts: [],
+    revenueByCategory: {},
+    salesByMonth: {},
+    customerInsights: {
+        totalCustomers: 0,
+        returningCustomers: 0,
+        newCustomers: 0
+    },
+    lastUpdated: new Date().toISOString()
 };
 
-// Role-based access control middleware
-const requireRole = (...allowedRoles) => {
-    return (req, res, next) => {
-        if (!req.user) {
-            return res.status(401).json({ error: 'Unauthorized' });
-        }
-        
-        // Dev superior has access to everything
-        if (req.user.role === USER_ROLES.DEV_SUPERIOR) {
-            return next();
-        }
-        
-        if (allowedRoles.includes(req.user.role)) {
-            return next();
-        }
-        
-        res.status(403).json({ error: 'Forbidden: Insufficient permissions' });
-    };
+// Load sales and analytics from files
+let sales = loadData(SALES_FILE, defaultSales);
+let analytics = loadData(ANALYTICS_FILE, defaultAnalytics);
+
+// ===========================
+// CURRENCY CONVERSION
+// ===========================
+
+// Supported currencies
+const SUPPORTED_CURRENCIES = ['KES', 'USD', 'EUR', 'GBP', 'JPY', 'CNY', 'INR', 'ZAR'];
+const BASE_CURRENCY = 'KES'; // Kenyan Shilling
+
+// Cache for exchange rates (refresh every 1 hour)
+let exchangeRatesCache = {
+    rates: null,
+    lastFetch: null,
+    ttl: 3600000 // 1 hour in milliseconds
 };
+
+// Fetch current exchange rates from a free API
+async function fetchExchangeRates() {
+    const now = Date.now();
+    
+    // Return cached rates if still valid
+    if (exchangeRatesCache.rates && exchangeRatesCache.lastFetch && 
+        (now - exchangeRatesCache.lastFetch) < exchangeRatesCache.ttl) {
+        return exchangeRatesCache.rates;
+    }
+    
+    try {
+        // Using exchangerate-api.com free tier (1500 requests/month)
+        const response = await fetch(`https://api.exchangerate-api.com/v4/latest/${BASE_CURRENCY}`);
+        
+        if (!response.ok) {
+            throw new Error('Exchange rate API returned error');
+        }
+        
+        const data = await response.json();
+        
+        exchangeRatesCache.rates = data.rates;
+        exchangeRatesCache.lastFetch = now;
+        
+        return data.rates;
+    } catch (error) {
+        console.error('Failed to fetch exchange rates:', error);
+        
+        // Return fallback rates if API fails (Updated: December 2024)
+        const fallbackRates = {
+            KES: 1,
+            USD: 0.0078,
+            EUR: 0.0072,
+            GBP: 0.0062,
+            JPY: 1.16,
+            CNY: 0.056,
+            INR: 0.65,
+            ZAR: 0.14
+        };
+        
+        console.warn('Using fallback exchange rates (last updated: Dec 2024). These may be inaccurate!');
+        return fallbackRates;
+    }
+}
+
+// Convert amount from base currency to target currency
+async function convertCurrency(amount, targetCurrency) {
+    if (targetCurrency === BASE_CURRENCY) {
+        return amount;
+    }
+    
+    const rates = await fetchExchangeRates();
+    const rate = rates[targetCurrency];
+    
+    if (!rate) {
+        throw new Error(`Unsupported currency: ${targetCurrency}`);
+    }
+    
+    return amount * rate;
+}
+
+// Format currency value
+function formatCurrency(amount, currency) {
+    const symbols = {
+        KES: 'KES',
+        USD: '$',
+        EUR: '€',
+        GBP: '£',
+        JPY: '¥',
+        CNY: '¥',
+        INR: '₹',
+        ZAR: 'R'
+    };
+    
+    const decimals = currency === 'JPY' ? 0 : 2;
+    const formatted = amount.toFixed(decimals).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    
+    return `${symbols[currency] || currency} ${formatted}`;
+}
+
+// Recalculate analytics from sales data
+function recalculateAnalytics() {
+    if (sales.length === 0) {
+        analytics = { ...defaultAnalytics, lastUpdated: new Date().toISOString() };
+        return;
+    }
+    
+    // Calculate total revenue and orders
+    const totalRevenue = sales.reduce((sum, sale) => sum + sale.total, 0);
+    const totalOrders = sales.length;
+    const averageOrderValue = totalRevenue / totalOrders;
+    
+    // Calculate revenue by category
+    const revenueByCategory = {};
+    sales.forEach(sale => {
+        sale.items.forEach(item => {
+            const category = item.category || 'uncategorized';
+            revenueByCategory[category] = (revenueByCategory[category] || 0) + item.subtotal;
+        });
+    });
+    
+    // Calculate top products
+    const productSales = {};
+    sales.forEach(sale => {
+        sale.items.forEach(item => {
+            if (!productSales[item.productId]) {
+                productSales[item.productId] = {
+                    productId: item.productId,
+                    name: item.name,
+                    quantity: 0,
+                    revenue: 0
+                };
+            }
+            productSales[item.productId].quantity += item.quantity;
+            productSales[item.productId].revenue += item.subtotal;
+        });
+    });
+    
+    const topProducts = Object.values(productSales)
+        .sort((a, b) => b.revenue - a.revenue)
+        .slice(0, 10);
+    
+    // Calculate sales by month
+    const salesByMonth = {};
+    sales.forEach(sale => {
+        const month = sale.date.substring(0, 7); // YYYY-MM
+        if (!salesByMonth[month]) {
+            salesByMonth[month] = { revenue: 0, orders: 0 };
+        }
+        salesByMonth[month].revenue += sale.total;
+        salesByMonth[month].orders += 1;
+    });
+    
+    // Customer insights (simplified - based on unique customer IDs or emails)
+    const uniqueCustomers = new Set(sales.map(s => s.customerId || s.customerEmail).filter(Boolean));
+    const totalCustomers = uniqueCustomers.size;
+    
+    analytics = {
+        totalRevenue,
+        totalOrders,
+        averageOrderValue,
+        topProducts,
+        revenueByCategory,
+        salesByMonth,
+        customerInsights: {
+            totalCustomers,
+            returningCustomers: 0,
+            newCustomers: totalCustomers
+        },
+        lastUpdated: new Date().toISOString()
+    };
+    
+    saveData(ANALYTICS_FILE, analytics);
+}
+
+// Initialize analytics
+recalculateAnalytics();
 
 // ===========================
 // PUBLIC API ROUTES
@@ -411,8 +928,8 @@ app.get('/api/collections', (req, res) => {
             hex: c.hex, 
             name: c.name, 
             sizeStock: c.sizeStock || {},
-            stock: computeColorStock(c.sizeStock), // total stock for this color (for backward compatibility)
-            media: c.media || [] // include media for frontend display
+            stock: computeColorStock(c.sizeStock),
+            media: c.media || []
         })),
         sizes: item.sizes || [],
         description: item.description,
@@ -439,8 +956,8 @@ app.get('/api/collections/:id', (req, res) => {
             hex: c.hex, 
             name: c.name, 
             sizeStock: c.sizeStock || {},
-            stock: computeColorStock(c.sizeStock), // total stock for this color (for backward compatibility)
-            media: c.media || [] // include media for frontend display
+            stock: computeColorStock(c.sizeStock),
+            media: c.media || []
         })),
         sizes: item.sizes || [],
         description: item.description,
@@ -450,77 +967,105 @@ app.get('/api/collections/:id', (req, res) => {
 });
 
 // ===========================
-// ADMIN API ROUTES
+// AUTHENTICATION API ROUTES
 // ===========================
 
-// Admin login with username and password (rate limited to prevent brute force)
-app.post('/api/admin/login', authRateLimit, (req, res) => {
+// Login endpoint
+app.post('/api/admin/login', (req, res) => {
     const { username, password } = req.body;
     
+    if (!username || !password) {
+        return res.status(400).json({ error: 'Username and password are required' });
+    }
+    
+    // Find user by username
     const user = users.find(u => u.username === username);
     
-    if (user && verifyPassword(password, user.password)) {
-        const token = generateToken(user);
-        res.json({ 
-            success: true, 
-            token,
-            user: {
-                id: user.id,
-                username: user.username,
-                name: user.name,
-                role: user.role
-            }
-        });
-    } else {
-        res.status(401).json({ error: 'Invalid username or password' });
+    if (!user) {
+        return res.status(401).json({ error: 'Invalid username or password' });
     }
+    
+    // Verify password
+    if (!verifyPassword(password, user.passwordHash, user.passwordSalt)) {
+        return res.status(401).json({ error: 'Invalid username or password' });
+    }
+    
+    // Generate token
+    const token = generateToken({
+        id: user.id,
+        username: user.username,
+        role: user.role
+    });
+    
+    // Return user data (without password hash/salt) and token
+    res.json({
+        token,
+        user: {
+            id: user.id,
+            username: user.username,
+            name: user.name,
+            role: user.role
+        }
+    });
 });
 
-// Get current user info
-app.get('/api/admin/me', authenticateAdmin, (req, res) => {
+// Get current user info (protected)
+app.get('/api/admin/me', authenticate, (req, res) => {
     const user = users.find(u => u.id === req.user.id);
+    
     if (!user) {
         return res.status(404).json({ error: 'User not found' });
     }
+    
     res.json({
         id: user.id,
         username: user.username,
         name: user.name,
-        role: user.role
+        role: user.role,
+        createdAt: user.createdAt
     });
 });
 
-// Change password (rate limited to prevent brute force)
-app.post('/api/admin/change-password', authRateLimit, authenticateAdmin, (req, res) => {
+// Change password (protected)
+app.post('/api/admin/change-password', authenticate, (req, res) => {
     const { currentPassword, newPassword } = req.body;
     
+    if (!currentPassword || !newPassword) {
+        return res.status(400).json({ error: 'Current password and new password are required' });
+    }
+    
+    if (newPassword.length < 8) {
+        return res.status(400).json({ error: 'New password must be at least 8 characters' });
+    }
+    
+    // Find user
     const userIndex = users.findIndex(u => u.id === req.user.id);
+    
     if (userIndex === -1) {
         return res.status(404).json({ error: 'User not found' });
     }
     
-    if (!verifyPassword(currentPassword, users[userIndex].password)) {
-        return res.status(400).json({ error: 'Current password is incorrect' });
+    // Verify current password
+    if (!verifyPassword(currentPassword, users[userIndex].passwordHash, users[userIndex].passwordSalt)) {
+        return res.status(401).json({ error: 'Current password is incorrect' });
     }
     
-    if (!newPassword || newPassword.length < 4) {
-        return res.status(400).json({ error: 'New password must be at least 4 characters' });
-    }
+    // Hash new password
+    const { hash, salt } = hashPassword(newPassword);
     
-    users[userIndex].password = hashPassword(newPassword);
+    // Update user password
+    users[userIndex].passwordHash = hash;
+    users[userIndex].passwordSalt = salt;
     users[userIndex].updatedAt = new Date().toISOString();
+    
+    saveData(USERS_FILE, users);
     
     res.json({ success: true, message: 'Password changed successfully' });
 });
 
-// ===========================
-// USER MANAGEMENT API ROUTES (admin and dev_superior only)
-// ===========================
-
-// Get all users (admin and dev_superior)
-app.get('/api/admin/users', authenticateAdmin, requireRole(USER_ROLES.ADMIN, USER_ROLES.DEV_SUPERIOR), (req, res) => {
-    // Filter out passwords and limit what admins can see
-    const filteredUsers = users.map(u => ({
+// Get all users (protected - admin only)
+app.get('/api/admin/users', authenticate, requireAdmin, (req, res) => {
+    const safeUsers = users.map(u => ({
         id: u.id,
         username: u.username,
         name: u.name,
@@ -529,54 +1074,48 @@ app.get('/api/admin/users', authenticateAdmin, requireRole(USER_ROLES.ADMIN, USE
         updatedAt: u.updatedAt
     }));
     
-    // Regular admins can't see dev_superior users
-    if (req.user.role === USER_ROLES.ADMIN) {
-        return res.json(filteredUsers.filter(u => u.role !== USER_ROLES.DEV_SUPERIOR));
-    }
-    
-    res.json(filteredUsers);
+    res.json(safeUsers);
 });
 
-// Create new user (admin can create users, dev_superior can create admins)
-app.post('/api/admin/users', authenticateAdmin, requireRole(USER_ROLES.ADMIN, USER_ROLES.DEV_SUPERIOR), (req, res) => {
+// Create new user (protected - admin only)
+app.post('/api/admin/users', authenticate, requireAdmin, (req, res) => {
     const { username, password, name, role } = req.body;
     
-    if (!username || !password || !name) {
-        return res.status(400).json({ error: 'Username, password, and name are required' });
+    if (!username || !password || !name || !role) {
+        return res.status(400).json({ error: 'Username, password, name, and role are required' });
     }
     
-    // Check if username already exists
-    if (users.some(u => u.username === username)) {
+    if (password.length < 8) {
+        return res.status(400).json({ error: 'Password must be at least 8 characters' });
+    }
+    
+    if (!['admin', 'dev_superior'].includes(role)) {
+        return res.status(400).json({ error: 'Invalid role. Must be admin or dev_superior' });
+    }
+    
+    if (role === 'dev_superior' && req.user.role !== 'dev_superior') {
+        return res.status(403).json({ error: 'Only Dev Superior can create dev_superior users' });
+    }
+    
+    if (users.find(u => u.username === username)) {
         return res.status(400).json({ error: 'Username already exists' });
     }
     
-    // Role validation
-    let assignedRole = role || USER_ROLES.USER;
-    
-    // Only dev_superior can create admin users
-    if (req.user.role === USER_ROLES.ADMIN) {
-        if (assignedRole === USER_ROLES.DEV_SUPERIOR || assignedRole === USER_ROLES.ADMIN) {
-            return res.status(403).json({ error: 'You cannot create admin or dev_superior users' });
-        }
-        assignedRole = USER_ROLES.USER;
-    }
-    
-    // Prevent creating dev_superior users (only one allowed and it's pre-created)
-    if (assignedRole === USER_ROLES.DEV_SUPERIOR) {
-        return res.status(403).json({ error: 'Cannot create dev_superior accounts' });
-    }
+    const { hash, salt } = hashPassword(password);
     
     const newUser = {
         id: uuidv4(),
         username,
-        password: hashPassword(password),
         name,
-        role: assignedRole,
+        role,
+        passwordHash: hash,
+        passwordSalt: salt,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
     };
     
     users.push(newUser);
+    saveData(USERS_FILE, users);
     
     res.status(201).json({
         id: newUser.id,
@@ -587,42 +1126,52 @@ app.post('/api/admin/users', authenticateAdmin, requireRole(USER_ROLES.ADMIN, US
     });
 });
 
-// Update user (limited by role hierarchy)
-app.put('/api/admin/users/:id', authenticateAdmin, requireRole(USER_ROLES.ADMIN, USER_ROLES.DEV_SUPERIOR), (req, res) => {
+// Update user (protected - admin only)
+app.put('/api/admin/users/:id', authenticate, requireAdmin, (req, res) => {
     const { id } = req.params;
-    const { name, password, role } = req.body;
+    const { name, username, password, role } = req.body;
     
     const userIndex = users.findIndex(u => u.id === id);
+    
     if (userIndex === -1) {
         return res.status(404).json({ error: 'User not found' });
     }
     
-    const targetUser = users[userIndex];
-    
-    // Cannot modify dev_superior unless you are dev_superior
-    if (targetUser.role === USER_ROLES.DEV_SUPERIOR && req.user.role !== USER_ROLES.DEV_SUPERIOR) {
-        return res.status(403).json({ error: 'Cannot modify dev_superior user' });
+    if (users[userIndex].role === 'dev_superior' && req.user.role !== 'dev_superior') {
+        return res.status(403).json({ error: 'Only Dev Superior can modify dev_superior users' });
     }
     
-    // Admin cannot modify other admins
-    if (targetUser.role === USER_ROLES.ADMIN && req.user.role === USER_ROLES.ADMIN && targetUser.id !== req.user.id) {
-        return res.status(403).json({ error: 'Cannot modify other admin users' });
-    }
-    
-    // Update fields
     if (name) users[userIndex].name = name;
-    if (password) users[userIndex].password = hashPassword(password);
     
-    // Role changes only by dev_superior
-    if (role && req.user.role === USER_ROLES.DEV_SUPERIOR) {
-        // Still can't assign dev_superior role
-        if (role === USER_ROLES.DEV_SUPERIOR) {
-            return res.status(403).json({ error: 'Cannot assign dev_superior role' });
+    if (username && username !== users[userIndex].username) {
+        if (users.find(u => u.username === username && u.id !== id)) {
+            return res.status(400).json({ error: 'Username already exists' });
+        }
+        users[userIndex].username = username;
+    }
+    
+    if (role) {
+        if (!['admin', 'dev_superior'].includes(role)) {
+            return res.status(400).json({ error: 'Invalid role' });
+        }
+        if (role === 'dev_superior' && req.user.role !== 'dev_superior') {
+            return res.status(403).json({ error: 'Only Dev Superior can assign dev_superior role' });
         }
         users[userIndex].role = role;
     }
     
+    if (password) {
+        if (password.length < 8) {
+            return res.status(400).json({ error: 'Password must be at least 8 characters' });
+        }
+        const { hash, salt } = hashPassword(password);
+        users[userIndex].passwordHash = hash;
+        users[userIndex].passwordSalt = salt;
+    }
+    
     users[userIndex].updatedAt = new Date().toISOString();
+    
+    saveData(USERS_FILE, users);
     
     res.json({
         id: users[userIndex].id,
@@ -633,43 +1182,45 @@ app.put('/api/admin/users/:id', authenticateAdmin, requireRole(USER_ROLES.ADMIN,
     });
 });
 
-// Delete user (with role hierarchy restrictions)
-app.delete('/api/admin/users/:id', authenticateAdmin, requireRole(USER_ROLES.ADMIN, USER_ROLES.DEV_SUPERIOR), (req, res) => {
+// Delete user (protected - admin only)
+app.delete('/api/admin/users/:id', authenticate, requireAdmin, (req, res) => {
     const { id } = req.params;
     
     const userIndex = users.findIndex(u => u.id === id);
+    
     if (userIndex === -1) {
         return res.status(404).json({ error: 'User not found' });
     }
     
-    const targetUser = users[userIndex];
-    
-    // Cannot delete dev_superior
-    if (targetUser.role === USER_ROLES.DEV_SUPERIOR) {
-        return res.status(403).json({ error: 'Cannot delete dev_superior user' });
+    if (users[userIndex].id === req.user.id) {
+        return res.status(400).json({ error: 'Cannot delete your own account' });
     }
     
-    // Cannot delete yourself
-    if (targetUser.id === req.user.id) {
-        return res.status(403).json({ error: 'Cannot delete your own account' });
+    if (users[userIndex].role === 'dev_superior') {
+        return res.status(403).json({ error: 'Cannot delete dev_superior users' });
     }
     
-    // Admin cannot delete other admins
-    if (targetUser.role === USER_ROLES.ADMIN && req.user.role === USER_ROLES.ADMIN) {
-        return res.status(403).json({ error: 'Cannot delete other admin users' });
+    if (users[userIndex].role === 'admin' && req.user.role !== 'dev_superior') {
+        return res.status(403).json({ error: 'Only Dev Superior can delete admin users' });
     }
     
     users.splice(userIndex, 1);
+    saveData(USERS_FILE, users);
+    
     res.json({ success: true, message: 'User deleted successfully' });
 });
 
-// Get all collections with stock info (admin only)
-app.get('/api/admin/collections', authenticateAdmin, (req, res) => {
+// ===========================
+// ADMIN API ROUTES (Authentication required)
+// ===========================
+
+// Get all collections with stock info
+app.get('/api/admin/collections', authenticate, (req, res) => {
     res.json(collections);
 });
 
-// Get single collection with stock (admin only)
-app.get('/api/admin/collections/:id', authenticateAdmin, (req, res) => {
+// Get single collection with stock
+app.get('/api/admin/collections/:id', authenticate, (req, res) => {
     const item = collections.find(c => c.id === req.params.id);
     if (!item) {
         return res.status(404).json({ error: 'Collection not found' });
@@ -678,14 +1229,13 @@ app.get('/api/admin/collections/:id', authenticateAdmin, (req, res) => {
 });
 
 // Create new collection (admin only)
-app.post('/api/admin/collections', authenticateAdmin, (req, res) => {
+app.post('/api/admin/collections', authenticate, requireAdmin, (req, res) => {
     const { name, category, price, colors, sizes, description, badge } = req.body;
     
     if (!name || !category || !price || !colors || !description) {
         return res.status(400).json({ error: 'Missing required fields' });
     }
     
-    // Process colors to ensure they have sizeStock structure and preserve media
     const processedColors = colors.map(c => ({
         hex: c.hex,
         name: c.name,
@@ -711,11 +1261,12 @@ app.post('/api/admin/collections', authenticateAdmin, (req, res) => {
     };
     
     collections.push(newItem);
+    saveData(COLLECTIONS_FILE, collections);
     res.status(201).json(newItem);
 });
 
 // Update collection (admin only)
-app.put('/api/admin/collections/:id', authenticateAdmin, (req, res) => {
+app.put('/api/admin/collections/:id', authenticate, requireAdmin, (req, res) => {
     const index = collections.findIndex(c => c.id === req.params.id);
     if (index === -1) {
         return res.status(404).json({ error: 'Collection not found' });
@@ -724,7 +1275,6 @@ app.put('/api/admin/collections/:id', authenticateAdmin, (req, res) => {
     const { name, category, price, colors, sizes, description, badge } = req.body;
     const existing = collections[index];
     
-    // Process colors to ensure they have sizeStock structure and preserve media
     let updatedColors;
     if (colors) {
         updatedColors = colors.map(c => ({
@@ -753,11 +1303,12 @@ app.put('/api/admin/collections/:id', authenticateAdmin, (req, res) => {
         updatedAt: new Date().toISOString()
     };
     
+    saveData(COLLECTIONS_FILE, collections);
     res.json(collections[index]);
 });
 
 // Update stock for specific color and size (admin only)
-app.patch('/api/admin/collections/:id/stock', authenticateAdmin, (req, res) => {
+app.patch('/api/admin/collections/:id/stock', authenticate, requireAdmin, (req, res) => {
     const index = collections.findIndex(c => c.id === req.params.id);
     if (index === -1) {
         return res.status(404).json({ error: 'Collection not found' });
@@ -778,11 +1329,12 @@ app.patch('/api/admin/collections/:id/stock', authenticateAdmin, (req, res) => {
     collections[index].totalStock = computeTotalStock(collections[index].colors);
     collections[index].updatedAt = new Date().toISOString();
     
+    saveData(COLLECTIONS_FILE, collections);
     res.json(collections[index]);
 });
 
 // Add new color to collection (admin only)
-app.post('/api/admin/collections/:id/colors', authenticateAdmin, (req, res) => {
+app.post('/api/admin/collections/:id/colors', authenticate, requireAdmin, (req, res) => {
     const index = collections.findIndex(c => c.id === req.params.id);
     if (index === -1) {
         return res.status(404).json({ error: 'Collection not found' });
@@ -794,7 +1346,6 @@ app.post('/api/admin/collections/:id/colors', authenticateAdmin, (req, res) => {
         return res.status(400).json({ error: 'hex and name are required' });
     }
     
-    // Check if color already exists
     if (collections[index].colors.some(c => c.hex === hex)) {
         return res.status(400).json({ error: 'Color already exists' });
     }
@@ -803,11 +1354,12 @@ app.post('/api/admin/collections/:id/colors', authenticateAdmin, (req, res) => {
     collections[index].totalStock = computeTotalStock(collections[index].colors);
     collections[index].updatedAt = new Date().toISOString();
     
+    saveData(COLLECTIONS_FILE, collections);
     res.json(collections[index]);
 });
 
 // Remove color from collection (admin only)
-app.delete('/api/admin/collections/:id/colors/:colorHex', authenticateAdmin, (req, res) => {
+app.delete('/api/admin/collections/:id/colors/:colorHex', authenticate, requireAdmin, (req, res) => {
     const index = collections.findIndex(c => c.id === req.params.id);
     if (index === -1) {
         return res.status(404).json({ error: 'Collection not found' });
@@ -818,22 +1370,24 @@ app.delete('/api/admin/collections/:id/colors/:colorHex', authenticateAdmin, (re
     collections[index].totalStock = computeTotalStock(collections[index].colors);
     collections[index].updatedAt = new Date().toISOString();
     
+    saveData(COLLECTIONS_FILE, collections);
     res.json(collections[index]);
 });
 
 // Delete collection (admin only)
-app.delete('/api/admin/collections/:id', authenticateAdmin, (req, res) => {
+app.delete('/api/admin/collections/:id', authenticate, requireAdmin, (req, res) => {
     const index = collections.findIndex(c => c.id === req.params.id);
     if (index === -1) {
         return res.status(404).json({ error: 'Collection not found' });
     }
     
     collections.splice(index, 1);
+    saveData(COLLECTIONS_FILE, collections);
     res.json({ success: true, message: 'Collection deleted' });
 });
 
 // Get inventory summary (admin only)
-app.get('/api/admin/inventory', authenticateAdmin, (req, res) => {
+app.get('/api/admin/inventory', authenticate, (req, res) => {
     const summary = {
         totalProducts: collections.length,
         totalStock: collections.reduce((sum, c) => sum + c.totalStock, 0),
@@ -848,26 +1402,301 @@ app.get('/api/admin/inventory', authenticateAdmin, (req, res) => {
 });
 
 // ===========================
+// ANALYTICS & SALES API ROUTES
+// ===========================
+
+// Get analytics dashboard data
+app.get('/api/admin/analytics', authenticate, async (req, res) => {
+    const { currency = BASE_CURRENCY } = req.query;
+    
+    try {
+        let convertedAnalytics = { ...analytics };
+        
+        if (currency !== BASE_CURRENCY) {
+            const rates = await fetchExchangeRates();
+            const rate = rates[currency];
+            
+            if (rate) {
+                convertedAnalytics.totalRevenue = analytics.totalRevenue * rate;
+                convertedAnalytics.averageOrderValue = analytics.averageOrderValue * rate;
+                
+                convertedAnalytics.topProducts = analytics.topProducts.map(p => ({
+                    ...p,
+                    revenue: p.revenue * rate
+                }));
+                
+                convertedAnalytics.revenueByCategory = {};
+                Object.keys(analytics.revenueByCategory).forEach(category => {
+                    convertedAnalytics.revenueByCategory[category] = analytics.revenueByCategory[category] * rate;
+                });
+                
+                convertedAnalytics.salesByMonth = {};
+                Object.keys(analytics.salesByMonth).forEach(month => {
+                    convertedAnalytics.salesByMonth[month] = {
+                        revenue: analytics.salesByMonth[month].revenue * rate,
+                        orders: analytics.salesByMonth[month].orders
+                    };
+                });
+            }
+        }
+        
+        convertedAnalytics.currency = currency;
+        res.json(convertedAnalytics);
+    } catch (error) {
+        console.error('Analytics error:', error);
+        res.status(500).json({ error: 'Failed to fetch analytics' });
+    }
+});
+
+// Get sales data
+app.get('/api/admin/sales', authenticate, (req, res) => {
+    const { startDate, endDate, limit = 100 } = req.query;
+    
+    let filteredSales = [...sales];
+    
+    if (startDate) {
+        filteredSales = filteredSales.filter(s => s.date >= startDate);
+    }
+    if (endDate) {
+        filteredSales = filteredSales.filter(s => s.date <= endDate);
+    }
+    
+    filteredSales.sort((a, b) => new Date(b.date) - new Date(a.date));
+    filteredSales = filteredSales.slice(0, parseInt(limit, 10));
+    
+    res.json(filteredSales);
+});
+
+// Create new sale
+app.post('/api/admin/sales', authenticate, requireAdmin, (req, res) => {
+    const { items, customerId, customerEmail, customerName, total, currency = BASE_CURRENCY } = req.body;
+    
+    if (!items || !Array.isArray(items) || items.length === 0) {
+        return res.status(400).json({ error: 'Items array is required' });
+    }
+    
+    if (typeof total !== 'number' || total <= 0) {
+        return res.status(400).json({ error: 'Valid total amount is required' });
+    }
+    
+    const newSale = {
+        id: uuidv4(),
+        date: new Date().toISOString(),
+        items,
+        customerId,
+        customerEmail,
+        customerName,
+        total,
+        currency,
+        status: 'completed',
+        createdAt: new Date().toISOString()
+    };
+    
+    sales.push(newSale);
+    saveData(SALES_FILE, sales);
+    recalculateAnalytics();
+    
+    res.status(201).json(newSale);
+});
+
+// Update sale
+app.put('/api/admin/sales/:id', authenticate, requireAdmin, (req, res) => {
+    const { id } = req.params;
+    const updates = req.body;
+    
+    const index = sales.findIndex(s => s.id === id);
+    if (index === -1) {
+        return res.status(404).json({ error: 'Sale not found' });
+    }
+    
+    sales[index] = {
+        ...sales[index],
+        ...updates,
+        updatedAt: new Date().toISOString()
+    };
+    
+    saveData(SALES_FILE, sales);
+    recalculateAnalytics();
+    
+    res.json(sales[index]);
+});
+
+// Delete sale
+app.delete('/api/admin/sales/:id', authenticate, requireAdmin, (req, res) => {
+    const { id } = req.params;
+    
+    const index = sales.findIndex(s => s.id === id);
+    if (index === -1) {
+        return res.status(404).json({ error: 'Sale not found' });
+    }
+    
+    sales.splice(index, 1);
+    saveData(SALES_FILE, sales);
+    recalculateAnalytics();
+    
+    res.json({ success: true, message: 'Sale deleted' });
+});
+
+// Generate and send receipt for an order
+app.post('/api/admin/sales/:id/receipt', authenticate, requireAdmin, async (req, res) => {
+    const { id } = req.params;
+    const { sendEmail } = req.body;
+    
+    try {
+        const order = sales.find(s => s.id === id);
+        if (!order) {
+            return res.status(404).json({ error: 'Order not found' });
+        }
+        
+        const receiptFilename = `receipt-${id}-${Date.now()}.pdf`;
+        const receiptPath = path.join(RECEIPTS_DIR, receiptFilename);
+        
+        await generateReceipt(order, receiptPath);
+        console.log(`✅ Receipt generated: ${receiptFilename}`);
+        
+        let emailSent = false;
+        let emailError = null;
+        
+        if (sendEmail && order.customerEmail) {
+            try {
+                await sendReceiptEmail({
+                    to: order.customerEmail,
+                    customerName: order.customerName,
+                    orderId: id,
+                    pdfPath: receiptPath,
+                    total: order.total || 0
+                });
+                emailSent = true;
+                console.log(`✅ Receipt emailed to ${order.customerEmail}`);
+            } catch (error) {
+                console.error('Email send failed:', error);
+                emailError = error.message;
+            }
+        }
+        
+        res.json({
+            success: true,
+            receiptPath: `/api/admin/receipts/${receiptFilename}`,
+            emailSent,
+            emailError,
+            message: emailSent 
+                ? 'Receipt generated and sent via email'
+                : 'Receipt generated successfully'
+        });
+        
+    } catch (error) {
+        console.error('Receipt generation failed:', error);
+        res.status(500).json({ 
+            error: 'Failed to generate receipt',
+            details: error.message
+        });
+    }
+});
+
+// Download receipt PDF
+app.get('/api/admin/receipts/:filename', authenticate, (req, res) => {
+    const { filename } = req.params;
+    
+    const safeFilename = path.basename(filename);
+    const filePath = path.join(RECEIPTS_DIR, safeFilename);
+    
+    if (!fs.existsSync(filePath)) {
+        return res.status(404).json({ error: 'Receipt not found' });
+    }
+    
+    res.download(filePath, safeFilename, (err) => {
+        if (err) {
+            console.error('Download error:', err);
+            if (!res.headersSent) {
+                res.status(500).json({ error: 'Failed to download receipt' });
+            }
+        }
+    });
+});
+
+// Get exchange rates
+app.get('/api/admin/exchange-rates', authenticate, async (req, res) => {
+    try {
+        const rates = await fetchExchangeRates();
+        res.json({
+            base: BASE_CURRENCY,
+            rates,
+            supportedCurrencies: SUPPORTED_CURRENCIES,
+            lastUpdated: new Date(exchangeRatesCache.lastFetch).toISOString()
+        });
+    } catch (error) {
+        console.error('Exchange rates error:', error);
+        res.status(500).json({ error: 'Failed to fetch exchange rates' });
+    }
+});
+
+// Convert currency value
+app.post('/api/admin/convert-currency', authenticate, async (req, res) => {
+    const { amount, from = BASE_CURRENCY, to } = req.body;
+    
+    if (typeof amount !== 'number') {
+        return res.status(400).json({ error: 'Amount must be a number' });
+    }
+    
+    if (!to) {
+        return res.status(400).json({ error: 'Target currency is required' });
+    }
+    
+    try {
+        const rates = await fetchExchangeRates();
+        
+        let result = amount;
+        let exchangeRate = 1;
+        
+        if (from === BASE_CURRENCY && to === BASE_CURRENCY) {
+            result = amount;
+            exchangeRate = 1;
+        } else if (from === BASE_CURRENCY) {
+            result = amount * rates[to];
+            exchangeRate = rates[to];
+        } else if (to === BASE_CURRENCY) {
+            result = amount / rates[from];
+            exchangeRate = 1 / rates[from];
+        } else {
+            const amountInBase = amount / rates[from];
+            result = amountInBase * rates[to];
+            exchangeRate = rates[to] / rates[from];
+        }
+        
+        res.json({
+            amount,
+            from,
+            to,
+            result,
+            formatted: formatCurrency(result, to),
+            rate: exchangeRate
+        });
+    } catch (error) {
+        console.error('Currency conversion error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ===========================
 // MEDIA UPLOAD API ROUTES
 // ===========================
 
 // Upload media to Cloudinary (admin only)
-app.post('/api/admin/media/upload', authenticateAdmin, async (req, res) => {
-    // Check if Cloudinary is configured
+app.post('/api/admin/media/upload', authenticate, requireAdmin, async (req, res) => {
     if (!isCloudinaryConfigured()) {
         return res.status(503).json({ 
             error: 'Media storage not configured. Please set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET environment variables.',
-            configured: false
+            configured: false,
+            docs: 'See README.md for Cloudinary setup instructions'
         });
     }
     
-    const { data, type, folder, productId, colorIndex } = req.body;
+    const { data, type, folder, productId, colorIndex, filename } = req.body;
     
     if (!data) {
         return res.status(400).json({ error: 'No media data provided' });
     }
     
-    // Validate media type
     const allowedTypes = ['image', 'video'];
     const mediaType = type || 'image';
     if (!allowedTypes.includes(mediaType)) {
@@ -875,45 +1704,126 @@ app.post('/api/admin/media/upload', authenticateAdmin, async (req, res) => {
     }
     
     try {
-        // Upload to Cloudinary
+        const maxSize = mediaType === 'video' ? MEDIA_CONFIG.maxVideoSize : MEDIA_CONFIG.maxImageSize;
+        const sizeValidation = validateFileSize(data, maxSize, mediaType);
+        if (!sizeValidation.valid) {
+            return res.status(400).json({ error: sizeValidation.error });
+        }
+        
+        const allowedFormats = mediaType === 'video' ? MEDIA_CONFIG.allowedVideoFormats : MEDIA_CONFIG.allowedImageFormats;
+        const formatValidation = validateMediaFormat(data, allowedFormats, mediaType);
+        if (!formatValidation.valid) {
+            return res.status(400).json({ error: formatValidation.error });
+        }
+        
+        const uploadFolder = folder || MEDIA_CONFIG.folder;
         const uploadOptions = {
-            folder: folder || 'menzah_fits/products',
+            folder: uploadFolder,
             resource_type: mediaType === 'video' ? 'video' : 'image',
-            transformation: mediaType === 'image' ? [
+            public_id: filename ? sanitizeFilename(filename) : undefined,
+            unique_filename: !filename,
+            overwrite: false,
+            invalidate: true
+        };
+        
+        if (mediaType === 'image') {
+            uploadOptions.transformation = getImageTransformations({
+                quality: MEDIA_CONFIG.imageQuality
+            });
+            
+            if (MEDIA_CONFIG.responsiveImages) {
+                uploadOptions.eager = [
+                    { width: MEDIA_CONFIG.thumbnailSize, crop: 'fill', quality: 'auto', fetch_format: 'auto' },
+                    { width: MEDIA_CONFIG.previewSize, crop: 'limit', quality: 'auto', fetch_format: 'auto' },
+                    { width: MEDIA_CONFIG.fullSize, crop: 'limit', quality: 'auto', fetch_format: 'auto' }
+                ];
+                uploadOptions.eager_async = true;
+            }
+            
+            if (MEDIA_CONFIG.moderation && MEDIA_CONFIG.moderation !== 'false') {
+                uploadOptions.moderation = MEDIA_CONFIG.moderation;
+            }
+        }
+        
+        if (mediaType === 'video') {
+            uploadOptions.transformation = [
                 { quality: 'auto:good' },
                 { fetch_format: 'auto' }
-            ] : undefined
-        };
+            ];
+            uploadOptions.eager = [
+                { format: 'jpg', transformation: [{ quality: 'auto' }] }
+            ];
+            uploadOptions.eager_async = true;
+        }
         
         const result = await cloudinary.uploader.upload(data, uploadOptions);
         
-        // Return the uploaded media info
+        let responsiveUrls = null;
+        if (mediaType === 'image' && MEDIA_CONFIG.responsiveImages) {
+            responsiveUrls = generateResponsiveUrls(result.public_id, result.secure_url);
+        }
+        
+        const mediaResponse = {
+            id: result.public_id,
+            url: result.secure_url,
+            type: mediaType,
+            format: result.format,
+            width: result.width,
+            height: result.height,
+            bytes: result.bytes,
+            size: `${(result.bytes / 1024).toFixed(1)} KB`,
+            createdAt: result.created_at,
+            folder: uploadFolder
+        };
+        
+        if (responsiveUrls) {
+            mediaResponse.responsive = responsiveUrls;
+        }
+        
+        if (result.eager && result.eager.length > 0) {
+            mediaResponse.eager = result.eager.map(e => ({
+                url: e.secure_url,
+                width: e.width,
+                height: e.height,
+                format: e.format
+            }));
+        }
+        
+        if (result.moderation && result.moderation.length > 0) {
+            mediaResponse.moderation = result.moderation;
+        }
+        
         res.status(201).json({
             success: true,
-            media: {
-                id: result.public_id,
-                url: result.secure_url,
-                type: mediaType,
-                width: result.width,
-                height: result.height,
-                format: result.format,
-                bytes: result.bytes,
-                createdAt: result.created_at
-            },
+            media: mediaResponse,
             productId,
-            colorIndex
+            colorIndex,
+            message: `${mediaType.charAt(0).toUpperCase() + mediaType.slice(1)} uploaded successfully`
         });
     } catch (error) {
         console.error('Cloudinary upload error:', error);
-        res.status(500).json({ 
-            error: 'Failed to upload media',
-            details: error.message 
+        
+        let errorMessage = 'Failed to upload media';
+        let errorDetails = error.message;
+        
+        if (error.http_code === 401) {
+            errorMessage = 'Cloudinary authentication failed. Please check your API credentials.';
+        } else if (error.http_code === 400) {
+            errorMessage = 'Invalid upload request. Please check the media data format.';
+        } else if (error.http_code === 420) {
+            errorMessage = 'Rate limit exceeded. Please try again later.';
+        }
+        
+        res.status(error.http_code || 500).json({ 
+            success: false,
+            error: errorMessage,
+            details: errorDetails 
         });
     }
 });
 
 // Delete media from Cloudinary (admin only)
-app.delete('/api/admin/media/:publicId', authenticateAdmin, async (req, res) => {
+app.delete('/api/admin/media/:publicId', authenticate, requireAdmin, async (req, res) => {
     if (!isCloudinaryConfigured()) {
         return res.status(503).json({ 
             error: 'Media storage not configured',
@@ -929,7 +1839,6 @@ app.delete('/api/admin/media/:publicId', authenticateAdmin, async (req, res) => 
     }
     
     try {
-        // Delete from Cloudinary - handle nested public IDs
         const fullPublicId = decodeURIComponent(publicId);
         const result = await cloudinary.uploader.destroy(fullPublicId, {
             resource_type: resourceType || 'image'
@@ -943,6 +1852,7 @@ app.delete('/api/admin/media/:publicId', authenticateAdmin, async (req, res) => 
     } catch (error) {
         console.error('Cloudinary delete error:', error);
         res.status(500).json({ 
+            success: false,
             error: 'Failed to delete media',
             details: error.message 
         });
@@ -950,16 +1860,48 @@ app.delete('/api/admin/media/:publicId', authenticateAdmin, async (req, res) => 
 });
 
 // Check Cloudinary configuration status (admin only)
-app.get('/api/admin/media/status', authenticateAdmin, (req, res) => {
+app.get('/api/admin/media/status', authenticate, (req, res) => {
+    const configured = isCloudinaryConfigured();
+    
     res.json({
-        configured: isCloudinaryConfigured(),
+        configured,
         cloudName: process.env.CLOUDINARY_CLOUD_NAME ? 
-            process.env.CLOUDINARY_CLOUD_NAME.substring(0, 3) + '***' : null
+            process.env.CLOUDINARY_CLOUD_NAME.substring(0, 3) + '***' : null,
+        config: {
+            maxImageSizeMB: MEDIA_CONFIG.maxImageSize / (1024 * 1024),
+            maxVideoSizeMB: MEDIA_CONFIG.maxVideoSize / (1024 * 1024),
+            allowedImageFormats: MEDIA_CONFIG.allowedImageFormats,
+            allowedVideoFormats: MEDIA_CONFIG.allowedVideoFormats,
+            imageQuality: MEDIA_CONFIG.imageQuality,
+            autoFormatConversion: MEDIA_CONFIG.autoFormat,
+            responsiveImages: MEDIA_CONFIG.responsiveImages,
+            responsiveSizes: MEDIA_CONFIG.responsiveSizes,
+            folder: MEDIA_CONFIG.folder,
+            moderation: !!MEDIA_CONFIG.moderation,
+            features: {
+                thumbnails: true,
+                preview: true,
+                fullSize: true,
+                webpConversion: MEDIA_CONFIG.autoFormat,
+                lazyLoading: MEDIA_CONFIG.responsiveImages,
+                cdnDelivery: configured
+            }
+        },
+        setupInstructions: configured ? null : {
+            message: 'Cloudinary is not configured. Follow these steps:',
+            steps: [
+                '1. Sign up at https://cloudinary.com/',
+                '2. Get your Cloud Name, API Key, and API Secret from the dashboard',
+                '3. Set environment variables: CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET',
+                '4. Restart the server',
+                '5. See README.md for detailed instructions'
+            ]
+        }
     });
 });
 
 // Add media to a product color (admin only)
-app.post('/api/admin/collections/:id/colors/:colorIndex/media', authenticateAdmin, async (req, res) => {
+app.post('/api/admin/collections/:id/colors/:colorIndex/media', authenticate, requireAdmin, async (req, res) => {
     const index = collections.findIndex(c => c.id === req.params.id);
     if (index === -1) {
         return res.status(404).json({ error: 'Collection not found' });
@@ -975,12 +1917,10 @@ app.post('/api/admin/collections/:id/colors/:colorIndex/media', authenticateAdmi
         return res.status(400).json({ error: 'Media object with url and type is required' });
     }
     
-    // Initialize media array if it doesn't exist
     if (!collections[index].colors[colorIndex].media) {
         collections[index].colors[colorIndex].media = [];
     }
     
-    // Add the media to the color
     const newMedia = {
         id: media.id || uuidv4(),
         url: media.url,
@@ -991,6 +1931,7 @@ app.post('/api/admin/collections/:id/colors/:colorIndex/media', authenticateAdmi
     collections[index].colors[colorIndex].media.push(newMedia);
     collections[index].updatedAt = new Date().toISOString();
     
+    saveData(COLLECTIONS_FILE, collections);
     res.status(201).json({
         success: true,
         collection: collections[index],
@@ -999,7 +1940,7 @@ app.post('/api/admin/collections/:id/colors/:colorIndex/media', authenticateAdmi
 });
 
 // Remove media from a product color (admin only)
-app.delete('/api/admin/collections/:id/colors/:colorIndex/media/:mediaId', authenticateAdmin, (req, res) => {
+app.delete('/api/admin/collections/:id/colors/:colorIndex/media/:mediaId', authenticate, requireAdmin, (req, res) => {
     const index = collections.findIndex(c => c.id === req.params.id);
     if (index === -1) {
         return res.status(404).json({ error: 'Collection not found' });
@@ -1021,10 +1962,10 @@ app.delete('/api/admin/collections/:id/colors/:colorIndex/media/:mediaId', authe
         return res.status(404).json({ error: 'Media not found' });
     }
     
-    // Remove the media
     const removedMedia = color.media.splice(mediaIndex, 1)[0];
     collections[index].updatedAt = new Date().toISOString();
     
+    saveData(COLLECTIONS_FILE, collections);
     res.json({
         success: true,
         collection: collections[index],
@@ -1033,162 +1974,309 @@ app.delete('/api/admin/collections/:id/colors/:colorIndex/media/:mediaId', authe
 });
 
 // ===========================
-// STORIES API ROUTES
+// OUR STORY GALLERY API ROUTES
 // ===========================
 
-// Get all stories (public - for frontend display)
-app.get('/api/stories', (req, res) => {
-    // Filter to only active and non-expired stories for public view
-    const now = new Date();
-    const activeStories = stories.filter(s => s.isActive && new Date(s.expiresAt) > now);
-    res.json(activeStories);
+// Story gallery constants
+const STORY_GALLERY_CATEGORIES = ['designs', 'artisan', 'clients', 'summer', 'custom', 'team'];
+const DEFAULT_STORY_GALLERY = {
+    designs: [],
+    artisan: [],
+    clients: [],
+    summer: [],
+    custom: [],
+    team: []
+};
+
+// Get Our Story gallery (public endpoint)
+app.get('/api/story-gallery', (req, res) => {
+    const gallery = loadData(STORY_GALLERY_FILE, DEFAULT_STORY_GALLERY);
+    res.json(gallery);
 });
 
-// Get all stories including inactive (admin only)
-app.get('/api/admin/stories', authenticateAdmin, (req, res) => {
-    res.json(stories);
+// Update Our Story gallery (admin only)
+app.post('/api/admin/story-gallery', authenticate, requireAdmin, (req, res) => {
+    const { category, photos } = req.body;
+    
+    if (!category || !STORY_GALLERY_CATEGORIES.includes(category)) {
+        return res.status(400).json({ 
+            error: 'Invalid category. Must be one of: ' + STORY_GALLERY_CATEGORIES.join(', ')
+        });
+    }
+    
+    if (!Array.isArray(photos)) {
+        return res.status(400).json({ error: 'Photos must be an array' });
+    }
+    
+    const gallery = loadData(STORY_GALLERY_FILE, DEFAULT_STORY_GALLERY);
+    gallery[category] = photos;
+    
+    if (!saveData(STORY_GALLERY_FILE, gallery)) {
+        return res.status(500).json({ error: 'Failed to save story gallery' });
+    }
+    
+    res.json({ 
+        success: true, 
+        gallery,
+        message: `Updated ${category} gallery with ${photos.length} photos`
+    });
 });
 
-// Get single story (admin only)
-app.get('/api/admin/stories/:id', authenticateAdmin, (req, res) => {
-    const story = stories.find(s => s.id === req.params.id);
-    if (!story) {
-        return res.status(404).json({ error: 'Story not found' });
+// Add photo to a category (admin only)
+app.post('/api/admin/story-gallery/:category/photos', authenticate, requireAdmin, (req, res) => {
+    const { category } = req.params;
+    const { photo } = req.body;
+    
+    if (!STORY_GALLERY_CATEGORIES.includes(category)) {
+        return res.status(400).json({ 
+            error: 'Invalid category. Must be one of: ' + STORY_GALLERY_CATEGORIES.join(', ')
+        });
     }
-    res.json(story);
+    
+    if (!photo || typeof photo !== 'object') {
+        return res.status(400).json({ error: 'Photo object is required' });
+    }
+    
+    if (!photo.id || !photo.url) {
+        return res.status(400).json({ error: 'Photo must have id and url' });
+    }
+    
+    const gallery = loadData(STORY_GALLERY_FILE, DEFAULT_STORY_GALLERY);
+    
+    if (!gallery[category]) {
+        gallery[category] = [];
+    }
+    gallery[category].push(photo);
+    
+    if (!saveData(STORY_GALLERY_FILE, gallery)) {
+        return res.status(500).json({ error: 'Failed to save story gallery' });
+    }
+    
+    res.json({ 
+        success: true, 
+        photo,
+        category,
+        total: gallery[category].length
+    });
 });
 
-// Create new story (admin only)
-app.post('/api/admin/stories', authenticateAdmin, async (req, res) => {
-    const { title, mediaData, mediaType, caption, link, expiresIn } = req.body;
+// Delete photo from a category (admin only)
+app.delete('/api/admin/story-gallery/:category/photos/:photoId', authenticate, requireAdmin, (req, res) => {
+    const { category, photoId } = req.params;
     
-    if (!title) {
-        return res.status(400).json({ error: 'Title is required' });
+    if (!STORY_GALLERY_CATEGORIES.includes(category)) {
+        return res.status(400).json({ 
+            error: 'Invalid category. Must be one of: ' + STORY_GALLERY_CATEGORIES.join(', ')
+        });
     }
     
-    // Calculate expiration (default 24 hours)
-    const expirationHours = expiresIn || 24;
-    const expiresAt = new Date(Date.now() + expirationHours * 60 * 60 * 1000).toISOString();
+    const gallery = loadData(STORY_GALLERY_FILE, DEFAULT_STORY_GALLERY);
     
-    let mediaUrl = '';
-    
-    // If media data is provided, upload to Cloudinary
-    if (mediaData && isCloudinaryConfigured()) {
-        try {
-            const uploadOptions = {
-                folder: 'menzah_fits/stories',
-                resource_type: mediaType === 'video' ? 'video' : 'image',
-                transformation: mediaType === 'image' ? [
-                    { quality: 'auto:good' },
-                    { fetch_format: 'auto' }
-                ] : undefined
-            };
-            
-            const result = await cloudinary.uploader.upload(mediaData, uploadOptions);
-            mediaUrl = result.secure_url;
-        } catch (error) {
-            console.error('Story media upload error:', error);
-            return res.status(500).json({ error: 'Failed to upload media', details: error.message });
-        }
-    } else if (mediaData) {
-        // Store base64 data directly if Cloudinary not configured (not recommended for production)
-        mediaUrl = mediaData;
+    if (!gallery[category]) {
+        return res.status(404).json({ error: 'Category not found' });
     }
     
-    const newStory = {
-        id: uuidv4(),
-        title,
-        mediaUrl,
-        mediaType: mediaType || 'image',
-        caption: caption || '',
-        link: link || '',
-        isActive: true,
-        createdAt: new Date().toISOString(),
-        expiresAt,
-        createdBy: req.user.id
+    const photoIndex = gallery[category].findIndex(p => p.id === photoId);
+    if (photoIndex === -1) {
+        return res.status(404).json({ error: 'Photo not found in category' });
+    }
+    
+    const removedPhoto = gallery[category].splice(photoIndex, 1)[0];
+    
+    if (!saveData(STORY_GALLERY_FILE, gallery)) {
+        return res.status(500).json({ error: 'Failed to save story gallery' });
+    }
+    
+    res.json({ 
+        success: true, 
+        removedPhoto,
+        category,
+        remaining: gallery[category].length
+    });
+});
+
+// ===========================
+// SETTINGS API ROUTES (Categories & Badges)
+// ===========================
+
+// Get settings (public endpoint for categories and badges)
+app.get('/api/settings', (req, res) => {
+    const defaultSettings = {
+        categories: [
+            { id: 'dresses', name: 'Dresses', icon: '👗' },
+            { id: 'tops', name: 'Tops', icon: '👚' },
+            { id: 'skirts', name: 'Skirts', icon: '👗' },
+            { id: 'sets', name: 'Sets', icon: '👕' }
+        ],
+        badges: [
+            { id: 'bestseller', name: 'Bestseller', color: '#FF6B35', textColor: '#FFFFFF' },
+            { id: 'new', name: 'New', color: '#4FA3C7', textColor: '#FFFFFF' },
+            { id: 'limited', name: 'Limited', color: '#E87461', textColor: '#FFFFFF' },
+            { id: 'featured', name: 'Featured', color: '#FFB347', textColor: '#000000' }
+        ]
     };
     
-    stories.unshift(newStory); // Add to beginning of array
-    res.status(201).json(newStory);
+    const settings = loadData(SETTINGS_FILE, defaultSettings);
+    res.json(settings);
 });
 
-// Update story (admin only)
-app.put('/api/admin/stories/:id', authenticateAdmin, async (req, res) => {
-    const index = stories.findIndex(s => s.id === req.params.id);
-    if (index === -1) {
-        return res.status(404).json({ error: 'Story not found' });
-    }
+// Update settings (admin only)
+app.post('/api/admin/settings', authenticate, requireAdmin, (req, res) => {
+    const { categories, badges } = req.body;
     
-    const { title, mediaData, mediaType, caption, link, isActive, expiresIn } = req.body;
-    const existing = stories[index];
+    const settings = loadData(SETTINGS_FILE, {
+        categories: [],
+        badges: []
+    });
     
-    let mediaUrl = existing.mediaUrl;
-    
-    // If new media data is provided, upload to Cloudinary
-    if (mediaData && mediaData !== existing.mediaUrl && isCloudinaryConfigured()) {
-        try {
-            const uploadOptions = {
-                folder: 'menzah_fits/stories',
-                resource_type: (mediaType || existing.mediaType) === 'video' ? 'video' : 'image',
-                transformation: (mediaType || existing.mediaType) === 'image' ? [
-                    { quality: 'auto:good' },
-                    { fetch_format: 'auto' }
-                ] : undefined
-            };
-            
-            const result = await cloudinary.uploader.upload(mediaData, uploadOptions);
-            mediaUrl = result.secure_url;
-        } catch (error) {
-            console.error('Story media upload error:', error);
-            return res.status(500).json({ error: 'Failed to upload media', details: error.message });
+    if (categories && Array.isArray(categories)) {
+        for (const cat of categories) {
+            if (!cat.id || !cat.name) {
+                return res.status(400).json({ error: 'Each category must have id and name' });
+            }
         }
-    } else if (mediaData && mediaData !== existing.mediaUrl) {
-        mediaUrl = mediaData;
+        settings.categories = categories;
     }
     
-    // Calculate new expiration if provided
-    let expiresAt = existing.expiresAt;
-    if (expiresIn) {
-        expiresAt = new Date(Date.now() + expiresIn * 60 * 60 * 1000).toISOString();
+    if (badges && Array.isArray(badges)) {
+        for (const badge of badges) {
+            if (!badge.id || !badge.name) {
+                return res.status(400).json({ error: 'Each badge must have id and name' });
+            }
+        }
+        settings.badges = badges;
     }
     
-    stories[index] = {
-        ...existing,
-        title: title || existing.title,
-        mediaUrl,
-        mediaType: mediaType || existing.mediaType,
-        caption: caption !== undefined ? caption : existing.caption,
-        link: link !== undefined ? link : existing.link,
-        isActive: isActive !== undefined ? isActive : existing.isActive,
-        expiresAt,
-        updatedAt: new Date().toISOString()
+    if (!saveData(SETTINGS_FILE, settings)) {
+        return res.status(500).json({ error: 'Failed to save settings' });
+    }
+    
+    res.json({ 
+        success: true, 
+        settings,
+        message: 'Settings updated successfully'
+    });
+});
+
+// Add new category (admin only)
+app.post('/api/admin/settings/categories', authenticate, requireAdmin, (req, res) => {
+    const { id, name, icon } = req.body;
+    
+    if (!id || !name) {
+        return res.status(400).json({ error: 'Category id and name are required' });
+    }
+    
+    const settings = loadData(SETTINGS_FILE, {
+        categories: [],
+        badges: []
+    });
+    
+    if (settings.categories.find(c => c.id === id)) {
+        return res.status(400).json({ error: 'Category with this id already exists' });
+    }
+    
+    const newCategory = { id, name, icon: icon || '📦' };
+    settings.categories.push(newCategory);
+    
+    if (!saveData(SETTINGS_FILE, settings)) {
+        return res.status(500).json({ error: 'Failed to save settings' });
+    }
+    
+    res.json({ 
+        success: true, 
+        category: newCategory,
+        categories: settings.categories
+    });
+});
+
+// Delete category (admin only)
+app.delete('/api/admin/settings/categories/:id', authenticate, requireAdmin, (req, res) => {
+    const { id } = req.params;
+    
+    const settings = loadData(SETTINGS_FILE, {
+        categories: [],
+        badges: []
+    });
+    
+    const categoryIndex = settings.categories.findIndex(c => c.id === id);
+    if (categoryIndex === -1) {
+        return res.status(404).json({ error: 'Category not found' });
+    }
+    
+    const removedCategory = settings.categories.splice(categoryIndex, 1)[0];
+    
+    if (!saveData(SETTINGS_FILE, settings)) {
+        return res.status(500).json({ error: 'Failed to save settings' });
+    }
+    
+    res.json({ 
+        success: true, 
+        removedCategory,
+        categories: settings.categories
+    });
+});
+
+// Add new badge (admin only)
+app.post('/api/admin/settings/badges', authenticate, requireAdmin, (req, res) => {
+    const { id, name, color, textColor } = req.body;
+    
+    if (!id || !name) {
+        return res.status(400).json({ error: 'Badge id and name are required' });
+    }
+    
+    const settings = loadData(SETTINGS_FILE, {
+        categories: [],
+        badges: []
+    });
+    
+    if (settings.badges.find(b => b.id === id)) {
+        return res.status(400).json({ error: 'Badge with this id already exists' });
+    }
+    
+    const newBadge = { 
+        id, 
+        name, 
+        color: color || '#FF6B35', 
+        textColor: textColor || '#FFFFFF' 
     };
+    settings.badges.push(newBadge);
     
-    res.json(stories[index]);
-});
-
-// Delete story (admin only)
-app.delete('/api/admin/stories/:id', authenticateAdmin, (req, res) => {
-    const index = stories.findIndex(s => s.id === req.params.id);
-    if (index === -1) {
-        return res.status(404).json({ error: 'Story not found' });
+    if (!saveData(SETTINGS_FILE, settings)) {
+        return res.status(500).json({ error: 'Failed to save settings' });
     }
     
-    stories.splice(index, 1);
-    res.json({ success: true, message: 'Story deleted successfully' });
+    res.json({ 
+        success: true, 
+        badge: newBadge,
+        badges: settings.badges
+    });
 });
 
-// Toggle story active status (admin only)
-app.patch('/api/admin/stories/:id/toggle', authenticateAdmin, (req, res) => {
-    const index = stories.findIndex(s => s.id === req.params.id);
-    if (index === -1) {
-        return res.status(404).json({ error: 'Story not found' });
+// Delete badge (admin only)
+app.delete('/api/admin/settings/badges/:id', authenticate, requireAdmin, (req, res) => {
+    const { id } = req.params;
+    
+    const settings = loadData(SETTINGS_FILE, {
+        categories: [],
+        badges: []
+    });
+    
+    const badgeIndex = settings.badges.findIndex(b => b.id === id);
+    if (badgeIndex === -1) {
+        return res.status(404).json({ error: 'Badge not found' });
     }
     
-    stories[index].isActive = !stories[index].isActive;
-    stories[index].updatedAt = new Date().toISOString();
+    const removedBadge = settings.badges.splice(badgeIndex, 1)[0];
     
-    res.json(stories[index]);
+    if (!saveData(SETTINGS_FILE, settings)) {
+        return res.status(500).json({ error: 'Failed to save settings' });
+    }
+    
+    res.json({ 
+        success: true, 
+        removedBadge,
+        badges: settings.badges
+    });
 });
 
 // Catch-all route - serve index.html for SPA routing (Express 5 syntax)
