@@ -28,8 +28,11 @@ const storage = multer.diskStorage({
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
     // Sanitize filename: allow alphanumeric, dots, underscores, hyphens
-    // Note: Multiple dots or leading dots are allowed here but handled by Cloudinary upload
-    const sanitizedName = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
+    // Replace consecutive dots with single underscore to prevent path traversal
+    const sanitizedName = file.originalname
+      .replace(/[^a-zA-Z0-9._-]/g, '_')
+      .replace(/\.{2,}/g, '_')
+      .replace(/^\.+/, '');
     cb(null, `${uniqueSuffix}-${sanitizedName}`);
   }
 });

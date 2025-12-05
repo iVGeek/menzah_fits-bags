@@ -1600,17 +1600,20 @@ app.get('/api/admin/receipts/:filename', authenticate, (req, res) => {
     const safeFilename = path.basename(filename);
     const filePath = path.join(RECEIPTS_DIR, safeFilename);
     
-    if (!fs.existsSync(filePath)) {
-        return res.status(404).json({ error: 'Receipt not found' });
-    }
-    
-    res.download(filePath, safeFilename, (err) => {
-        if (err) {
-            console.error('Download error:', err);
-            if (!res.headersSent) {
-                res.status(500).json({ error: 'Failed to download receipt' });
-            }
+    // Use fs.access for better race condition handling
+    fs.access(filePath, fs.constants.R_OK, (accessErr) => {
+        if (accessErr) {
+            return res.status(404).json({ error: 'Receipt not found' });
         }
+        
+        res.download(filePath, safeFilename, (err) => {
+            if (err) {
+                console.error('Download error:', err);
+                if (!res.headersSent) {
+                    res.status(500).json({ error: 'Failed to download receipt' });
+                }
+            }
+        });
     });
 });
 
